@@ -1,0 +1,25 @@
+[2025-11-13 11:17:25] [INFO] ========================================
+[2025-11-13 11:17:25] [START] INICIO - Sincronización de configuración
+[2025-11-13 11:17:25] [INFO] Obteniendo configuración desde la Nube...
+[2025-11-13 11:17:26] [ERROR] ERROR: Error HTTP 404 al obtener config de la Nube
+[2025-11-13 11:17:26] [END] FIN - Sincronización con errores
+[2025-11-13 11:17:26] [INFO] ========================================
+[2025-11-13 11:17:54] [INFO] ========================================
+[2025-11-13 11:17:54] [START] INICIO - Sincronización de configuración
+[2025-11-13 11:17:54] [INFO] Obteniendo configuración desde la Nube...
+[2025-11-13 11:17:54] [ERROR] ERROR: Error HTTP 404 al obtener config de la Nube
+[2025-11-13 11:17:54] [END] FIN - Sincronización con errores
+[2025-11-13 11:17:54] [INFO] ========================================
+[2025-11-13 11:20:06] [INFO] ========================================
+[2025-11-13 11:20:06] [START] INICIO - Sincronización de configuración
+[2025-11-13 11:20:06] [INFO] Obteniendo configuración desde la Nube...
+[2025-11-13 11:20:06] [INFO] ✓ Configuración obtenida de la Nube
+[2025-11-13 11:20:06] [INFO]   - Auto apertura: SÍ
+[2025-11-13 11:20:06] [INFO]   - Horas para cierre: 1h
+[2025-11-13 11:20:06] [INFO]   - Corte automático: HABILITADO
+[2025-11-13 11:20:06] [INFO]   - Hora corte: 14:50:00
+[2025-11-13 11:20:06] [INFO]   - Monto inicial: $100
+[2025-11-13 11:20:06] [INFO] Aplicando configuración en BD local...
+[2025-11-13 11:20:06] [SUCCESS] ✓ Configuración sincronizada correctamente
+[2025-11-13 11:20:06] [END] FIN - Sincronización completada
+[2025-11-13 11:20:06] [INFO] ========================================

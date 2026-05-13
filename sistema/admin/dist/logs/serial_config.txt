@@ -1,0 +1,4 @@
+{
+    "ComPort":  "COM5",
+    "BaudRate":  9600
+}

@@ -1,0 +1,884 @@
+/* =====================================================================
+   �0�6 VENDINGBOX - SHOP STYLES COMPLETO
+   Fuentes modernas + Header + Carruseles
+   ===================================================================== */
+
+/* ========================================
+   FUENTES MODERNAS E-COMMERCE
+   Se cargan desde el HTML con font-display: swap
+   ======================================== */
+
+/* Aplicar fuentes modernas */
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.product-title,
+.category-title,
+.service-title,
+.featured-header h2 {
+    font-family: 'Outfit', 'Poppins', sans-serif !important;
+}
+
+.product-price,
+.add-to-cart,
+.service-btn {
+    font-family: 'Outfit', sans-serif !important;
+}
+
+/* ========================================
+   HEADER / BARRA SUPERIOR PREMIUM
+   ======================================== */
+.middle-inner {
+    background: linear-gradient(135deg, #F6DA01 0%, #ffe44d 100%) !important;
+    border-bottom: none !important;
+    padding: 0 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    position: relative !important;
+    z-index: 100 !important;
+}
+
+.header-container {
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    padding: 0 2rem !important;
+}
+
+.header-container .row {
+    margin: 0 !important;
+}
+
+.header-container .col-12 {
+    padding: 0 !important;
+}
+
+.header-container .d-flex {
+    padding: 0.8rem 0 !important;
+    align-items: center !important;
+}
+
+/* Logo moderno */
+.logo {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.logo a {
+    display: block !important;
+    transition: transform 0.3s ease !important;
+    text-decoration: none !important;
+}
+
+.logo a:hover {
+    transform: scale(1.05) !important;
+}
+
+.logo-text {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 2.2rem !important;
+    font-weight: 900 !important;
+    color: #0a0a0a !important;
+    letter-spacing: -1px !important;
+    text-shadow: 2px 3px 8px rgba(0, 0, 0, 0.12) !important;
+    transition: all 0.3s ease !important;
+    display: inline-block !important;
+}
+
+.logo a:hover .logo-text {
+    color: #1a1a1a !important;
+    text-shadow: 3px 4px 12px rgba(0, 0, 0, 0.18),
+                 0 0 20px rgba(246, 218, 1, 0.4) !important;
+}
+
+.logo img {
+    height: 55px !important;
+    width: auto !important;
+    filter: drop-shadow(2px 3px 8px rgba(0, 0, 0, 0.12)) !important;
+}
+
+/* ========================================
+   CARRUSELES - ESTILO MODERNO
+   ======================================== */
+.featured-products-section {
+    width: 100%;
+    background: linear-gradient(135deg, #F6DA01 0%, #ffe44d 100%);
+    padding: 80px 20px;
+    margin-bottom: 0;
+    position: relative;
+}
+
+/* Header de secci��n */
+.featured-header {
+    text-align: center;
+    margin-bottom: 60px;
+    position: relative;
+}
+
+.featured-header h2 {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 900;
+    color: #0a0a0a;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    position: relative;
+    display: inline-block;
+    padding: 0;
+}
+
+/* Wrapper del carrusel */
+.featured-products-carousel-wrapper {
+    position: relative;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 80px;
+}
+
+/* Grid del carrusel */
+.featured-products-grid {
+    overflow: hidden;
+    width: 100%;
+}
+
+.featured-products-carousel {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 30px;
+    padding: 20px 0;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+/* ========================================
+   FLECHAS MINIMALISTAS - SOLO ICONOS
+   ======================================== */
+.featured-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent !important;
+    color: #0a0a0a;
+    border: none;
+    width: 50px;
+    height: 50px;
+    font-size: 2.5rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+}
+
+.featured-carousel-btn:hover {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.2);
+    color: #0a0a0a;
+}
+
+.featured-carousel-btn.prev { left: 10px; }
+.featured-carousel-btn.next { right: 10px; }
+
+/* Dots minimalistas */
+.featured-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 40px;
+}
+
+.featured-carousel-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.featured-carousel-dot:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.featured-carousel-dot.active {
+    background: #0a0a0a;
+    width: 40px;
+    border-radius: 6px;
+}
+
+/* ========================================
+   TARJETAS DE PRODUCTOS
+   ======================================== */
+.featured-product-card,
+.product-card {
+    background: white !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    cursor: pointer !important;
+    width: 340px !important;
+    flex-shrink: 0 !important;
+    transform: perspective(1000px) rotateY(0deg) !important;
+}
+
+.featured-product-card:hover,
+.product-card:hover {
+    transform: perspective(1000px) rotateY(-5deg) translateY(-20px);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
+}
+
+/* Badge */
+.featured-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #0a0a0a;
+    color: #F6DA01;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Imagen del producto */
+.product-img-wrapper {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-bottom: 3px solid #f5f5f5;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+    color: #999;
+    font-size: 3rem;
+}
+
+.category-card .no-image-placeholder,
+.subcategory-card .no-image-placeholder {
+    background: linear-gradient(135deg, #F6DA01, #ffe44d);
+    color: #0a0a0a;
+}
+
+.service-card .no-image-placeholder {
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    color: #F6DA01;
+}
+
+.featured-product-card:hover .product-img,
+.product-card:hover .product-img {
+    transform: scale(1.1);
+}
+
+/* Contenido del producto */
+.product-content {
+    padding: 25px;
+    background: white;
+}
+
+.product-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0a0a0a;
+    margin: 0 0 15px 0;
+    line-height: 1.4;
+    min-height: 50px;
+}
+
+/* Precios */
+.price-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.product-price {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #0a0a0a;
+}
+
+.product-original-price {
+    font-size: 1.1rem;
+    color: #999;
+    text-decoration: line-through;
+}
+
+.product-discount {
+    background: #FF3B3B;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+/* Bot��n agregar */
+.add-to-cart {
+    width: 100%;
+    background: #0a0a0a;
+    color: #F6DA01;
+    border: none;
+    padding: 15px;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.add-to-cart:hover {
+    background: #F6DA01;
+    color: #0a0a0a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(246, 218, 1, 0.4);
+}
+
+.add-to-cart i {
+    margin-right: 8px;
+}
+
+/* ========================================
+   TARJETAS CATEGOR�0�1AS Y SERVICIOS
+   ======================================== */
+.category-card, 
+.subcategory-card,
+.service-card {
+    background: white !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    cursor: pointer !important;
+    height: 350px !important;
+    width: 340px !important;
+    flex-shrink: 0 !important;
+    transform: perspective(1000px) rotateY(0deg) !important;
+    border-top: 5px solid #F6DA01 !important;
+}
+
+.category-card:hover, 
+.subcategory-card:hover,
+.service-card:hover {
+    transform: perspective(1000px) rotateY(-3deg) translateY(-15px);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.3);
+    border-top-color: #ffe44d;
+}
+
+.category-image, 
+.subcategory-image,
+.service-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    filter: brightness(0.85);
+}
+
+.category-card:hover .category-image,
+.subcategory-card:hover .subcategory-image,
+.service-card:hover .service-img {
+    transform: scale(1.08);
+    filter: brightness(0.75);
+}
+
+/* ========================================
+   TARJETA ESPECIAL "TODOS LOS PRODUCTOS"
+   ======================================== */
+.category-card.all-products-card {
+    border-top: 5px solid #0066ff !important;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2ff 100%) !important;
+}
+
+.category-card.all-products-card:hover {
+    border-top-color: #00c8ff !important;
+    box-shadow: 0 30px 70px rgba(0, 102, 255, 0.4) !important;
+}
+
+.category-card.all-products-card .category-overlay {
+    background: linear-gradient(to top, rgba(0, 40, 100, 0.95) 0%, rgba(0, 80, 180, 0.7) 50%, transparent 100%) !important;
+}
+
+.category-card.all-products-card .category-title {
+    color: #00c8ff !important;
+    text-shadow: 0 2px 10px rgba(0, 200, 255, 0.5);
+}
+
+.category-card.all-products-card .category-btn {
+    background: linear-gradient(135deg, #0066ff 0%, #00c8ff 100%) !important;
+    color: #ffffff !important;
+}
+
+.category-card.all-products-card .category-btn:hover {
+    background: linear-gradient(135deg, #00c8ff 0%, #0066ff 100%) !important;
+    box-shadow: 0 8px 25px rgba(0, 102, 255, 0.4) !important;
+}
+
+.category-overlay, 
+.subcategory-overlay,
+.service-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 50%, transparent 100%);
+    padding: 35px 25px 25px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.category-title, 
+.subcategory-title,
+.service-title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0;
+    text-transform: uppercase;
+    line-height: 1.2;
+    letter-spacing: 0.5px;
+}
+
+.category-btn,
+.service-btn {
+    background: #ffffff;
+    color: #0a0a0a;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    letter-spacing: 0.5px;
+}
+
+.category-btn:hover,
+.service-btn:hover {
+    background: #F6DA01;
+    color: #0a0a0a;
+    transform: translateX(8px);
+    box-shadow: 0 5px 15px rgba(246, 218, 1, 0.4);
+}
+
+.category-btn i,
+.service-btn i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.category-btn:hover i,
+.service-btn:hover i {
+    transform: translateX(3px);
+}
+
+.service-btn:hover {
+    background: white;
+    transform: translateX(5px);
+}
+
+/* ========================================
+   SECCI�0�7N SERVICIOS - FONDO OSCURO
+   ======================================== */
+.featured-products-section.services-section {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+}
+
+.featured-products-section.services-section .featured-header h2 {
+    color: #F6DA01;
+}
+
+.featured-products-section.services-section .featured-carousel-btn {
+    color: #F6DA01;
+}
+
+.featured-products-section.services-section .featured-carousel-btn:hover {
+    color: #ffffff;
+}
+
+.featured-products-section.services-section .featured-carousel-dot.active {
+    background: #F6DA01;
+}
+
+/* ========================================
+   SECCI�0�7N CATEGOR�0�1AS
+   ======================================== */
+.categories-visual-section {
+    width: 100%;
+    background: linear-gradient(180deg, #f8f8f8 0%, #ffffff 100%);
+    padding: 80px 20px 100px;
+}
+
+.categories-visual-section #categories-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ========================================
+   LOADING STATE
+   ======================================== */
+.featured-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #0a0a0a;
+}
+
+.featured-loading i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+    .header-container {
+        padding: 0 1rem !important;
+    }
+    
+    .logo img {
+        height: 45px !important;
+    }
+    
+    .sinlge-bar.shopping {
+        padding: 0.5rem 1.5rem !important;
+    }
+    
+    .featured-header h2 {
+        font-size: 2.2rem;
+        letter-spacing: -1px;
+    }
+
+    .featured-products-carousel-wrapper {
+        padding: 0 60px;
+    }
+
+    .featured-carousel-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 2rem;
+    }
+
+    .featured-product-card,
+    .category-card,
+    .subcategory-card,
+    .service-card {
+        width: 280px;
+        height: 320px;
+    }
+    
+    .category-title,
+    .subcategory-title,
+    .service-title {
+        font-size: 1.5rem;
+    }
+    
+    .category-btn,
+    .service-btn {
+        padding: 10px 20px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo img {
+        height: 40px !important;
+    }
+    
+    .sinlge-bar.shopping {
+        padding: 0.4rem 1.2rem !important;
+    }
+    
+    .featured-carousel-btn {
+        font-size: 1.8rem;
+    }
+    
+    .category-card,
+    .subcategory-card,
+    .service-card {
+        height: 280px;
+    }
+    
+    .category-title,
+    .subcategory-title,
+    .service-title {
+        font-size: 1.3rem;
+    }
+}
+
+/* ========================================
+   BOT�0�7N DE REGRESAR
+   ======================================== */
+.back-button {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: #F6DA01;
+    color: #0a0a0a;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    z-index: 9997;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.back-button:hover {
+    background: #0a0a0a;
+    color: #F6DA01;
+    transform: translateX(-5px);
+    box-shadow: 0 12px 35px rgba(246, 218, 1, 0.4);
+}
+
+.back-button.hidden {
+    display: none;
+}
+
+.back-button i {
+    font-size: 1.2rem;
+}
+
+/* ========================================
+   SECCIONES DE NAVEGACI�0�7N (SUBCATEGOR�0�1AS Y PRODUCTOS)
+   ======================================== */
+#subcategories-section,
+#products-display-section {
+    width: 100%;
+    padding: 3rem 2rem;
+    background: #0a0a0a;
+    min-height: 400px;
+}
+
+#subcategories-section .featured-header,
+#products-display-section .featured-header {
+    margin-bottom: 2rem;
+}
+
+#subcategories-section h2,
+#products-display-section h2 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: #F6DA01;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    margin: 0;
+}
+
+#subcategories-container,
+#products-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+    justify-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#subcategories-container.fade-grid,
+#products-container.fade-grid {
+    opacity: 1;
+}
+
+#subcategories-container.hidden,
+#products-container.hidden,
+#categories-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#subcategories-container.show,
+#products-container.show,
+#categories-container.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+@media (max-width: 768px) {
+    #subcategories-container,
+    #products-container {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    #subcategories-section,
+    #products-display-section {
+        padding: 2rem 1rem;
+    }
+    
+    #subcategories-section h2,
+    #products-display-section h2 {
+        font-size: 2rem;
+    }
+}
+
+/* ========================================
+   SWEETALERT2 - ESTILOS PERSONALIZADOS
+   ======================================== */
+
+/* Toast de éxito (Producto agregado) */
+.swal2-toast {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%) !important;
+    border: 3px solid #F6DA01 !important;
+    border-radius: 20px !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6),
+                0 0 30px rgba(246, 218, 1, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    padding: 20px 25px !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.swal2-toast .swal2-icon {
+    width: 50px !important;
+    height: 50px !important;
+    border: 3px solid #F6DA01 !important;
+    background: rgba(246, 218, 1, 0.15) !important;
+}
+
+.swal2-toast .swal2-icon.swal2-success {
+    border-color: #F6DA01 !important;
+}
+
+.swal2-toast .swal2-icon.swal2-success .swal2-success-ring {
+    border-color: rgba(246, 218, 1, 0.3) !important;
+}
+
+.swal2-toast .swal2-icon.swal2-success [class^='swal2-success-line'] {
+    background-color: #F6DA01 !important;
+}
+
+.swal2-toast .swal2-title {
+    color: #F6DA01 !important;
+    font-size: 1.3rem !important;
+    font-weight: 900 !important;
+    font-family: 'Outfit', sans-serif !important;
+    text-shadow: 0 0 10px rgba(246, 218, 1, 0.3) !important;
+}
+
+.swal2-toast .swal2-html-container {
+    color: #ffffff !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    font-family: 'Outfit', sans-serif !important;
+}
+
+/* Animación de entrada mejorada */
+.swal2-toast.swal2-show {
+    animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.swal2-toast.swal2-hide {
+    animation: slideOutRight 0.3s cubic-bezier(0.4, 0, 1, 1) !important;
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%) scale(0.8);
+        opacity: 0;
+    }
+}
+
+/* Posición top-end mejorada */
+.swal2-container.swal2-top-end {
+    top: 20px !important;
+    right: 20px !important;
+}
+
+/* Efectos hover al toast */
+.swal2-toast:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7),
+                0 0 40px rgba(246, 218, 1, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Barra de progreso del timer */
+.swal2-toast .swal2-timer-progress-bar {
+    background: linear-gradient(90deg, #F6DA01 0%, #ffe44d 100%) !important;
+    height: 4px !important;
+    box-shadow: 0 0 10px rgba(246, 218, 1, 0.5) !important;
+}
+
+/* Responsive para toast en móviles */
+@media (max-width: 768px) {
+    .swal2-container.swal2-top-end {
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+    }
+    
+    .swal2-toast {
+        max-width: calc(100vw - 20px) !important;
+        padding: 15px 20px !important;
+    }
+    
+    .swal2-toast .swal2-title {
+        font-size: 1.1rem !important;
+    }
+    
+    .swal2-toast .swal2-html-container {
+        font-size: 0.9rem !important;
+    }
+}

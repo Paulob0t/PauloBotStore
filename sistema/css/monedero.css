@@ -1,0 +1,881 @@
+/* =====================================================================
+   💰 MONEDERO - VENDINGBOX v1.2
+   Sistema completo de monedero electrónico con diseño premium
+   
+   ⚠️ IMPORTANTE: Este CSS es EXCLUSIVO para el sistema de monedero.
+   NO incluir estos estilos en otros archivos CSS.
+   
+   CHANGELOG v1.2:
+   - Separado widget flotante del carrito (bottom: 180px)
+   - Ajustado z-index a 9996 para jerarquía correcta
+   - Modal con !important para evitar conflictos
+   ===================================================================== */
+
+/* ========================================
+   TARJETA VIRTUAL DEL MONEDERO
+   ======================================== */
+.monedero-card {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    border-radius: 25px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(246, 218, 1, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    position: relative;
+    overflow: hidden;
+    border: 3px solid rgba(246, 218, 1, 0.3);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.monedero-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(246, 218, 1, 0.1) 0%, transparent 70%);
+    animation: rotate-gradient 20s linear infinite;
+}
+
+@keyframes rotate-gradient {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.monedero-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.monedero-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: 1.3rem;
+    color: #F6DA01;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.monedero-logo::before {
+    content: '💰';
+    font-size: 2rem;
+    filter: drop-shadow(0 0 15px rgba(246, 218, 1, 0.6));
+    animation: pulse-money 2s ease-in-out infinite;
+}
+
+@keyframes pulse-money {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.monedero-chip {
+    width: 50px;
+    height: 40px;
+    background: linear-gradient(135deg, #FFD700 0%, #F6DA01 100%);
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(246, 218, 1, 0.4);
+}
+
+.monedero-chip::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    background: repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.2) 0px,
+        rgba(0, 0, 0, 0.2) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    border-radius: 4px;
+}
+
+.monedero-saldo-principal {
+    margin: 2rem 0;
+    position: relative;
+    z-index: 2;
+}
+
+.monedero-saldo-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-family: 'Outfit', sans-serif;
+}
+
+.monedero-saldo-amount {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #F6DA01;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -2px;
+    text-shadow: 0 0 30px rgba(246, 218, 1, 0.6),
+                 0 4px 20px rgba(0, 0, 0, 0.3);
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+}
+
+.monedero-saldo-amount .currency {
+    font-size: 2rem;
+    opacity: 0.8;
+}
+
+.monedero-saldo-amount .decimals {
+    font-size: 2rem;
+    opacity: 0.7;
+}
+
+.monedero-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(246, 218, 1, 0.2);
+}
+
+.monedero-user-info {
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+}
+
+.monedero-user-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.monedero-user-id {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.monedero-qr-placeholder {
+    width: 60px;
+    height: 60px;
+    background: #ffffff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: #0a0a0a;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(246, 218, 1, 0.3);
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN DEL MONEDERO
+   ======================================== */
+.monedero-actions {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+}
+
+.monedero-btn {
+    flex: 1;
+    min-width: 140px;
+    background: linear-gradient(135deg, #F6DA01 0%, #ffe44d 100%);
+    color: #0a0a0a;
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(246, 218, 1, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.monedero-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.monedero-btn:hover::before {
+    width: 400px;
+    height: 400px;
+}
+
+.monedero-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(246, 218, 1, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.monedero-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.monedero-btn i {
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.monedero-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+/* Variante secundaria */
+.monedero-btn.secondary {
+    background: linear-gradient(135deg, rgba(246, 218, 1, 0.2) 0%, rgba(246, 218, 1, 0.1) 100%);
+    color: #F6DA01;
+    border: 2px solid rgba(246, 218, 1, 0.4);
+}
+
+.monedero-btn.secondary:hover {
+    background: linear-gradient(135deg, rgba(246, 218, 1, 0.3) 0%, rgba(246, 218, 1, 0.2) 100%);
+    border-color: #F6DA01;
+}
+
+/* ========================================
+   HISTORIAL DE TRANSACCIONES
+   ======================================== */
+.monedero-transactions {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.monedero-transactions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(246, 218, 1, 0.2);
+}
+
+.monedero-transactions-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.monedero-transactions-filter {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-btn {
+    background: rgba(246, 218, 1, 0.1);
+    border: 1px solid rgba(246, 218, 1, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: rgba(246, 218, 1, 0.2);
+    color: #F6DA01;
+    border-color: #F6DA01;
+}
+
+.monedero-transactions-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.transaction-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(246, 218, 1, 0.1);
+}
+
+.transaction-item:hover {
+    background: rgba(246, 218, 1, 0.08);
+    transform: translateX(5px);
+    border-color: rgba(246, 218, 1, 0.3);
+}
+
+.transaction-icon {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.transaction-icon.income {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: #ffffff;
+}
+
+.transaction-icon.expense {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    color: #ffffff;
+}
+
+.transaction-icon.transfer {
+    background: linear-gradient(135deg, #F6DA01 0%, #ffe44d 100%);
+    color: #0a0a0a;
+}
+
+.transaction-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.transaction-description {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #ffffff;
+    margin-bottom: 0.3rem;
+    font-family: 'Poppins', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.transaction-date {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'Poppins', sans-serif;
+}
+
+.transaction-amount {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: 1.2rem;
+    white-space: nowrap;
+}
+
+.transaction-amount.positive {
+    color: #28a745;
+}
+
+.transaction-amount.negative {
+    color: #dc3545;
+}
+
+/* Estado vacío */
+.transactions-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.transactions-empty i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+
+.transactions-empty p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Scrollbar personalizado */
+.monedero-transactions-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.monedero-transactions-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.monedero-transactions-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #F6DA01 0%, #ffe44d 100%);
+    border-radius: 10px;
+}
+
+/* ========================================
+   MODAL DE RECARGA/RETIRO
+   ======================================== */
+.monedero-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(10px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10000 !important;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease !important;
+}
+
+.monedero-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.monedero-modal-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+    border-radius: 25px;
+    padding: 2.5rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(246, 218, 1, 0.3);
+    border: 3px solid rgba(246, 218, 1, 0.3);
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.monedero-modal.active .monedero-modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.monedero-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(246, 218, 1, 0.2);
+}
+
+.monedero-modal-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #F6DA01;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.monedero-modal-close {
+    background: rgba(255, 59, 59, 0.15);
+    border: 1px solid rgba(255, 59, 59, 0.3);
+    color: #ff3b3b;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.5rem;
+}
+
+.monedero-modal-close:hover {
+    background: #ff3b3b;
+    color: #ffffff;
+    transform: rotate(90deg);
+}
+
+.monedero-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.monedero-form-label {
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.monedero-form-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(246, 218, 1, 0.2);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.monedero-form-input:focus {
+    outline: none;
+    border-color: #F6DA01;
+    background: rgba(246, 218, 1, 0.1);
+    box-shadow: 0 0 20px rgba(246, 218, 1, 0.3);
+}
+
+.monedero-form-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Montos rápidos */
+.quick-amounts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.quick-amount-btn {
+    background: rgba(246, 218, 1, 0.1);
+    border: 2px solid rgba(246, 218, 1, 0.3);
+    color: #F6DA01;
+    padding: 0.8rem;
+    border-radius: 12px;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.quick-amount-btn:hover,
+.quick-amount-btn.active {
+    background: #F6DA01;
+    color: #0a0a0a;
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(246, 218, 1, 0.4);
+}
+
+/* ========================================
+   WIDGET FLOTANTE DE SALDO - AL LADO DEL CARRITO
+   ======================================== */
+.wallet-widget {
+    position: fixed;
+    bottom: 500px;
+    right: 10px;
+    z-index: 9996;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wallet-widget.collapsed {
+    width: auto;
+}
+
+.wallet-widget.collapsed .wallet-content {
+    display: none;
+}
+
+.wallet-widget.collapsed .wallet-tab {
+    cursor: pointer;
+}
+
+/* Pestaña colapsada */
+.wallet-tab {
+    background: linear-gradient(135deg, #F6DA01 0%, #ffe44d 100%);
+    border-radius: 20px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    box-shadow: 0 10px 40px rgba(246, 218, 1, 0.5),
+                0 0 0 1px rgba(246, 218, 1, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+
+.wallet-tab:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 50px rgba(246, 218, 1, 0.6);
+}
+
+.wallet-tab-icon {
+    font-size: 1.8rem;
+    color: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wallet-tab-amount {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #0a0a0a;
+    letter-spacing: -0.5px;
+}
+
+.wallet-tab-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: rgba(10, 10, 10, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: absolute;
+    bottom: 8px;
+    right: 15px;
+}
+
+/* Contenido expandido */
+.wallet-widget:not(.collapsed) {
+    width: 320px;
+}
+
+.wallet-widget:not(.collapsed) .wallet-tab {
+    display: none;
+}
+
+.wallet-content {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    border-radius: 25px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(246, 218, 1, 0.3);
+    border: 3px solid rgba(246, 218, 1, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.wallet-content::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(246, 218, 1, 0.1) 0%, transparent 70%);
+    animation: rotate-gradient 20s linear infinite;
+    pointer-events: none;
+}
+
+.wallet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.wallet-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: #F6DA01;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.wallet-close {
+    background: rgba(255, 59, 59, 0.15);
+    border: 1px solid rgba(255, 59, 59, 0.3);
+    color: #ff3b3b;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.wallet-close:hover {
+    background: #ff3b3b;
+    color: #ffffff;
+    transform: rotate(90deg);
+}
+
+.wallet-balance {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #F6DA01;
+    text-align: center;
+    margin: 1.5rem 0;
+    text-shadow: 0 0 30px rgba(246, 218, 1, 0.6);
+    letter-spacing: -1px;
+    position: relative;
+    z-index: 2;
+}
+
+.wallet-status {
+    background: rgba(40, 167, 69, 0.15);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    border-radius: 15px;
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    color: #28a745;
+    font-weight: 600;
+    position: relative;
+    z-index: 2;
+}
+
+.wallet-status i {
+    font-size: 1.2rem;
+}
+
+/* Animación del saldo */
+@keyframes monederoPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* ========================================
+   BADGE DE SALDO EN DROPDOWN
+   ======================================== */
+.shopping-item .monedero-badge {
+    background: linear-gradient(135deg, rgba(246, 218, 1, 0.2) 0%, rgba(246, 218, 1, 0.1) 100%);
+    border: 2px solid rgba(246, 218, 1, 0.3);
+    border-radius: 12px;
+    padding: 0.8rem 1.2rem;
+    margin: 0.5rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.shopping-item .monedero-badge-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 700;
+    font-size: 0.85rem;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.shopping-item .monedero-badge-label::before {
+    content: '💰';
+    font-size: 1.1rem;
+}
+
+.shopping-item .monedero-badge-amount {
+    color: #F6DA01;
+    font-weight: 900;
+    font-size: 1.1rem;
+    font-family: 'Outfit', sans-serif;
+    text-shadow: 0 0 10px rgba(246, 218, 1, 0.3);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+    .monedero-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .monedero-saldo-amount {
+        font-size: 2.5rem;
+    }
+
+    .monedero-saldo-amount .currency,
+    .monedero-saldo-amount .decimals {
+        font-size: 1.5rem;
+    }
+
+    .monedero-actions {
+        flex-direction: column;
+    }
+
+    .monedero-btn {
+        min-width: 100%;
+    }
+
+    .monedero-modal-content {
+        padding: 2rem 1.5rem;
+    }
+
+    .quick-amounts {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .transaction-item {
+        padding: 1rem;
+    }
+
+    .transaction-icon {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .monedero-card {
+        padding: 1.5rem 1rem;
+    }
+
+    .monedero-saldo-amount {
+        font-size: 2rem;
+    }
+
+    .monedero-modal-content {
+        padding: 1.5rem 1rem;
+        width: 95%;
+    }
+
+    .monedero-modal-title {
+        font-size: 1.4rem;
+    }
+}
