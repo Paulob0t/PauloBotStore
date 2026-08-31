@@ -34,12 +34,16 @@ if (!$conn_local->connect_error) {
 }
 
 // Probar conexión NUBE
-$conn_nube = @new mysqli('cpanel.colegos.com.mx', 'colegos_vending', 'IfbUK2ClF~bV', 'colegos_vending', 3306);
+$nube_host = getenv('DB_NUBE_HOST') ?: 'cpanel.ejemplo.com';
+$nube_user = getenv('DB_NUBE_USER') ?: 'vending_user';
+$nube_pass = getenv('DB_NUBE_PASS') ?: '';
+$nube_name = getenv('DB_NUBE_NAME') ?: 'vending_db';
+$conn_nube = @new mysqli($nube_host, $nube_user, $nube_pass, $nube_name, 3306);
 if (!$conn_nube->connect_error) {
     $resultado['conexiones']['nube'] = [
         'status' => 'OK',
         'host' => $conn_nube->host_info,
-        'db' => 'colegos_vending'
+        'db' => $nube_name
     ];
 } else {
     $resultado['conexiones']['nube'] = [

@@ -13,8 +13,8 @@ function authenticateAPI() {
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS => json_encode([
-            'username' => 'api.desarrollo',
-            'password' => '1hFdcv4G*'
+            'username' => 'YOUR_API_USER',
+            'password' => 'YOUR_API_PASSWORD'
         ]),
         CURLOPT_HTTPHEADER => array(
             'Content-Type: application/json',

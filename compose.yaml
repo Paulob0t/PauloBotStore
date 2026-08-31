@@ -1,0 +1,10 @@
+services:
+  vendingbox:
+    build:
+      context: .
+      dockerfile: Containerfile
+    container_name: vendingbox_app
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html:z

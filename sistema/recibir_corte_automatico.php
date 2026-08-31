@@ -63,13 +63,11 @@ if (!$corte || empty($corte['id'])) {
 // 4. Conexión a BD nube
 // ──────────────────────────────────────────
 try {
-    $conn = new mysqli(
-        'cpanel.colegos.com.mx',
-        'colegos_vending',
-        'IfbUK2ClF~bV',
-        'colegos_vending',
-        3306
-    );
+    $nube_host = getenv('DB_NUBE_HOST') ?: 'cpanel.ejemplo.com';
+    $nube_user = getenv('DB_NUBE_USER') ?: 'vending_user';
+    $nube_pass = getenv('DB_NUBE_PASS') ?: '';
+    $nube_name = getenv('DB_NUBE_NAME') ?: 'vending_db';
+    $conn = new mysqli($nube_host, $nube_user, $nube_pass, $nube_name, 3306);
     if ($conn->connect_error) {
         throw new Exception($conn->connect_error);
     }

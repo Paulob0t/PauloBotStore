@@ -60,13 +60,13 @@ if ($ambiente === 'XAMPP') {
     
 } else {
     // ☁️ AMBIENTE CPANEL/HOSTING
+    $db_host = getenv('DB_HOST') ?: 'localhost';
+    $db_user = getenv('DB_USER') ?: 'vending_user';
+    $db_pass = getenv('DB_PASS') ?: '';
+    $db_name = getenv('DB_NAME') ?: 'vending_db';
+
     try {
-        $conn_local = new mysqli(
-            'localhost',                // localhost en cPanel es la BD del hosting
-            'colegos_vending',          // Usuario de la BD en cPanel
-            'IfbUK2ClF~bV',            // Password de la BD en cPanel
-            'colegos_vending'           // Nombre de la BD en cPanel
-        );
+        $conn_local = new mysqli($db_host, $db_user, $db_pass, $db_name);
         
         if ($conn_local->connect_error) {
             error_log("⚠️ BD CPANEL no disponible: " . $conn_local->connect_error);
@@ -88,14 +88,13 @@ $conn_nube = null;
 
 // Intentar conexión a la nube como fallback (útil cuando BD local no está disponible)
 if ($ambiente === 'XAMPP') {
+    $db_nube_host = getenv('DB_NUBE_HOST') ?: 'cpanel.ejemplo.com';
+    $db_nube_user = getenv('DB_NUBE_USER') ?: 'vending_user';
+    $db_nube_pass = getenv('DB_NUBE_PASS') ?: '';
+    $db_nube_name = getenv('DB_NUBE_NAME') ?: 'vending_db';
+
     try {
-        $conn_nube = new mysqli(
-            'cpanel.colegos.com.mx',   // Host externo para sincronización
-            'colegos_vending',          // Usuario remoto
-            'IfbUK2ClF~bV',            // Password remoto
-            'colegos_vending',          // BD remota
-            3306                        // Puerto
-        );
+        $conn_nube = new mysqli($db_nube_host, $db_nube_user, $db_nube_pass, $db_nube_name, 3306);
         
         if ($conn_nube->connect_error) {
             error_log("⚠️ BD en la nube no disponible: " . $conn_nube->connect_error);

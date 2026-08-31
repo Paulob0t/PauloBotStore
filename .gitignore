@@ -1,0 +1,19 @@
+# Executables & Binaries
+frankenphp
+
+# Logs & Temporary files
+*.log
+sistema/admin/logs/
+
+# Security, Certificates & Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+sistema/admin/dist/cert/private-key.pem
+
+# Mac / System
+.DS_Store
+__MACOSX/

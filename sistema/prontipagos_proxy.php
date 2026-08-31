@@ -27,7 +27,7 @@ try {
       CURLOPT_FOLLOWLOCATION => true,
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => 'POST',
-      CURLOPT_POSTFIELDS => '{"username":"api.desarrollo","password":"1hFdcv4G*"}',
+      CURLOPT_POSTFIELDS => '{"username":"YOUR_API_USER","password":"YOUR_API_PASSWORD"}',
       CURLOPT_SSL_VERIFYPEER => false,
       CURLOPT_SSL_VERIFYHOST => false,
       CURLOPT_HTTPHEADER => array(

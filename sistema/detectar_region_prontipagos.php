@@ -4,8 +4,8 @@ header('Content-Type: application/json');
 // ==========================
 // CONFIG
 // ==========================
-$USERNAME = 'api.desarrollo';
-$PASSWORD = '1hFdcv4G*';
+$USERNAME = 'YOUR_API_USER';
+$PASSWORD = 'YOUR_API_PASSWORD';
 
 // ==========================
 // LOGIN
