@@ -1,0 +1,85 @@
+# SISTEMA DE SINCRONIZACION BIDIRECCIONAL
+# =========================================
+
+## ARCHIVOS PRINCIPALES
+
+### Sincronizacion LOCAL → NUBE (cada 1 hora)
+- sincronizar_nube.ps1      - Script PowerShell que sincroniza datos pendientes
+- sincronizar_endpoint.php  - Endpoint en la nube que recibe los datos
+
+### Sincronizacion NUBE → LOCAL (cada 6 horas)  
+- sincronizar_local.ps1     - Script PowerShell que descarga datos de la nube
+- sincronizar_local.php     - Endpoint en la nube que provee los datos
+
+## SCRIPTS DE DIAGNOSTICO
+
+### diagnostico_sync.ps1
+Ejecuta un diagnostico completo del sistema:
+  - Verifica conexion ODBC
+  - Muestra registros pendientes de sincronizar
+  - Muestra estadisticas
+  - Verifica logs
+  - Verifica conectividad con la nube
+  - Verifica tareas programadas
+
+Uso: .\diagnostico_sync.ps1
+
+### ver_logs_sync.ps1
+Visualiza los logs de sincronizacion con colores
+
+Uso:
+  .\ver_logs_sync.ps1                    # Ver todos los logs
+  .\ver_logs_sync.ps1 -Tipo nube         # Solo logs local→nube
+  .\ver_logs_sync.ps1 -Tipo local        # Solo logs nube→local
+  .\ver_logs_sync.ps1 -Lineas 50         # Ultimas 50 lineas
+
+## LOGS
+
+Los logs se guardan en: vendingbox.online/sistema/logs/
+
+Archivos de log:
+- sync_nube_YYYYMMDD.log   - Log de sincronizacion local→nube
+- sync_local_YYYYMMDD.log  - Log de sincronizacion nube→local
+
+## PRUEBAS MANUALES
+
+Para probar las sincronizaciones manualmente:
+
+1. Sincronizar local → nube:
+   cd c:\xampp\htdocs\vendingbox.online\sistema
+   .\sincronizar_nube.ps1
+
+2. Sincronizar nube → local:
+   cd c:\xampp\htdocs\vendingbox.online\sistema
+   .\sincronizar_local.ps1
+
+## TAREAS PROGRAMADAS
+
+Las tareas programadas de Windows ejecutan automaticamente:
+
+- "Sincronizacion nube_nube" - Ejecuta sincronizar_nube.ps1 cada 1 hora
+- "Sincronizacion nube_local" - Ejecuta sincronizar_local.ps1 cada 6 horas
+
+Para verificar el estado:
+  Get-ScheduledTask | Where-Object { $_.TaskName -like "*Sincroniz*" }
+
+## SOLUCION DE PROBLEMAS
+
+### Error de conexion ODBC
+- Verificar que el DSN "MySQLDSN" este configurado correctamente
+- Panel de Control → Herramientas administrativas → Origenes de datos ODBC
+
+### Sin registros pendientes
+- Es normal si no ha habido cambios
+- Los registros se crean automaticamente en procesar_venta.php
+
+### Error de conectividad con la nube
+- Verificar que el servidor https://vending.colegos.com.mx este accesible
+- Verificar firewall y conexion a internet
+
+### Ver logs en tiempo real
+- Abrir el archivo de log con: notepad logs\sync_nube_YYYYMMDD.log
+- O usar: .\ver_logs_sync.ps1
+
+## CONTACTO
+Para mas informacion sobre el sistema de sincronizacion, consultar NOTAS.txt

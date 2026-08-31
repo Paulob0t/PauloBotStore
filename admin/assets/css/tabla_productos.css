@@ -1,0 +1,138 @@
+/* Tabla Productos Modern Dark Styling */
+:root {
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --secondary: #0f172a;
+    --accent: #ffd93d;
+    --card-bg: rgba(15, 23, 42, 0.7);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --input-bg: rgba(30, 41, 59, 0.6);
+    --input-border: rgba(255, 255, 255, 0.12);
+}
+
+.tp-page {
+    padding: 10px 0 40px;
+}
+
+.tp-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.tp-header-icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, var(--primary), #818cf8);
+    color: white;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+}
+
+.tp-header-text h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+}
+
+.tp-header-text p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Metric Stats Row */
+.stat-card-mini {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    backdrop-filter: blur(16px);
+}
+
+.stat-card-mini .stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.stat-icon-indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+.stat-icon-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.stat-icon-yellow { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+.stat-card-mini .stat-num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+}
+
+.stat-card-mini .stat-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+/* Data Table Card */
+.table-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-top: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.product-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: #1e293b;
+}
+
+/* DataTables Dark Tweaks */
+.dataTables_wrapper {
+    color: var(--text-main);
+}
+
+.dataTables_length select,
+.dataTables_filter input {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: white !important;
+    border-radius: 10px !important;
+    padding: 6px 12px !important;
+}
+
+.dataTables_info, .dataTables_paginate {
+    color: var(--text-muted) !important;
+    margin-top: 16px;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+.page-link {
+    background-color: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}

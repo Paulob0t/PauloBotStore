@@ -1,0 +1,168 @@
+# 🔄 GUÍA DE SINCRONIZACIÓN RÁPIDA (CADA 1 MINUTO)
+
+## 🚀 INSTALACIÓN DE SINCRONIZACIÓN AUTOMÁTICA
+
+### **Paso 1: Ejecutar configuración**
+
+1. Abre PowerShell **COMO ADMINISTRADOR**:
+   - Presiona `Win + X`
+   - Selecciona "Windows PowerShell (Administrador)" o "Terminal (Admin)"
+
+2. Navega a la carpeta del sistema:
+   ```powershell
+   cd C:\xampp\htdocs\vendingbox.online\sistema
+   ```
+
+3. Ejecuta el script de configuración:
+   ```powershell
+   .\configurar_sync_rapido.ps1
+   ```
+
+4. **¡Listo!** Las tareas se ejecutarán automáticamente cada 1 minuto
+
+---
+
+## 📊 VERIFICAR ESTADO
+
+### Ver tareas programadas:
+```powershell
+Get-ScheduledTask -TaskName "VendingBox_*"
+```
+
+### Ver información detallada:
+```powershell
+Get-ScheduledTask -TaskName "VendingBox_*" | Get-ScheduledTaskInfo
+```
+
+---
+
+## ⚙️ CONTROL MANUAL
+
+### Iniciar sincronización manualmente:
+```powershell
+# Sincronizar a la nube
+Start-ScheduledTask -TaskName "VendingBox_Sync_Nube"
+
+# Sincronizar desde la nube
+Start-ScheduledTask -TaskName "VendingBox_Sync_Local"
+```
+
+### Pausar sincronización temporalmente:
+```powershell
+Disable-ScheduledTask -TaskName "VendingBox_Sync_Nube"
+Disable-ScheduledTask -TaskName "VendingBox_Sync_Local"
+```
+
+### Reanudar sincronización:
+```powershell
+Enable-ScheduledTask -TaskName "VendingBox_Sync_Nube"
+Enable-ScheduledTask -TaskName "VendingBox_Sync_Local"
+```
+
+---
+
+## 🗑️ DESINSTALAR SINCRONIZACIÓN
+
+Si deseas eliminar las tareas automáticas:
+
+```powershell
+.\desinstalar_sync.ps1
+```
+
+---
+
+## 📝 MONITOREO DE LOGS
+
+Los logs se guardan en: `C:\xampp\htdocs\vendingbox.online\sistema\logs\`
+
+### Ver logs en tiempo real:
+```powershell
+# Log de sincronización a la nube
+Get-Content "logs\sync_nube_$(Get-Date -Format 'yyyyMMdd').log" -Wait -Tail 20
+
+# Log de sincronización desde la nube
+Get-Content "logs\sync_local_$(Get-Date -Format 'yyyyMMdd').log" -Wait -Tail 20
+```
+
+---
+
+## ⚡ CONFIGURACIÓN RÁPIDA
+
+**Las tareas se ejecutan:**
+- 📤 **Sync Nube**: Cada 1 minuto (envía cambios locales a la nube)
+- 📥 **Sync Local**: Cada 1 minuto (descarga cambios de la nube)
+
+**Ventajas:**
+- ✅ Pérdida mínima de datos (máximo 1 minuto)
+- ✅ Sincronización casi en tiempo real
+- ✅ Se ejecuta automáticamente en segundo plano
+- ✅ No requiere intervención manual
+
+---
+
+## ⚠️ NOTAS IMPORTANTES
+
+1. **Requiere permisos de Administrador** para crear las tareas
+2. **Requiere conexión a internet** para sincronizar con la nube
+3. **Las tareas se ejecutan aunque no haya usuario logueado** (usando cuenta SYSTEM)
+4. **Logs rotativos** - se crea un archivo nuevo cada día
+
+---
+
+## 🔧 SOLUCIÓN DE PROBLEMAS
+
+### Si las tareas no se ejecutan:
+
+1. Verificar que existen:
+   ```powershell
+   Get-ScheduledTask -TaskName "VendingBox_*"
+   ```
+
+2. Verificar el estado:
+   ```powershell
+   Get-ScheduledTask -TaskName "VendingBox_*" | Select-Object TaskName, State
+   ```
+
+3. Ver últimos errores:
+   ```powershell
+   Get-ScheduledTask -TaskName "VendingBox_Sync_Nube" | Get-ScheduledTaskInfo | Select-Object LastTaskResult
+   ```
+
+4. Ejecutar manualmente para ver errores:
+   ```powershell
+   .\sincronizar_nube.ps1
+   .\sincronizar_local.ps1
+   ```
+
+---
+
+## 📞 COMANDOS DE DIAGNÓSTICO
+
+```powershell
+# Diagnóstico completo del sistema
+.\diagnostico_sync.ps1
+
+# Panel web de pruebas
+# http://localhost/vendingbox.online/sistema/admin/dist/test_sincronizacion.php
+```
+
+---
+
+## 🎯 FLUJO DE SINCRONIZACIÓN
+
+```
+┌─────────────────┐      Cada 1 min      ┌─────────────────┐
+│   BD LOCAL      │  ──────────────────►  │   BD NUBE       │
+│   (XAMPP)       │                       │   (cPanel)      │
+└─────────────────┘  ◄──────────────────  └─────────────────┘
+                       Cada 1 min
+```
+
+1. **Cambios locales** → Se registran en `sincronizacion_log`
+2. **Cada 1 min** → Script PowerShell lee pendientes y envía a la nube
+3. **Cada 1 min** → Script PowerShell descarga cambios de la nube
+4. **Logs** → Todo queda registrado en archivos de log
+
+---
+
+¡Listo! Tu sistema ahora sincroniza automáticamente cada minuto 🚀

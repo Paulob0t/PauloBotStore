@@ -241,6 +241,8 @@ $script:ListenerProcess = $null
 $script:LogFilePath = "$script:ScriptDirectory\admin\dist\logs\monedero_listener.log"
 $script:InventoryFilePath = "$script:ScriptDirectory\admin\dist\logs\coin_inventory.log"
 $script:SaldoFilePath = "$script:ScriptDirectory\admin\dist\logs\saldo_actual.json"
+$script:ModeFilePath = "$script:ScriptDirectory\admin\dist\logs\coin_insert_mode.json"
+$script:CargaMaquinaActiva = $false
 $script:IsMinimized = $false
 $script:NotifyIcon = $null
 $script:PhpServerPreference = $null  # Laragon, XAMPP, o null para auto-detectar
@@ -332,9 +334,9 @@ function Force-ReleaseCOMPort {
                                 Start-Sleep -Milliseconds 200
                             }
                             # Si NO es KillPhpOnly, solo matar si está ejecutando monedero_listener.php
-                            elseif ($cmdLine -and $cmdLine -match "monedero_listener") {
-                                Add-LogMessage "→ Cerrando LISTENER: $($proc.ProcessName) (PID: $($proc.Id))"
-                                Write-StartupLog "[FORCE-PORT] Matando listener PHP..."
+                            elseif ($cmdLine -and ($cmdLine -match "com5_manager" -or $cmdLine -match "monedero_listener")) {
+                                Add-LogMessage "→ Cerrando GESTOR COM5: $($proc.ProcessName) (PID: $($proc.Id))"
+                                Write-StartupLog "[FORCE-PORT] Matando gestor COM5 PHP..."
                                 Stop-Process -Id $proc.Id -Force -ErrorAction Stop
                                 Add-LogMessage "  [OK] Listener detenido"
                                 Write-StartupLog "[FORCE-PORT] Listener detenido exitosamente"
@@ -834,6 +836,96 @@ function Get-LogTail {
     return "Esperando logs..."
 }
 
+function Get-InsertMode {
+    if (Test-Path $script:ModeFilePath) {
+        try {
+            return Get-Content $script:ModeFilePath -Raw | ConvertFrom-Json
+        } catch { }
+    }
+    return [PSCustomObject]@{ activo_carga_maquina = $false; modo = "cliente" }
+}
+
+function Set-CargaMaquinaMode {
+    param([bool]$Activa)
+
+    $logDir = Split-Path $script:ModeFilePath -Parent
+    if (!(Test-Path $logDir)) {
+        New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+    }
+
+    $mode = [ordered]@{
+        activo_carga_maquina = $Activa
+        modo                 = if ($Activa) { "maquina" } else { "cliente" }
+        fecha                = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+        actualizado_por      = "MonederoMonitor"
+        descripcion          = if ($Activa) {
+            "Monedas insertadas suman SOLO al inventario (saldo maquina)"
+        } else {
+            "Monedas insertadas suman al saldo del cliente Y al inventario"
+        }
+    }
+    $mode | ConvertTo-Json | Set-Content -Path $script:ModeFilePath -Force
+    $script:CargaMaquinaActiva = $Activa
+
+    if ($Activa) {
+        Add-LogMessage "=========================================="
+        Add-LogMessage "MODO CARGA MAQUINA ACTIVO"
+        Add-LogMessage "Las monedas iran SOLO al inventario (cambio)"
+        Add-LogMessage "Los billetes se IGNORAN (no hay cambio en billetes)"
+        Add-LogMessage "NO se sumaran al saldo del cliente"
+        Add-LogMessage "=========================================="
+        Show-TrayNotification "Carga Maquina" "Solo monedas cuentan para inventario"
+    } else {
+        Add-LogMessage "=========================================="
+        Add-LogMessage "MODO CLIENTE ACTIVO"
+        Add-LogMessage "Las monedas suman al saldo del cliente"
+        Add-LogMessage "=========================================="
+        Show-TrayNotification "Modo Cliente" "Monedas cuentan para comprar"
+    }
+
+    Update-CargaMaquinaUI
+}
+
+function Sync-CargaMaquinaFromFile {
+    param([switch]$ForceUI)
+    $mode = Get-InsertMode
+    $nuevo = [bool]$mode.activo_carga_maquina
+    if ($ForceUI -or $nuevo -ne $script:CargaMaquinaActiva) {
+        $script:CargaMaquinaActiva = $nuevo
+        Update-CargaMaquinaUI
+    }
+}
+
+function Update-CargaMaquinaUI {
+    if (-not $btnCargaMaquina) { return }
+
+    $btnCargaMaquina.Dispatcher.Invoke([action]{
+        if ($script:CargaMaquinaActiva) {
+            $btnCargaMaquina.Content = "[OK] FIN CARGA - VOLVER A MODO CLIENTE"
+            $btnCargaMaquina.Background = "#E67E22"
+            if ($lblModoInsercion) {
+                $lblModoInsercion.Text = "CARGANDO MAQUINA: monedas -> solo inventario (no saldo cliente)"
+                $lblModoInsercion.Foreground = "#1DB954"
+            }
+            if ($borderModoInsercion) {
+                $borderModoInsercion.Background = "#1a3d2a"
+                $borderModoInsercion.BorderBrush = "#1DB954"
+            }
+        } else {
+            $btnCargaMaquina.Content = "[+] CARGAR MAQUINA (solo inventario / cambio)"
+            $btnCargaMaquina.Background = "#2980B9"
+            if ($lblModoInsercion) {
+                $lblModoInsercion.Text = "MODO CLIENTE: monedas insertadas cuentan para comprar"
+                $lblModoInsercion.Foreground = "#FFD700"
+            }
+            if ($borderModoInsercion) {
+                $borderModoInsercion.Background = "#2D2D30"
+                $borderModoInsercion.BorderBrush = "#3F3F46"
+            }
+        }
+    })
+}
+
 # Funcion para obtener saldo
 function Get-Saldo {
     if (Test-Path $script:SaldoFilePath) {
@@ -1115,13 +1207,16 @@ function Update-Stats {
     $inventory = Get-Inventory
     
     $lblSaldo.Dispatcher.Invoke([action]{
-        $lblSaldo.Text = "Saldo: `$$($saldo.ToString('F2'))"
+        $lblSaldo.Text = "`$$($saldo.ToString('F2'))"
     })
     
     if ($inventory) {
-        $total = $inventory.total_pesos
+        $total = 0
+        if ($null -ne $inventory.float_operador) {
+            $total = [decimal]$inventory.float_operador
+        }
         $lblInventario.Dispatcher.Invoke([action]{
-            $lblInventario.Text = "Cambio: `$$($total.ToString('F2'))"
+            $lblInventario.Text = "`$$($total.ToString('F2'))"
         })
         
         # Actualizar desglose
@@ -1167,16 +1262,23 @@ function Reset-SystemLogs {
             # Resetear inventario de monedas
             if (Test-Path $script:InventoryFilePath) {
                 $resetInventory = @{
+                    tubos = @{
+                        "A" = @{ cantidad = 0 }
+                        "B" = @{ cantidad = 0 }
+                        "C" = @{ cantidad = 0 }
+                        "D" = @{ cantidad = 0 }
+                        "E" = @{ cantidad = 0 }
+                    }
                     denominaciones = @{
-                        "20" = 0
                         "10" = 0
                         "5" = 0
                         "2" = 0
                         "1" = 0
                     }
                     total_pesos = 0
+                    float_operador = 0
                     timestamp = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                } | ConvertTo-Json
+                } | ConvertTo-Json -Depth 5
                 Set-Content -Path $script:InventoryFilePath -Value $resetInventory -Force
                 Add-LogMessage "Inventario de monedas reseteado"
                 $resetCount++
@@ -1189,6 +1291,8 @@ function Reset-SystemLogs {
                 $resetCount++
             }
             
+            Set-CargaMaquinaMode -Activa $false
+
             # Actualizar interfaz
             Update-Stats
             
@@ -1324,6 +1428,7 @@ try {
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -1357,25 +1462,35 @@ try {
                 </StackPanel>
             </Border>
             
-            <!-- Saldo -->
+            <!-- Saldo Cliente -->
             <Border Grid.Column="2" Background="#2D2D30" CornerRadius="5" Padding="15">
                 <StackPanel>
-                    <TextBlock Text="SALDO ACTUAL" FontSize="10" Foreground="#808080" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblSaldo" Text="Saldo: $0.00" FontSize="16" Foreground="#FFD700" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="SALDO CLIENTE" FontSize="10" Foreground="#808080" FontWeight="Bold"/>
+                    <TextBlock x:Name="lblSaldo" Text="$0.00" FontSize="16" Foreground="#FFD700" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="Para comprar" FontSize="9" Foreground="#666666" Margin="0,2,0,0"/>
                 </StackPanel>
             </Border>
             
-            <!-- Inventario -->
+            <!-- Saldo Maquina -->
             <Border Grid.Column="4" Background="#2D2D30" CornerRadius="5" Padding="15">
                 <StackPanel>
-                    <TextBlock Text="CAMBIO DISPONIBLE" FontSize="10" Foreground="#808080" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblInventario" Text="Cambio: $0.00" FontSize="16" Foreground="#1DB954" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="SALDO MAQUINA" FontSize="10" Foreground="#808080" FontWeight="Bold"/>
+                    <TextBlock x:Name="lblInventario" Text="$0.00" FontSize="16" Foreground="#7DD3FC" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="Solo carga operador" FontSize="9" Foreground="#666666" Margin="0,2,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>
         
+        <!-- MODO INSERCION -->
+        <Border x:Name="borderModoInsercion" Grid.Row="2" Background="#2D2D30" CornerRadius="5" Padding="12" Margin="0,0,0,15" BorderBrush="#3F3F46" BorderThickness="2">
+            <StackPanel>
+                <TextBlock x:Name="lblModoInsercion" Text="MODO CLIENTE: monedas insertadas cuentan para comprar" FontSize="11" Foreground="#FFD700" FontWeight="Bold" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                <Button x:Name="btnCargaMaquina" Content="[+] CARGAR MAQUINA (solo inventario / cambio)" Height="42" FontSize="12" FontWeight="Bold" Background="#2980B9" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+        
         <!-- DESGLOSE -->
-        <Border Grid.Row="2" Background="#2D2D30" CornerRadius="5" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="3" Background="#2D2D30" CornerRadius="5" Padding="15" Margin="0,0,0,15">
             <StackPanel>
                 <TextBlock Text="DESGLOSE DE MONEDAS" FontSize="10" Foreground="#808080" FontWeight="Bold"/>
                 <TextBlock x:Name="lblDesglose" Text="Sin datos" FontSize="14" Foreground="#FFFFFF" Margin="0,5,0,0"/>
@@ -1383,7 +1498,7 @@ try {
         </Border>
         
         <!-- LOGS -->
-        <Border Grid.Row="3" Background="#2D2D30" CornerRadius="5" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="4" Background="#2D2D30" CornerRadius="5" Padding="15" Margin="0,0,0,15">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -1408,7 +1523,7 @@ try {
         </Border>
         
         <!-- CONTROLS -->
-        <Grid Grid.Row="4">
+        <Grid Grid.Row="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="10"/>
@@ -1489,6 +1604,9 @@ try {
     $btnMinimize = $window.FindName("btnMinimize")
     $btnChangeServer = $window.FindName("btnChangeServer")
     $btnCleanSerial = $window.FindName("btnCleanSerial")
+    $btnCargaMaquina = $window.FindName("btnCargaMaquina")
+    $lblModoInsercion = $window.FindName("lblModoInsercion")
+    $borderModoInsercion = $window.FindName("borderModoInsercion")
     Write-StartupLog "Controles obtenidos exitosamente"
 } catch {
     Write-StartupLog "ERROR al obtener controles: $_" -IsError
@@ -1571,6 +1689,36 @@ $btnChangeServer.Add_Click({
     Change-PhpServer
 })
 
+$btnCargaMaquina.Add_Click({
+    if ($script:CargaMaquinaActiva) {
+        $confirm = [System.Windows.MessageBox]::Show(
+            "¿Terminar carga de maquina y volver a MODO CLIENTE?`n`n" +
+            "A partir de ahora las monedas insertadas sumaran al saldo del cliente.",
+            "Fin de carga",
+            [System.Windows.MessageBoxButton]::YesNo,
+            [System.Windows.MessageBoxImage]::Question
+        )
+        if ($confirm -eq [System.Windows.MessageBoxResult]::Yes) {
+            Set-CargaMaquinaMode -Activa $false
+        }
+    } else {
+        $confirm = [System.Windows.MessageBox]::Show(
+            "MODO CARGA MAQUINA`n`n" +
+            "Las MONEDAS que insertes iran SOLO al inventario (cambio).`n" +
+            "Los BILLETES se ignoran (no podemos dar cambio en billetes).`n" +
+            "NO se sumaran al saldo del cliente.`n`n" +
+            "Usa esto para llenar la maquina con cambio.`n`n" +
+            "¿Activar?",
+            "Cargar maquina",
+            [System.Windows.MessageBoxButton]::YesNo,
+            [System.Windows.MessageBoxImage]::Information
+        )
+        if ($confirm -eq [System.Windows.MessageBoxResult]::Yes) {
+            Set-CargaMaquinaMode -Activa $true
+        }
+    }
+})
+
 $btnCleanSerial.Add_Click({
     $result = [System.Windows.MessageBox]::Show(
         "Esto cerrará TODOS los programas que puedan estar usando puertos seriales:`n`n" +
@@ -1638,6 +1786,7 @@ try {
     $timer = New-Object System.Windows.Threading.DispatcherTimer
     $timer.Interval = [TimeSpan]::FromSeconds(2)
     $timer.Add_Tick({
+        Sync-CargaMaquinaFromFile
         Update-Stats
         
         # Leer log de PHP y mostrarlo en el logBox
@@ -1756,7 +1905,8 @@ Add-LogMessage "=========================================="
 Add-LogMessage "Presiona INICIAR para arrancar el listener"
 Add-LogMessage ""
 
-# Actualizar stats iniciales
+# Sincronizar modo de insercion y stats iniciales
+Sync-CargaMaquinaFromFile -ForceUI
 Update-Stats
 
 # Actualizar tooltip inicial

@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->close();
 
     // Encriptar la contraseña
-    $hash = password_hash($contrasena, PASSWORD_DEFAULT);
+    $hash = md5($contrasena);
     $tipoUsuario = 1;
     // Insertar el usuario
     $stmt = $conn->prepare('INSERT INTO usuarios (nombre, correo, contrasena, tipo_usuario) VALUES (?, ?, ?,?)');

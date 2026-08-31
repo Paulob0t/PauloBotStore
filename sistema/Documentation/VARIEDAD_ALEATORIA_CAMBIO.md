@@ -158,12 +158,12 @@ Esto indica:
 
 Ver logs en tiempo real:
 ```
-http://localhost/vendingbox.online/sistema/ver_logs_live.php
+http://localhost/vendingbox/ver_logs_live.php
 ```
 
 Probar dispensado:
 ```
-http://localhost/vendingbox.online/sistema/test_dispensar_debug.php?monto=8
+http://localhost/vendingbox/test_dispensar_debug.php?monto=8
 ```
 
 ---

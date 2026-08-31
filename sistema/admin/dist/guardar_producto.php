@@ -1,12 +1,22 @@
 <?php
+// Configuración de errores para PRODUCCIÓN (NUBE) - ANTES de cualquier output
+error_reporting(E_ALL);
+ini_set('display_errors', 0);        // ✅ NO mostrar errores en output (rompe JSON)
+ini_set('log_errors', 1);            // ✅ Guardar errores en log file
+ini_set('error_log', __DIR__ . '/../../logs/php_errors.log');
+
+// Iniciar buffer de salida para capturar cualquier output inesperado
+ob_start();
+
 session_start();
 
 require_once 'db_config_dual.php';
-header('Content-Type: application/json');
 
-// Habilitar reporte de errores para desarrollo
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Limpiar cualquier output generado hasta ahora
+ob_end_clean();
+
+// AHORA establecer el header JSON (sin output previo)
+header('Content-Type: application/json');
 
 try {
     // Verificar método POST
@@ -174,6 +184,23 @@ try {
         }
         
         $stmt->close();
+        
+        // ✅ REGISTRAR EN SINCRONIZACION_LOG (UPDATE) - OPCIONAL, no debe fallar todo
+        try {
+            $stmt_log = $conn->prepare("INSERT INTO sincronizacion_log (uuid, tabla, accion, id_registro, datos, origen, sincronizado) VALUES (UUID(), 'productos', 'UPDATE', ?, ?, 'NUBE', 0)");
+            if ($stmt_log) {
+                $datos_json = json_encode($datos);
+                $stmt_log->bind_param("is", $id_producto, $datos_json);
+                if (!$stmt_log->execute()) {
+                    error_log("⚠️ No se pudo registrar en sincronizacion_log (UPDATE): " . $stmt_log->error);
+                }
+                $stmt_log->close();
+            } else {
+                error_log("⚠️ No se pudo preparar INSERT a sincronizacion_log: " . $conn->error);
+            }
+        } catch (Exception $e) {
+            error_log("⚠️ Error en sincronizacion_log (UPDATE): " . $e->getMessage());
+        }
         echo json_encode([
             'success' => true,
             'message' => 'Producto actualizado correctamente',
@@ -214,6 +241,23 @@ try {
 
         $producto_id = $conn->insert_id;
         $stmt->close();
+        
+        // ✅ REGISTRAR EN SINCRONIZACION_LOG (INSERT) - OPCIONAL, no debe fallar todo
+        try {
+            $stmt_log = $conn->prepare("INSERT INTO sincronizacion_log (uuid, tabla, accion, id_registro, datos, origen, sincronizado) VALUES (UUID(), 'productos', 'INSERT', ?, ?, 'NUBE', 0)");
+            if ($stmt_log) {
+                $datos_json = json_encode($datos);
+                $stmt_log->bind_param("is", $producto_id, $datos_json);
+                if (!$stmt_log->execute()) {
+                    error_log("⚠️ No se pudo registrar en sincronizacion_log (INSERT): " . $stmt_log->error);
+                }
+                $stmt_log->close();
+            } else {
+                error_log("⚠️ No se pudo preparar INSERT a sincronizacion_log: " . $conn->error);
+            }
+        } catch (Exception $e) {
+            error_log("⚠️ Error en sincronizacion_log (INSERT): " . $e->getMessage());
+        }
 
         echo json_encode([
             'success' => true,

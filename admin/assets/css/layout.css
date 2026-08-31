@@ -1,0 +1,220 @@
+/* PauloBot Store - Top Navbar & Sidebar Layout CSS */
+:root {
+    --nav-bg: rgba(15, 23, 42, 0.95);
+    --nav-border: rgba(255, 255, 255, 0.1);
+    --sidebar-bg: #0f172a;
+    --sidebar-active: #6366f1;
+    --sidebar-active-bg: rgba(99, 102, 241, 0.15);
+    --accent: #ffd93d;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+}
+
+/* Base resets for Layout */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #0b0f19;
+    color: var(--text-primary);
+}
+
+.container-scroller {
+    min-height: 100vh;
+}
+
+/* Top Navbar */
+.navbar-custom {
+    background: var(--nav-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--nav-border);
+    height: 70px;
+    z-index: 1030;
+    padding: 0 24px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.brand-logo-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.brand-text {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+.brand-text span {
+    color: var(--accent);
+}
+
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 16px;
+    border-radius: 9999px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.btn-logout {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-decoration: none;
+}
+
+.btn-logout:hover {
+    background: #ef4444;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Page Body Wrapper */
+.page-body-wrapper {
+    padding-top: 70px;
+    min-height: 100vh;
+    display: flex;
+    position: relative;
+}
+
+/* Sidebar Navigation */
+.sidebar-custom {
+    width: 260px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--nav-border);
+    position: fixed;
+    top: 70px;
+    bottom: 0;
+    left: 0;
+    z-index: 1020;
+    overflow-y: auto;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 20px 0;
+}
+
+.sidebar-custom.collapsed {
+    transform: translateX(-260px);
+}
+
+.sidebar-custom .nav-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    padding: 16px 24px 8px;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-custom .nav-link-custom {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 24px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.93rem;
+    transition: all 0.25s ease;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-custom .nav-link-custom:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-custom .nav-link-custom.active {
+    color: white;
+    background: var(--sidebar-active-bg);
+    border-left-color: var(--sidebar-active);
+}
+
+.sidebar-custom .nav-link-custom i {
+    font-size: 1.1rem;
+    width: 22px;
+    text-align: center;
+}
+
+/* Main Panel Layout (Content area) */
+.main-panel {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: calc(100vh - 70px);
+    display: flex;
+    flex-direction: column;
+}
+
+.main-panel.expanded {
+    margin-left: 0;
+    width: 100%;
+}
+
+.content-wrapper {
+    flex-grow: 1;
+}
+
+/* Mobile Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1015;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Media Queries for Mobile Responsiveness */
+@media (max-width: 991px) {
+    .sidebar-custom {
+        transform: translateX(-100%);
+    }
+    .sidebar-custom.show {
+        transform: translateX(0);
+    }
+    .main-panel {
+        margin-left: 0;
+        width: 100%;
+    }
+}

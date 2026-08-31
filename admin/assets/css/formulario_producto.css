@@ -1,0 +1,183 @@
+/* Formulario Producto Styling */
+:root {
+    --card-bg: rgba(15, 23, 42, 0.7);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --primary: #6366f1;
+    --accent: #ffd93d;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --input-bg: rgba(30, 41, 59, 0.6);
+    --input-border: rgba(255, 255, 255, 0.12);
+}
+
+.fp-page {
+    padding: 10px 0 40px;
+}
+
+.fp-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.fp-header-icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, var(--primary), #818cf8);
+    color: white;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+}
+
+.fp-header-text h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+}
+
+.fp-header-text p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Card Section */
+.fp-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.fp-card-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.fp-card-num {
+    width: 34px;
+    height: 34px;
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+.fp-card-head h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fp-card-head span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Form inputs & labels */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-control, .form-select {
+    background: var(--input-bg) !important;
+    border: 1.5px solid var(--input-border) !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff !important;
+    font-size: 0.95rem !important;
+    outline: none !important;
+    transition: all 0.25s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary) !important;
+    background: rgba(30, 41, 59, 0.95) !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Dropzone & Image Previews */
+.image-upload-box {
+    border: 2px dashed var(--input-border);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    background: rgba(30, 41, 59, 0.3);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.image-upload-box:hover {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.image-upload-preview {
+    max-height: 160px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+/* Actions Footer */
+.fp-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 30px;
+}
+
+.btn-save-product {
+    background: linear-gradient(135deg, var(--accent), #f59e0b);
+    color: #0f172a;
+    border: none;
+    border-radius: 9999px;
+    padding: 14px 32px;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 217, 61, 0.3);
+    transition: all 0.25s ease;
+}
+
+.btn-save-product:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255, 217, 61, 0.45);
+}

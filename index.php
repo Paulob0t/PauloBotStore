@@ -380,10 +380,10 @@
                     <div>PauloBot <span>Store</span></div>
                 </a>
                 <div class="nav-actions">
-                    <a href="./sistema/" class="btn btn-client">
+                    <a href="./store/" class="btn btn-client">
                         <i class="fas fa-shopping-bag"></i> Sistema de Clientes
                     </a>
-                    <a href="./sistema/admin/dist/login.php" class="btn btn-admin">
+                    <a href="./admin/login.php" class="btn btn-admin">
                         <i class="fas fa-user-shield"></i> Administrador
                     </a>
                 </div>
@@ -416,7 +416,7 @@
                         <h3>Sistema de Clientes</h3>
                         <p>Catálogo interactivo de productos, snacks, bebidas y terminal de compra automatizada para usuarios finales.</p>
                     </div>
-                    <a href="./sistema/" class="btn btn-client portal-btn">
+                    <a href="./store/" class="btn btn-client portal-btn">
                         <i class="fas fa-shopping-cart"></i> Acceder a Tienda / Clientes
                     </a>
                 </div>
@@ -430,7 +430,7 @@
                         <h3>Panel Administrador</h3>
                         <p>Gestión completa de inventario, cortes de caja, reporte de movimientos, configuración de empresa y monedero MDB.</p>
                     </div>
-                    <a href="./sistema/admin/dist/login.php" class="btn btn-admin portal-btn">
+                    <a href="./admin/login.php" class="btn btn-admin portal-btn">
                         <i class="fas fa-key"></i> Acceso Administrador
                     </a>
                 </div>

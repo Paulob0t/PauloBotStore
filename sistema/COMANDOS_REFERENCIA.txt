@@ -1,0 +1,81 @@
+═══════════════════════════════════════════════════════════
+    REFERENCIA RÁPIDA - COMANDOS HARDWARE VENDIGBOX
+═══════════════════════════════════════════════════════════
+
+📌 FORMATO: INT000[HEX]00Z\r\n
+⏱️  TIMING: Esperar 200ms mínimo entre comandos
+🔌 PUERTO: COM5 @ 9600 baud
+
+───────────────────────────────────────────────────────────
+🔧 COMANDOS DE CONTROL
+───────────────────────────────────────────────────────────
+RESET              INT0000000\r\n     Reinicia hardware
+HABILITAR          INT0000001\r\n     Activa monedero/billetero
+DESHABILITAR       INT0000002\r\n     Desactiva monedero/billetero
+
+───────────────────────────────────────────────────────────
+💰 DISPENSAR CAMBIO (Comando: INT000[HEX]003\r\n)
+───────────────────────────────────────────────────────────
+$1                 INT0001003\r\n
+$2                 INT0002003\r\n
+$5                 INT0005003\r\n
+$10                INT000A003\r\n
+$20                INT00014003\r\n
+$50                INT00032003\r\n
+
+───────────────────────────────────────────────────────────
+📥 ENTRADAS DE DINERO (Hardware → Sistema)
+───────────────────────────────────────────────────────────
+$10 Moneda         INT000A018\r\n     (18 = monedero)
+$10 Billete        INT000A028\r\n     (28 = billetero)
+$10 Tarjeta        INT000A038\r\n     (38 = PAX/Nayax)
+$20 Billete        INT00014028\r\n
+$100 Billete       INT00064028\r\n
+
+───────────────────────────────────────────────────────────
+💳 PROCESO PAX/NAYAX (Tarjeta)
+───────────────────────────────────────────────────────────
+1. Cobrar $10      INT000A006\r\n     Iniciar cobro
+   └─ Espera       INT000A038\r\n     Cliente pagó $10
+2. Éxito           INT0000009\r\n     Producto entregado
+   O Error         INT000000:\r\n     Regresar dinero
+   O Cancelar      INT0000007\r\n     Cancelar cobro
+
+───────────────────────────────────────────────────────────
+🔢 CONVERSIÓN HEX
+───────────────────────────────────────────────────────────
+$1=1    $2=2    $5=5    $10=A   $20=14
+$50=32  $100=64 $200=C8 $500=1F4
+
+───────────────────────────────────────────────────────────
+🧪 TESTING
+───────────────────────────────────────────────────────────
+Web:    http://localhost/vendigbox.c-onlineweb.net/test_dispensar_cambio.php
+
+API:    curl "http://localhost/vendigbox.c-onlineweb.net/monedero_api.php?action=hardware_reset"
+        curl -X POST ".../monedero_api.php?action=dispensar_cambio" -d "monto=15"
+
+PowerShell:
+        $port = New-Object System.IO.Ports.SerialPort
+        $port.PortName = "COM5"
+        $port.BaudRate = 9600
+        $port.Open()
+        $port.Write("INT0000000`r`n")
+        $port.ReadExisting()
+        $port.Close()
+
+───────────────────────────────────────────────────────────
+📝 EJEMPLO: Dispensar $15
+───────────────────────────────────────────────────────────
+1. INT000A003\r\n   → Dispensar $10
+   (esperar 200ms)
+2. INT0005003\r\n   → Dispensar $5
+
+───────────────────────────────────────────────────────────
+🔍 DIAGNÓSTICO
+───────────────────────────────────────────────────────────
+Ver logs:          type admin\dist\logs\monedero_listener.log
+Ver puertos COM:   [System.IO.Ports.SerialPort]::getportnames()
+Detener listener:  taskkill /F /IM php.exe
+
+═══════════════════════════════════════════════════════════

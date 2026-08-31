@@ -1,28 +1,24 @@
 @echo off
 cls
 echo ========================================
-echo  DETENER LISTENER DEL MONEDERO
+echo  DETENER GESTOR COM5 DEL MONEDERO
 echo ========================================
 echo.
 
-echo Buscando procesos PHP del listener...
+echo Buscando procesos PHP de com5_manager...
 echo.
 
-REM Buscar y matar todos los procesos PHP relacionados con monedero
-tasklist /FI "IMAGENAME eq php.exe" 2>nul | find /I "php.exe" >nul
+wmic process where "name='php.exe' and commandline like '%%com5_manager%%'" get processid,commandline 2>nul | findstr /I "com5_manager" >nul
 if %ERRORLEVEL% EQU 0 (
-    echo Procesos PHP encontrados:
-    tasklist /FI "IMAGENAME eq php.exe"
-    echo.
-    echo Deteniendo listener...
-    taskkill /F /IM php.exe /T >nul 2>&1
+    echo Deteniendo com5_manager...
+    wmic process where "name='php.exe' and commandline like '%%com5_manager%%'" delete >nul 2>&1
     if %ERRORLEVEL% EQU 0 (
-        echo [OK] Listener detenido exitosamente
+        echo [OK] Gestor COM5 detenido exitosamente
     ) else (
-        echo [INFO] No se pudo detener o no habia listener corriendo
+        echo [INFO] No se pudo detener com5_manager
     )
 ) else (
-    echo [INFO] No hay procesos PHP corriendo
+    echo [INFO] com5_manager no esta corriendo
 )
 
 echo.

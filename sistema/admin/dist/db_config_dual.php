@@ -1,244 +1,112 @@
 <?php
 /**
- * 🔄 CONFIGURACIÓN INTELIGENTE DE BD
- * 
- * 🚀 DETECCIÓN AUTOMÁTICA DE AMBIENTE:
- * - 🖥️ XAMPP Local: BD MySQL local sin password
- * - ☁️ cPanel/Hosting: BD del hosting directo
- * 
- * Se reconecta automáticamente según el ambiente
+ * Configuraci�n BD para proyecto NUBE (vendingbox.online)
+ *
+ * - En el servidor (cPanel/Linux): MySQL en localhost
+ * - En tu PC (XAMPP/Windows probando este proyecto): MySQL remoto de la nube
  */
 
-// Configuración de errores
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 error_reporting(E_ALL);
-
-// Zona horaria de México
 date_default_timezone_set('America/Mexico_City');
 
-// ============================================
-// 🕵️ DETECTAR AMBIENTE AUTOMÁTICAMENTE
-// ============================================
-function detectEnvironment() {
-    // Verificar si es Windows (XAMPP local)
-    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        return 'XAMPP';
+// Credenciales de la BD en hosting
+$DB_USER = 'colegos_vending';
+$DB_PASS = 'IfbUK2ClF~bV';
+$DB_NAME = 'colegos_vending';
+$DB_PORT = 3306;
+
+/**
+ * �Corre en el servidor de producci�n o en XAMPP probando la copia nube?
+ */
+function isCloudServerRuntime(): bool
+{
+    if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+        return true;
     }
-    
-    // Verificar si es hosting compartido (cPanel)
-    if (
-        isset($_SERVER['HTTP_HOST']) && 
-        (
-            strpos($_SERVER['HTTP_HOST'], 'colegos.com.mx') !== false ||
-            strpos($_SERVER['HTTP_HOST'], 'cpanel') !== false ||
-            file_exists('/home/') ||
-            !empty($_SERVER['cPanel']) ||
-            isset($_SERVER['WHM'])
-        )
-    ) {
-        return 'CPANEL';
+
+    $host = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
+    if ($host !== '' && strpos($host, 'vendingbox.online') !== false) {
+        return true;
     }
-    
-    // Por defecto asumir cPanel si no es Windows
-    return 'CPANEL';
+
+    return false;
 }
 
-$ambiente = detectEnvironment();
-error_log("🌍 Ambiente detectado: " . $ambiente);
+$isOnServer = isCloudServerRuntime();
+$dbHost = $isOnServer ? 'localhost' : 'cpanel.colegos.com.mx';
 
-// ============================================
-// 🎯 CONFIGURACIÓN SEGÚN AMBIENTE
-// ============================================
-$conn_local = null;
+try {
+    $conn = new mysqli($dbHost, $DB_USER, $DB_PASS, $DB_NAME, $DB_PORT);
 
-if ($ambiente === 'XAMPP') {
-    // 🖥️ AMBIENTE LOCAL (XAMPP en Windows)
-    // ⚠️ MODIFICADO: En XAMPP usar SIEMPRE la BD de la nube
-    // La BD local puede no tener datos sincronizados
-    error_log("🖥️ XAMPP detectado - Configurado para usar BD en la nube");
-    $conn_local = null; // No usar BD local, saltar al fallback de nube
-    
-} else {
-    // ☁️ AMBIENTE CPANEL/HOSTING
-    $db_host = getenv('DB_HOST') ?: 'localhost';
-    $db_user = getenv('DB_USER') ?: 'vending_user';
-    $db_pass = getenv('DB_PASS') ?: '';
-    $db_name = getenv('DB_NAME') ?: 'vending_db';
-
-    try {
-        $conn_local = new mysqli($db_host, $db_user, $db_pass, $db_name);
-        
-        if ($conn_local->connect_error) {
-            error_log("⚠️ BD CPANEL no disponible: " . $conn_local->connect_error);
-            $conn_local = null;
-        } else {
-            $conn_local->set_charset('utf8mb4');
-            error_log("✅ Conectado a BD CPANEL");
-        }
-    } catch (Exception $e) {
-        error_log("⚠️ Error cPanel: " . $e->getMessage());
-        $conn_local = null;
+    if ($conn->connect_error) {
+        error_log("ERROR BD NUBE ($dbHost): " . $conn->connect_error);
+        die(json_encode([
+            'error'   => 'Error de conexi�n a base de datos',
+            'details' => $isOnServer
+                ? 'No se pudo conectar a la BD del servidor.'
+                : 'No se pudo conectar a la BD remota desde tu PC. Verifica internet y que cPanel permita acceso remoto a MySQL.',
+            'host'    => $dbHost,
+        ]));
     }
-}
 
-// ============================================
-// ☁️ CONEXIÓN de RESPALDO (NUBE - siempre intentar)
-// ============================================
-$conn_nube = null;
-
-// Intentar conexión a la nube como fallback (útil cuando BD local no está disponible)
-if ($ambiente === 'XAMPP') {
-    $db_nube_host = getenv('DB_NUBE_HOST') ?: 'cpanel.ejemplo.com';
-    $db_nube_user = getenv('DB_NUBE_USER') ?: 'vending_user';
-    $db_nube_pass = getenv('DB_NUBE_PASS') ?: '';
-    $db_nube_name = getenv('DB_NUBE_NAME') ?: 'vending_db';
-
-    try {
-        $conn_nube = new mysqli($db_nube_host, $db_nube_user, $db_nube_pass, $db_nube_name, 3306);
-        
-        if ($conn_nube->connect_error) {
-            error_log("⚠️ BD en la nube no disponible: " . $conn_nube->connect_error);
-            $conn_nube = null;
-        } else {
-            $conn_nube->set_charset('utf8mb4');
-            error_log("✅ BD en la nube disponible como fallback");
-        }
-    } catch (Exception $e) {
-        error_log("⚠️ No se pudo conectar a BD remota: " . $e->getMessage());
-        $conn_nube = null;
-    }
-    
-} else {
-    // En cPanel ya estamos en la nube, no necesitamos conexión externa
-    error_log("ℹ️ En cPanel - Ya estamos en la nube");
-}
-
-// ============================================
-// 🎯 ASIGNAR CONEXIÓN PRINCIPAL (con fallback automático)
-// ============================================
-
-if ($conn_local !== null && !$conn_local->connect_error) {
-    // ✅ Conexión local disponible (preferida)
-    $conn = $conn_local;
-    
-    if ($ambiente === 'XAMPP') {
-        define('USING_DB', 'LOCAL_XAMPP');
-        define('IS_LOCAL', true);
-        $db_name = 'vending';
-        error_log("🖥️ Usando BD LOCAL XAMPP");
-    } else {
-        define('USING_DB', 'CPANEL');
-        define('IS_LOCAL', false);
-        $db_name = 'colegos_vending';
-        error_log("☁️ Usando BD CPANEL en hosting");
-    }
-    
-} elseif ($conn_nube !== null && !$conn_nube->connect_error) {
-    // 🔄 FALLBACK: Usar BD en la nube si local no está disponible
-    $conn = $conn_nube;
-    define('USING_DB', 'NUBE_FALLBACK');
-    define('IS_LOCAL', false);
-    $db_name = 'colegos_vending';
-    error_log("☁️ BD LOCAL no disponible - Usando BD EN LA NUBE como fallback");
-    error_log("⚠️ Advertencia: Trabajando directo en producción");
-    
-} else {
-    // ❌ No hay NINGUNA conexión disponible
-    error_log("❌ ERROR CRÍTICO: No hay conexión a BD disponible");
-    error_log("🔍 Debug - Ambiente: $ambiente");
-    error_log("🔍 Debug - Error local: " . ($conn_local ? $conn_local->connect_error : 'mysqli object null'));
-    error_log("🔍 Debug - Error nube: " . ($conn_nube ? $conn_nube->connect_error : 'no intentada'));
-    
+    $conn->set_charset('utf8mb4');
+} catch (Exception $e) {
+    error_log("ERROR BD: " . $e->getMessage());
     die(json_encode([
-        'error' => 'Error de conexión a base de datos',
-        'ambiente' => $ambiente,
-        'details' => 'No se pudo conectar ni a BD local ni a BD en la nube. Verifica que MySQL esté corriendo localmente o que tengas conexión a Internet.',
-        'error_local' => $conn_local ? $conn_local->connect_error : 'No se pudo crear objeto mysqli',
-        'error_nube' => $conn_nube ? $conn_nube->connect_error : 'No se intentó conexión'
+        'error'   => 'Error de conexi�n a base de datos',
+        'details' => $e->getMessage(),
+        'host'    => $dbHost,
     ]));
 }
 
-// ============================================
-// 🔧 FUNCIONES AUXILIARES
-// ============================================
+define('USING_DB', $isOnServer ? 'NUBE_CPANEL' : 'NUBE_REMOTA_DESDE_PC');
+define('IS_LOCAL', false);
 
-/**
- * Obtener conexión principal (según ambiente)
- * @return mysqli
- */
-function getMainDB() {
+$conn_nube = null;
+
+function getMainDB()
+{
     global $conn;
     return $conn;
 }
 
-/**
- * Obtener conexión de respaldo (solo en XAMPP)
- * @return mysqli|null
- */
-function getBackupDB() {
-    global $conn_nube;
-    return $conn_nube;
+function getBackupDB()
+{
+    return null;
 }
 
-/**
- * Verificar estado de conexiones
- * @return array
- */
-function checkDBStatus() {
-    global $conn, $conn_nube, $ambiente;
-    
-    $status = [
-        'ambiente' => $ambiente,
+function checkDBStatus()
+{
+    global $conn, $isOnServer, $dbHost;
+
+    return [
+        'ambiente'  => USING_DB,
         'principal' => [
             'connected' => $conn && !$conn->connect_error,
-            'host' => $conn ? ($conn->host_info ?? 'N/A') : 'N/A',
-            'usando' => USING_DB
+            'host'      => $conn ? ($conn->host_info ?? 'N/A') : 'N/A',
+            'usando'    => USING_DB,
         ],
-        'respaldo' => [
-            'connected' => $conn_nube && !$conn_nube->connect_error,
-            'disponible' => $conn_nube !== null
+        'respaldo'  => ['connected' => false, 'disponible' => false],
+        'is_local'  => false,
+        'debug'     => [
+            'php_os'      => PHP_OS,
+            'http_host'   => $_SERVER['HTTP_HOST'] ?? 'N/A',
+            'db_host'     => $dbHost,
+            'on_server'   => $isOnServer,
         ],
-        'is_local' => IS_LOCAL,
-        'debug' => [
-            'php_os' => PHP_OS,
-            'server_name' => $_SERVER['SERVER_NAME'] ?? 'N/A',
-            'http_host' => $_SERVER['HTTP_HOST'] ?? 'N/A'
-        ]
     ];
-    
-    return $status;
 }
 
-/**
- * Verificar si tiene conexión de respaldo para sincronización
- * @return bool
- */
-function hasBackupConnection() {
-    global $conn_nube;
-    return $conn_nube !== null && !$conn_nube->connect_error;
+function hasBackupConnection()
+{
+    return false;
 }
 
-// ============================================
-// 📝 LOGS DE DEBUG (solo en desarrollo)
-// ============================================
-
-// Debug de ambiente y conexión
-error_log("=== DEBUG DATABASE CONNECTION ===");
-error_log("🌍 Ambiente detectado: " . $ambiente);
-error_log("🔗 Usando: " . USING_DB);
-error_log("🏠 Es local: " . (IS_LOCAL ? 'SÍ' : 'NO'));
-error_log("📡 Respaldo disponible: " . (hasBackupConnection() ? 'SÍ' : 'NO'));
-error_log("=== END DEBUG ===");
-
-// Test rápido de conexión
 if ($conn) {
-    $test_query = $conn->query("SELECT 1 as test");
-    if ($test_query) {
-        error_log("✅ Test de conexión exitoso");
-        $test_query->free();
-    } else {
-        error_log("❌ Test de conexión falló: " . $conn->error);
+    $test = $conn->query('SELECT 1 AS test');
+    if ($test) {
+        $test->free();
     }
 }
-?>
-

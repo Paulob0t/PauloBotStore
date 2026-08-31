@@ -1,0 +1,434 @@
+/* ===================================================
+   VendingBox Admin — Layout + Sidebar (global)
+   =================================================== */
+
+:root {
+  --vb-yellow: #f2dc00;
+  --vb-yellow-soft: #fff59d;
+  --vb-black: #0a0a0a;
+  --vb-black-soft: #171717;
+  --vb-sidebar-w: 260px;
+  --vb-sidebar-collapsed: 76px;
+  --vb-navbar-h: 60px;
+  --vb-transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Anular fondos claros del template Skydash ─── */
+.page-body-wrapper {
+  width: 100% !important;
+  min-height: calc(100vh - var(--vb-navbar-h));
+  padding-top: var(--vb-navbar-h) !important;
+  background: var(--vb-black) !important;
+}
+
+.sidebar,
+.sidebar.vb-sidebar {
+  background: linear-gradient(180deg, var(--vb-black) 0%, var(--vb-black-soft) 100%) !important;
+}
+
+.navbar .navbar-brand-wrapper,
+.navbar .navbar-menu-wrapper {
+  height: var(--vb-navbar-h) !important;
+  min-height: var(--vb-navbar-h) !important;
+}
+
+.navbar .navbar-brand-wrapper {
+  width: var(--vb-sidebar-w) !important;
+  background: transparent !important;
+}
+
+.navbar .navbar-menu-wrapper {
+  width: calc(100% - var(--vb-sidebar-w)) !important;
+  background: transparent !important;
+}
+
+/* ─── Override template Skydash conflicts ─── */
+body.sidebar-icon-only .sidebar {
+  width: var(--vb-sidebar-w) !important;
+}
+
+body.sidebar-icon-only .main-panel {
+  width: calc(100% - var(--vb-sidebar-w)) !important;
+  margin-left: var(--vb-sidebar-w) !important;
+}
+
+body.sidebar-icon-only .menu-section,
+body.sidebar-icon-only .menu-section-title,
+body.sidebar-icon-only .menu-divider,
+body.sidebar-icon-only .vb-nav-section {
+  display: block !important;
+}
+
+body.sidebar-icon-only .sidebar .nav .nav-item .nav-link .menu-title {
+  display: inline !important;
+  background: none !important;
+}
+
+/* Kill purple active/hover from template */
+.sidebar .nav:not(.sub-menu) > .nav-item:hover > .nav-link,
+.sidebar .nav:not(.sub-menu) > .nav-item:hover[aria-expanded="true"],
+.sidebar .nav .nav-item.active > .nav-link,
+.sidebar .nav:not(.sub-menu) > .nav-item.active {
+  background: transparent !important;
+}
+
+.sidebar .nav .nav-item.active > .nav-link i,
+.sidebar .nav .nav-item.active > .nav-link .menu-title,
+.sidebar .nav .nav-item:hover > .nav-link i,
+.sidebar .nav .nav-item:hover > .nav-link .menu-title {
+  color: inherit !important;
+}
+
+/* ─── Page shell (main panel) ─── */
+.main-panel {
+  margin-left: var(--vb-sidebar-w) !important;
+  width: calc(100% - var(--vb-sidebar-w)) !important;
+  max-width: none !important;
+  flex: 1 1 auto !important;
+  background: linear-gradient(135deg, #101010 0%, #1a1a1a 55%, #262626 100%);
+  min-height: calc(100vh - var(--vb-navbar-h));
+  transition: margin-left var(--vb-transition), width var(--vb-transition);
+}
+
+.main-panel .content-wrapper {
+  background: transparent !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 1.25rem 1.5rem 1.75rem !important;
+}
+
+/* ─── Sidebar overlay (mobile) ─── */
+.vb-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  top: var(--vb-navbar-h);
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 1040;
+  opacity: 0;
+  transition: opacity var(--vb-transition);
+  backdrop-filter: blur(2px);
+}
+
+body.vb-sidebar-open .vb-sidebar-overlay {
+  display: block;
+  opacity: 1;
+}
+
+/* ─── Sidebar ─── */
+.sidebar.vb-sidebar {
+  position: fixed;
+  left: 0;
+  top: var(--vb-navbar-h);
+  height: calc(100vh - var(--vb-navbar-h));
+  width: var(--vb-sidebar-w);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--vb-black) 0%, var(--vb-black-soft) 100%);
+  border-right: 3px solid var(--vb-yellow);
+  transition: width var(--vb-transition), transform var(--vb-transition);
+  overflow: hidden;
+}
+
+.vb-sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.1rem 0.85rem;
+  border-bottom: 1px solid rgba(242, 220, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.vb-sidebar-brand-text {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--vb-yellow);
+  letter-spacing: 0.5px;
+}
+
+.vb-sidebar-brand-short {
+  display: none;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--vb-yellow);
+}
+
+.vb-sidebar-close {
+  background: transparent;
+  border: 1px solid rgba(242, 220, 0, 0.4);
+  color: var(--vb-yellow);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.vb-sidebar-close:hover {
+  background: rgba(242, 220, 0, 0.12);
+}
+
+.vb-sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 0 1rem;
+}
+
+.vb-sidebar-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.vb-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--vb-yellow);
+  border-radius: 3px;
+}
+
+.vb-sidebar-footer {
+  padding: 0.85rem 1.1rem;
+  border-top: 1px solid rgba(242, 220, 0, 0.15);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+
+.vb-sidebar-footer strong {
+  color: var(--vb-yellow);
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 2px;
+}
+
+/* ─── Nav items ─── */
+.sidebar .nav {
+  padding: 0;
+  margin: 0 !important;
+  list-style: none;
+}
+
+.sidebar .nav .nav-item {
+  margin: 0 0.65rem 4px;
+}
+
+.vb-nav-section {
+  list-style: none;
+  padding: 1.1rem 1rem 0.35rem 1.15rem;
+  margin: 0;
+}
+
+.vb-nav-section span {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: rgba(242, 220, 0, 0.55);
+  position: relative;
+  padding-left: 10px;
+}
+
+.vb-nav-section span::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 11px;
+  background: var(--vb-yellow);
+  border-radius: 2px;
+}
+
+.menu-divider {
+  height: 1px;
+  margin: 0.65rem 1rem;
+  background: linear-gradient(90deg, transparent, rgba(242, 220, 0, 0.25), transparent);
+  list-style: none;
+}
+
+.sidebar .nav .nav-item .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.72rem 0.95rem;
+  border-radius: 10px;
+  color: #f0f0f0;
+  border-left: 3px solid transparent;
+  transition: all 0.22s ease;
+  text-decoration: none;
+  position: relative;
+}
+
+.sidebar .nav .nav-item .nav-link i {
+  font-size: 1.1rem;
+  width: 22px;
+  text-align: center;
+  color: var(--vb-yellow);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.sidebar .nav .nav-item .nav-link .menu-title {
+  font-size: 0.92rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar .nav .nav-item .nav-link:hover {
+  background: rgba(242, 220, 0, 0.1);
+  color: var(--vb-yellow);
+  border-left-color: var(--vb-yellow);
+  transform: translateX(2px);
+}
+
+.sidebar .nav .nav-item .nav-link:hover i {
+  transform: scale(1.08);
+}
+
+.sidebar .nav .nav-item.active > .nav-link {
+  background: linear-gradient(90deg, rgba(242, 220, 0, 0.22) 0%, rgba(242, 220, 0, 0.06) 100%) !important;
+  color: var(--vb-yellow) !important;
+  border-left-color: var(--vb-yellow) !important;
+  font-weight: 600;
+  box-shadow: inset 0 0 12px rgba(242, 220, 0, 0.08);
+}
+
+.sidebar .nav .nav-item.active > .nav-link i,
+.sidebar .nav .nav-item.active > .nav-link .menu-title {
+  color: var(--vb-yellow) !important;
+}
+
+/* ─── Desktop collapsed mode ─── */
+body.vb-sidebar-collapsed .sidebar.vb-sidebar {
+  width: var(--vb-sidebar-collapsed);
+}
+
+body.vb-sidebar-collapsed .main-panel {
+  margin-left: var(--vb-sidebar-collapsed) !important;
+  width: calc(100% - var(--vb-sidebar-collapsed)) !important;
+}
+
+body.vb-sidebar-collapsed .vb-sidebar-brand-text {
+  display: none;
+}
+
+body.vb-sidebar-collapsed .vb-sidebar-brand-short {
+  display: inline;
+}
+
+body.vb-sidebar-collapsed .menu-title,
+body.vb-sidebar-collapsed .vb-nav-section,
+body.vb-sidebar-collapsed .menu-divider,
+body.vb-sidebar-collapsed .vb-sidebar-footer {
+  display: none !important;
+}
+
+body.vb-sidebar-collapsed .sidebar .nav .nav-item {
+  margin: 0 0.4rem 4px;
+}
+
+body.vb-sidebar-collapsed .sidebar .nav .nav-item .nav-link {
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+}
+
+body.vb-sidebar-collapsed .sidebar .nav .nav-item .nav-link i {
+  margin: 0;
+}
+
+/* ─── Main panel content theming ─── */
+.main-panel .content-wrapper h1,
+.main-panel .content-wrapper h2,
+.main-panel .content-wrapper h3,
+.main-panel .content-wrapper h4,
+.main-panel .content-wrapper h5,
+.main-panel .content-wrapper h6,
+.main-panel .content-wrapper .card-title {
+  color: var(--vb-yellow);
+}
+
+.main-panel .content-wrapper p,
+.main-panel .content-wrapper label,
+.main-panel .content-wrapper small {
+  color: #f2f2f2;
+}
+
+.main-panel .card {
+  background: #121212;
+  border: 1px solid rgba(242, 220, 0, 0.35);
+}
+
+/* ─── Responsive: tablet & mobile ─── */
+@media (max-width: 991px) {
+  .sidebar.vb-sidebar,
+  .sidebar.sidebar-offcanvas {
+    position: fixed !important;
+    left: 0 !important;
+    right: auto !important;
+    top: var(--vb-navbar-h) !important;
+    width: min(300px, 88vw) !important;
+    height: calc(100vh - var(--vb-navbar-h)) !important;
+    max-height: none !important;
+    transform: translateX(-105%);
+    transition: transform var(--vb-transition);
+    border-right: 3px solid var(--vb-yellow);
+    border-bottom: none;
+  }
+
+  body.vb-sidebar-open .sidebar.vb-sidebar,
+  body.vb-sidebar-open .sidebar.sidebar-offcanvas,
+  .sidebar.sidebar-offcanvas.active {
+    transform: translateX(0) !important;
+    right: auto !important;
+  }
+
+  .main-panel {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  body.vb-sidebar-collapsed .main-panel {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  body.vb-sidebar-collapsed .sidebar.vb-sidebar {
+    width: min(300px, 88vw) !important;
+  }
+
+  .main-panel .content-wrapper {
+    padding: 1rem 1rem 1.5rem !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .main-panel .content-wrapper {
+    padding: 0.75rem 0.65rem 1.25rem !important;
+  }
+
+  .vb-sidebar-brand {
+    padding: 0.85rem 0.9rem;
+  }
+}
+
+/* Form / table pages: full width */
+.main-panel .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.main-panel .grid-margin,
+.main-panel .stretch-card {
+  padding: 0 !important;
+}
+
+.main-panel .col-12.grid-margin {
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+}

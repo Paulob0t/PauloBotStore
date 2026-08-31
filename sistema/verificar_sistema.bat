@@ -35,16 +35,40 @@ if %ERRORLEVEL% EQU 0 (
 
 echo.
 echo [3/5] Verificando archivos...
-if exist "monedero_listener.php" (
-    echo [OK] monedero_listener.php existe
+if exist "com5_manager.php" (
+    echo [OK] com5_manager.php existe
 ) else (
-    echo [ERROR] monedero_listener.php NO existe
+    echo [ERROR] com5_manager.php NO existe
+)
+
+if exist "com5_ps_manager.ps1" (
+    echo [OK] com5_ps_manager.ps1 existe
+) else (
+    echo [WARN] com5_ps_manager.ps1 NO existe
+)
+
+if exist "com5_send_command.php" (
+    echo [OK] com5_send_command.php existe
+) else (
+    echo [WARN] com5_send_command.php NO existe
 )
 
 if exist "monedero_api.php" (
     echo [OK] monedero_api.php existe
 ) else (
     echo [ERROR] monedero_api.php NO existe
+)
+
+if exist "MonederoMonitor.bat" (
+    echo [OK] MonederoMonitor.bat existe
+) else (
+    echo [WARN] MonederoMonitor.bat NO existe
+)
+
+if exist "MonederoMonitor.ps1" (
+    echo [OK] MonederoMonitor.ps1 existe
+) else (
+    echo [WARN] MonederoMonitor.ps1 NO existe
 )
 
 if exist "cart.php" (
@@ -62,9 +86,16 @@ if exist "admin\dist\logs\saldo_actual.json" (
     echo [INFO] No hay saldo registrado aun
 )
 
+if exist "admin\dist\logs\coin_inventory.log" (
+    echo [OK] Inventario de cambio existe
+) else (
+    echo [WARN] coin_inventory.log no existe - se crea al insertar monedas
+)
+
 echo.
 echo [5/5] Probando API...
-powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost/vendigbox.c-onlineweb.net/monedero_api.php?action=get_saldo' -UseBasicParsing; Write-Host '[OK] API funciona'; Write-Host $response.Content } catch { Write-Host '[ERROR] API no responde:' $_; }"
+powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost/vendingbox/monedero_api.php?action=get_saldo' -UseBasicParsing; Write-Host '[OK] API saldo:'; Write-Host $response.Content } catch { Write-Host '[ERROR] API no responde:' $_; }"
+powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost/vendingbox/monedero_api.php?action=get_coin_inventory' -UseBasicParsing; Write-Host '[OK] API inventario:'; Write-Host $response.Content } catch { Write-Host '[WARN] Inventario API:' $_; }"
 
 :end
 echo.

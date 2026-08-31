@@ -16,99 +16,65 @@ if (!isset($_SESSION['login']) || $_SESSION['login'] === false) {
 
 ?>
 <style>
-    
-.navbar {
-  z-index: 1030; /* Bootstrap default for fixed navbars */
+/* Tema contraste VendingBox: negro + amarillo */
+:root {
+  --vb-yellow: #f2dc00;
+  --vb-yellow-soft: #fff59d;
+  --vb-black: #0a0a0a;
+  --vb-black-soft: #171717;
 }
 
-.navbar .dropdown-menu {
-  z-index: 1050; /* Higher than navbar */
-  margin-top: 0.8rem; /* Adjust as needed to match navbar height */
+.navbar {
+  z-index: 1030;
+  background: linear-gradient(90deg, var(--vb-yellow) 0%, #ffe400 50%, #f2dc00 100%);
+  border-bottom: 2px solid #000;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.navbar .navbar-brand-wrapper {
+  background: transparent;
+}
+
+.navbar .navbar-menu-wrapper {
+  background: transparent;
+}
+
+.navbar .nav-link,
+.navbar .navbar-toggler,
+.navbar .icon-menu,
+.navbar i {
+  color: #000 !important;
+}
+
+.navbar .nav-link:hover {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
 }
 
 </style>
 <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
   <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-    <a class="navbar-brand brand-logo me-5" href="index.php"><img src="assets/images/logo.svg" class="me-2" alt="logo" /></a>
-    <a class="navbar-brand brand-logo-mini" href="index.php"><img src="assets/images/logo-mini.svg" alt="logo" /></a>
+    <a class="navbar-brand brand-logo me-5" href="index.php" style="font-size: 24px; font-weight: 900; color: #000; text-decoration: none; letter-spacing: 1px;">VendingBox</a>
+    <a class="navbar-brand brand-logo-mini" href="index.php" style="font-size: 20px; font-weight: 900; color: #000; text-decoration: none;">VB</a>
   </div>
   <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
-    <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+    <button class="navbar-toggler navbar-toggler align-self-center" type="button" id="vbSidebarToggle" aria-label="Abrir o cerrar menú">
       <span class="icon-menu"></span>
     </button>
-    <ul class="navbar-nav mr-lg-2">
-      <li class="nav-item nav-search d-none d-lg-block">
-        <div class="input-group">
-          <div class="input-group-prepend hover-cursor" id="navbar-search-icon">
-            <span class="input-group-text" id="search">
-              <i class="icon-search"></i>
-            </span>
-          </div>
-          <input type="text" class="form-control" id="navbar-search-input" placeholder="Search now" aria-label="search" aria-describedby="search">
-        </div>
-      </li>
-    </ul>
     <ul class="navbar-nav navbar-nav-right">
-      <li class="nav-item dropdown">
-        <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
-          <i class="icon-bell mx-0"></i>
-          <span class="count"></span>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
-          <p class="mb-0 font-weight-normal float-left dropdown-header">Notifications</p>
-          <a class="dropdown-item preview-item">
-            <div class="preview-thumbnail">
-              <div class="preview-icon bg-success">
-                <i class="ti-info-alt mx-0"></i>
-              </div>
-            </div>
-            <div class="preview-item-content">
-              <h6 class="preview-subject font-weight-normal">Application Error</h6>
-              <p class="font-weight-light small-text mb-0 text-muted"> Just now </p>
-            </div>
-          </a>
-          <a class="dropdown-item preview-item">
-            <div class="preview-thumbnail">
-              <div class="preview-icon bg-warning">
-                <i class="ti-settings mx-0"></i>
-              </div>
-            </div>
-            <div class="preview-item-content">
-              <h6 class="preview-subject font-weight-normal">Settings</h6>
-              <p class="font-weight-light small-text mb-0 text-muted"> Private message </p>
-            </div>
-          </a>
-          <a class="dropdown-item preview-item">
-            <div class="preview-thumbnail">
-              <div class="preview-icon bg-info">
-                <i class="ti-user mx-0"></i>
-              </div>
-            </div>
-            <div class="preview-item-content">
-              <h6 class="preview-subject font-weight-normal">New user registration</h6>
-              <p class="font-weight-light small-text mb-0 text-muted"> 2 days ago </p>
-            </div>
-          </a>
-        </div>
-      </li>
-      <li class="nav-item nav-profile dropdown">
-        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
+      <li class="nav-item d-flex align-items-center" style="margin-right: 15px;">
+        <span style="color: #000; font-weight: 600; font-size: 15px;">
+          <i class="ti-user" style="margin-right: 5px;"></i>
           <?php echo htmlspecialchars($nombre_usuario); ?>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-          <a class="dropdown-item">
-            <i class="ti-settings text-primary"></i> Settings </a>
-          <a class="dropdown-item" id="logout-link" href="#">
-            <i class="ti-power-off text-primary"></i> Cerrar sesi&oacute;n </a>
-        </div>
+        </span>
       </li>
-      <li class="nav-item nav-settings d-none d-lg-flex">
-        <a class="nav-link" href="#">
-          <i class="icon-ellipsis"></i>
+      <li class="nav-item">
+        <a class="nav-link" id="logout-link" href="#" title="Cerrar sesión" style="padding: 8px 15px;">
+          <i class="ti-power-off" style="font-size: 20px;"></i>
         </a>
       </li>
     </ul>
-    <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+    <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" id="vbSidebarToggleMobile" aria-label="Abrir menú">
       <span class="icon-menu"></span>
     </button>
   </div>

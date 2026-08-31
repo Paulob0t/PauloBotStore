@@ -1,0 +1,552 @@
+/* Dashboard VendingBox — layout + tema amarillo/negro */
+
+:root {
+  --vb-yellow: #f2dc00;
+  --vb-yellow-dim: rgba(242, 220, 0, 0.15);
+  --vb-black: #0a0a0a;
+  --vb-card: #121212;
+  --vb-card-2: #181818;
+  --vb-text: #f5f5f5;
+  --vb-muted: #9ca3af;
+  --vb-radius: 18px;
+  --vb-gap: 1.15rem;
+}
+
+.content-wrapper {
+  background: transparent !important;
+  padding: 1rem 1.25rem 1.5rem !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Layout shell: ver styles_css/admin-layout.css */
+
+/* ─── Layout principal ─── */
+.vb-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vb-gap);
+  width: 100%;
+  max-width: none;
+}
+
+/* Hero */
+.vb-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.35rem 1.5rem;
+  background: linear-gradient(135deg, #141414 0%, #1c1c1c 60%, #222 100%);
+  border: 1px solid rgba(242, 220, 0, 0.35);
+  border-radius: var(--vb-radius);
+  border-left: 5px solid var(--vb-yellow);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.vb-hero h2 {
+  color: var(--vb-text);
+  font-size: 1.55rem;
+  font-weight: 800;
+  margin: 0 0 0.25rem;
+}
+
+.vb-hero p {
+  color: var(--vb-muted);
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.vb-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.vb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid rgba(242, 220, 0, 0.3);
+  background: var(--vb-yellow-dim);
+  color: var(--vb-yellow);
+}
+
+.vb-pill--muted {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--vb-muted);
+}
+
+.vb-pill--ok {
+  border-color: rgba(46, 204, 113, 0.35);
+  background: rgba(46, 204, 113, 0.12);
+  color: #4ade80;
+}
+
+/* KPI grid — 4 columnas a todo el ancho */
+.vb-kpi-grid {
+  display: grid;
+  grid-template-columns: 1.35fr repeat(3, minmax(0, 1fr));
+  gap: var(--vb-gap);
+  width: 100%;
+}
+
+.vb-kpi-featured {
+  background: linear-gradient(145deg, #1a1a0a 0%, #121212 55%, #161616 100%);
+  border: 1px solid rgba(242, 220, 0, 0.45);
+  border-radius: var(--vb-radius);
+  padding: 1.35rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.vb-kpi-featured::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(242, 220, 0, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.vb-kpi-featured .vb-kpi-label {
+  color: var(--vb-yellow);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.vb-kpi-featured .vb-kpi-value {
+  color: #fff;
+  font-size: 2.35rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 0.35rem 0;
+}
+
+.vb-kpi-featured .vb-kpi-foot {
+  color: var(--vb-muted);
+  font-size: 0.88rem;
+}
+
+.vb-kpi-mini {
+  background: var(--vb-card);
+  border: 1px solid rgba(242, 220, 0, 0.22);
+  border-radius: var(--vb-radius);
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 118px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.vb-kpi-mini:hover {
+  transform: translateY(-2px);
+  border-color: rgba(242, 220, 0, 0.45);
+}
+
+.vb-kpi-mini-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.vb-kpi-mini .vb-kpi-label {
+  color: var(--vb-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.vb-kpi-mini .vb-kpi-value {
+  color: var(--vb-text);
+  font-size: 1.65rem;
+  font-weight: 800;
+  margin: 0.5rem 0 0.15rem;
+}
+
+.vb-kpi-mini .vb-kpi-foot {
+  color: var(--vb-yellow);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.vb-kpi-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vb-yellow-dim);
+  color: var(--vb-yellow);
+  font-size: 1.2rem;
+}
+
+/* Main 2-column — proporción flexible, usa todo el ancho */
+.vb-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(340px, 1fr);
+  gap: var(--vb-gap);
+  align-items: stretch;
+  width: 100%;
+}
+
+.vb-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vb-gap);
+  min-height: 100%;
+}
+
+.vb-stack--rail {
+  height: 100%;
+}
+
+.vb-stack--rail .vb-panel--grow {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+}
+
+.vb-stack--rail .vb-panel--grow .vb-panel-body--fill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.vb-table-scroll {
+  max-height: min(340px, 42vh);
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.vb-table-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.vb-table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(242, 220, 0, 0.35);
+  border-radius: 3px;
+}
+
+.vb-panel-body--table {
+  padding-top: 0 !important;
+}
+
+/* Panels */
+.vb-panel {
+  background: var(--vb-card);
+  border: 1px solid rgba(242, 220, 0, 0.22);
+  border-radius: var(--vb-radius);
+  overflow: hidden;
+}
+
+.vb-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(242, 220, 0, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.vb-panel-head h3 {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vb-yellow);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vb-panel-head h3 i {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.vb-panel-head a {
+  color: var(--vb-muted) !important;
+  font-size: 0.78rem;
+  text-decoration: none !important;
+  transition: color 0.2s;
+}
+
+.vb-panel-head a:hover {
+  color: var(--vb-yellow) !important;
+}
+
+.vb-panel-body {
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+
+.vb-panel-body--chart {
+  padding: 0.75rem 1rem 1rem;
+}
+
+.vb-panel-sub {
+  color: var(--vb-muted);
+  font-size: 0.8rem;
+  margin: -0.5rem 0 0.75rem;
+  padding: 0 1.25rem;
+}
+
+/* Quick links — lista vertical compacta */
+.vb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vb-action-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(242, 220, 0, 0.15);
+  background: var(--vb-card-2);
+  color: var(--vb-text) !important;
+  text-decoration: none !important;
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.vb-action-link i {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vb-yellow-dim);
+  color: var(--vb-yellow);
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.vb-action-link:hover {
+  border-color: var(--vb-yellow);
+  background: rgba(242, 220, 0, 0.08);
+  transform: translateX(4px);
+}
+
+/* Rank list (top productos) */
+.vb-rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vb-rank-item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: var(--vb-card-2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.vb-rank-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--vb-yellow-dim);
+  color: var(--vb-yellow);
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vb-rank-name {
+  color: var(--vb-text);
+  font-size: 0.84rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vb-rank-qty {
+  color: var(--vb-yellow);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vb-rank-money {
+  color: #4ade80;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Tablas */
+.vb-table.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: #f5f5f5;
+  --bs-table-hover-bg: rgba(242, 220, 0, 0.08);
+  --bs-table-border-color: rgba(242, 220, 0, 0.08);
+  color: var(--vb-text) !important;
+  margin-bottom: 0;
+}
+
+.vb-table.table > :not(caption) > * > * {
+  background-color: transparent !important;
+  color: #f5f5f5 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.86rem;
+}
+
+.vb-table.table thead th {
+  background-color: rgba(0, 0, 0, 0.35) !important;
+  color: var(--vb-yellow) !important;
+  border-bottom: 1px solid rgba(242, 220, 0, 0.25) !important;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.65rem 0.85rem;
+}
+
+.vb-table.table tbody tr:hover > * {
+  background-color: rgba(242, 220, 0, 0.06) !important;
+}
+
+.vb-table .font-weight-bold {
+  color: #fff !important;
+}
+
+.vb-badge-ok {
+  background: rgba(46, 204, 113, 0.18);
+  color: #4ade80;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.vb-badge-warn {
+  background: var(--vb-yellow-dim);
+  color: var(--vb-yellow);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.vb-badge-danger {
+  background: rgba(231, 76, 60, 0.18);
+  color: #f87171;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.vb-empty {
+  color: var(--vb-muted) !important;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: 0.88rem;
+}
+
+.vb-empty-state {
+  text-align: center;
+  padding: 1.25rem;
+  color: var(--vb-muted);
+  font-size: 0.88rem;
+}
+
+.vb-empty-state i {
+  display: block;
+  font-size: 2rem;
+  color: rgba(242, 220, 0, 0.35);
+  margin-bottom: 0.5rem;
+}
+
+#chartVentas7d {
+  max-height: min(300px, 34vh);
+  width: 100% !important;
+}
+
+@media (min-width: 1600px) {
+  .vb-main-grid {
+    grid-template-columns: minmax(0, 2.2fr) minmax(380px, 1fr);
+  }
+
+  .content-wrapper {
+    padding: 1rem 1.5rem 1.5rem !important;
+  }
+}
+
+/* Quitar márgenes feos del template */
+.vb-dashboard .grid-margin,
+.vb-dashboard .stretch-card {
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+}
+
+.vb-dashboard .card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 1199px) {
+  .vb-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .vb-kpi-featured {
+    grid-column: 1 / -1;
+  }
+  .vb-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 575px) {
+  .vb-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .content-wrapper {
+    padding: 1rem !important;
+  }
+  .vb-rank-item {
+    grid-template-columns: 24px 1fr auto;
+  }
+  .vb-rank-money {
+    grid-column: 2 / -1;
+    text-align: right;
+    padding-left: 2rem;
+  }
+}
