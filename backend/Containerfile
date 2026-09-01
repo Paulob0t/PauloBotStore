@@ -1,0 +1,19 @@
+FROM dunglas/frankenphp:latest-php8.3
+
+# Instalar extensiones requeridas para MySQL y utilidades
+RUN install-php-extensions \
+    pdo_mysql \
+    mysqli \
+    intl \
+    opcache \
+    zip
+
+# Copiar configuración de Caddy
+COPY backend/Caddyfile /etc/caddy/Caddyfile
+
+WORKDIR /var/www/html
+
+# Exponer el puerto de la API REST
+EXPOSE 8000
+
+ENV FRANKENPHP_CONFIG="worker /var/www/html/backend/public/index.php"

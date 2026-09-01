@@ -1,0 +1,23 @@
+{
+    {$CADDY_GLOBAL_OPTIONS}
+    frankenphp {
+        {$FRANKENPHP_CONFIG}
+    }
+}
+
+:8000 {
+    root * /var/www/html/backend/public
+    encode zstd gzip
+    
+    # Manejo CORS
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin *
+        header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+        header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, Origin, X-Requested-With"
+        header Access-Control-Max-Age 3600
+        respond "" 204
+    }
+
+    php_server
+}

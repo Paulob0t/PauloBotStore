@@ -1,18 +1,32 @@
 # Executables & Binaries
 frankenphp
+composer.phar
 
 # Logs & Temporary files
 *.log
 sistema/admin/logs/
+error_log
+
+# Dependencies
+backend/vendor/
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
 
 # Security, Certificates & Credentials
 .env
 .env.*
-!.env.example
+backend/.env
+backend/.env.*
+!**/.env.example
 *.pem
 *.key
 *.crt
 sistema/admin/dist/cert/private-key.pem
+
+# IDE & Editor files
+.vscode/
+.idea/
 
 # Mac / System
 .DS_Store

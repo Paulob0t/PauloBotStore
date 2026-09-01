@@ -8,22 +8,9 @@ class Database
 {
     private static ?mysqli $instance = null;
 
-    public static function getConnection(): mysqli
+    public static function getConnection(): ?mysqli
     {
         if (self::$instance === null) {
-            // Cargar .env si existe en la raíz
-            $envPath = __DIR__ . '/../../.env';
-            if (file_exists($envPath)) {
-                $envVars = parse_ini_file($envPath, false, INI_SCANNER_RAW);
-                if (is_array($envVars)) {
-                    foreach ($envVars as $key => $value) {
-                        putenv("$key=$value");
-                        $_ENV[$key] = $value;
-                        $_SERVER[$key] = $value;
-                    }
-                }
-            }
-
             $configPath = __DIR__ . '/../../admin/db_config_dual.php';
             if (file_exists($configPath)) {
                 require_once $configPath;
@@ -34,18 +21,61 @@ class Database
                 }
             }
 
-            // Fallback manual connection si no existe db_config_dual.php
-            $host = getenv('DB_HOST') ?: 'localhost';
+            // Fallback manual connection
+            $envPath = __DIR__ . '/../../.env';
+            if (file_exists($envPath)) {
+                $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                if ($lines !== false) {
+                    foreach ($lines as $line) {
+                        $line = trim($line);
+                        if ($line === '' || str_starts_with($line, '#')) {
+                            continue;
+                        }
+                        if (str_contains($line, '=')) {
+                            [$key, $val] = explode('=', $line, 2);
+                            $key = trim($key);
+                            $val = trim($val, " \t\n\r\0\x0B\"'");
+                            if ($key !== '') {
+                                putenv("$key=$val");
+                                $_ENV[$key] = $val;
+                                $_SERVER[$key] = $val;
+                            }
+                        }
+                    }
+                }
+            }
+
+            mysqli_report(MYSQLI_REPORT_OFF);
+
+            $host = getenv('DB_HOST') ?: '127.0.0.1';
             $user = getenv('DB_USER') ?: 'root';
             $pass = getenv('DB_PASS') ?: '';
             $name = getenv('DB_NAME') ?: 'paulobot_vending';
             $port = (int)(getenv('DB_PORT') ?: 3306);
 
-            $conn = @new mysqli($host, $user, $pass, $name, $port);
-            if ($conn->connect_error) {
-                $remoteHost = getenv('DB_NUBE_HOST') ?: 'localhost';
-                $conn = new mysqli($remoteHost, $user, $pass, $name, $port);
+            $conn = null;
+            try {
+                $conn = @new mysqli($host, $user, $pass, $name, $port);
+            } catch (\Throwable $e) {
+                $conn = null;
             }
+
+            if (!$conn || $conn->connect_error) {
+                $remoteHost = getenv('DB_NUBE_HOST') ?: 'cpanel.colegos.com.mx';
+                $remoteUser = getenv('DB_NUBE_USER') ?: $user;
+                $remotePass = getenv('DB_NUBE_PASS') ?: $pass;
+                $remoteName = getenv('DB_NUBE_NAME') ?: $name;
+                try {
+                    $conn = @new mysqli($remoteHost, $remoteUser, $remotePass, $remoteName, $port);
+                } catch (\Throwable $e) {
+                    $conn = null;
+                }
+            }
+
+            if ($conn && !$conn->connect_error) {
+                $conn->set_charset('utf8mb4');
+            }
+
             self::$instance = $conn;
         }
 

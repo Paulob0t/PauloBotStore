@@ -1,0 +1,601 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "PauloBot Store REST API",
+        "description": "API REST moderna para la plataforma de vending y comercio automatizado PauloBot Store. Migración desacoplada con arquitectura SPA.",
+        "contact": {
+            "name": "PauloBot Store Team",
+            "email": "admin@paulobot.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Servidor de Desarrollo Local (FrankenPHP)"
+        }
+    ],
+    "paths": {
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Iniciar sesión de usuario",
+                "description": "Valida las credenciales (correo y contraseña), soporta hashing seguro y actualización automática de hashes legados.",
+                "operationId": "login",
+                "requestBody": {
+                    "description": "Credenciales de acceso",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Autenticación exitosa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Datos faltantes o formato de correo inválido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales incorrectas o usuario no encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuario inactivo o suspendido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/me": {
+            "get": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Obtener usuario autenticado actual",
+                "description": "Retorna el perfil del usuario autenticado en la sesión activa.",
+                "operationId": "getCurrentUser",
+                "responses": {
+                    "200": {
+                        "description": "Usuario autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDto"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Registrar un nuevo usuario",
+                "description": "Crea una nueva cuenta de usuario en el sistema.",
+                "operationId": "register",
+                "requestBody": {
+                    "description": "Datos para el registro",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario registrado con éxito",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Datos inválidos o contraseñas no coinciden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "El correo ya se encuentra registrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Cerrar sesión activa",
+                "description": "Destruye la sesión del usuario actual.",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "Sesión cerrada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/dashboard": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Obtener métricas y estadísticas del Dashboard",
+                "description": "Retorna el resumen consolidado de ventas de hoy, ventas del mes, inventario, tendencia de 7 días, top productos y últimas ventas.",
+                "operationId": "getDashboardMetrics",
+                "responses": {
+                    "200": {
+                        "description": "Métricas del dashboard obtenidas exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DashboardMetricsDto"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno al consultar métricas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/openapi.json": {
+            "get": {
+                "tags": [
+                    "Documentación"
+                ],
+                "summary": "Obtener esquema OpenAPI 3.0 / Swagger JSON",
+                "description": "Retorna la especificación OpenAPI generada dinámicamente a partir de los atributos de PHP.",
+                "operationId": "getOpenApiSpec",
+                "responses": {
+                    "200": {
+                        "description": "Especificación OpenAPI en formato JSON"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApiResponse": {
+                "title": "Respuesta Genérica de la API",
+                "description": "Estructura estándar de respuesta para operaciones generales",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Operación realizada correctamente"
+                    },
+                    "data": {
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ChartDto": {
+                "title": "Datos de Gráfica de Ventas",
+                "required": [
+                    "labels",
+                    "ventas",
+                    "montos"
+                ],
+                "properties": {
+                    "labels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "26/08",
+                            "27/08",
+                            "28/08",
+                            "29/08",
+                            "30/08",
+                            "31/08",
+                            "01/09"
+                        ]
+                    },
+                    "ventas": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "example": [
+                            5,
+                            12,
+                            8,
+                            15,
+                            9,
+                            20,
+                            14
+                        ]
+                    },
+                    "montos": {
+                        "type": "array",
+                        "items": {
+                            "type": "number",
+                            "format": "float"
+                        },
+                        "example": [
+                            150,
+                            420.5,
+                            280,
+                            560,
+                            310,
+                            720,
+                            490
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "DashboardMetricsDto": {
+                "title": "Resumen del Dashboard",
+                "required": [
+                    "sales",
+                    "inventory",
+                    "chart",
+                    "topProducts",
+                    "recentSales"
+                ],
+                "properties": {
+                    "sales": {
+                        "$ref": "#/components/schemas/SalesMetricsDto"
+                    },
+                    "inventory": {
+                        "$ref": "#/components/schemas/InventoryMetricsDto"
+                    },
+                    "chart": {
+                        "$ref": "#/components/schemas/ChartDto"
+                    },
+                    "topProducts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TopProductDto"
+                        }
+                    },
+                    "recentSales": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecentSaleDto"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "InventoryMetricsDto": {
+                "title": "Métricas de Inventario",
+                "required": [
+                    "totalProductos",
+                    "stockTotal",
+                    "stockBajo",
+                    "productosInactivos"
+                ],
+                "properties": {
+                    "totalProductos": {
+                        "type": "integer",
+                        "example": 48
+                    },
+                    "stockTotal": {
+                        "type": "integer",
+                        "example": 320
+                    },
+                    "stockBajo": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "productosInactivos": {
+                        "type": "integer",
+                        "example": 2
+                    }
+                },
+                "type": "object"
+            },
+            "LoginRequest": {
+                "title": "Solicitud de Inicio de Sesión",
+                "description": "Credenciales requeridas para autenticar al usuario",
+                "required": [
+                    "correo",
+                    "contrasena"
+                ],
+                "properties": {
+                    "correo": {
+                        "description": "Correo electrónico registrado",
+                        "type": "string",
+                        "format": "email",
+                        "example": "admin@paulobot.com"
+                    },
+                    "contrasena": {
+                        "description": "Contraseña de acceso del usuario",
+                        "type": "string",
+                        "format": "password",
+                        "example": "123456"
+                    }
+                },
+                "type": "object"
+            },
+            "LoginResponse": {
+                "title": "Respuesta de Inicio de Sesión",
+                "description": "Respuesta retornada al autenticar credenciales satisfactoriamente",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "¡Bienvenido de nuevo, Administrador!"
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "pb_tok_9b2e8a10f...",
+                        "nullable": true
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserDto"
+                    }
+                },
+                "type": "object"
+            },
+            "RecentSaleDto": {
+                "title": "Venta Reciente",
+                "properties": {
+                    "folio": {
+                        "type": "string",
+                        "example": "FOL-10492"
+                    },
+                    "fecha_venta": {
+                        "type": "string",
+                        "example": "2026-09-01 14:15:00"
+                    },
+                    "total": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 45
+                    },
+                    "metodo_pago": {
+                        "type": "string",
+                        "example": "Efectivo",
+                        "nullable": true
+                    },
+                    "tipo_pago": {
+                        "type": "string",
+                        "example": "MDB Monedas",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterRequest": {
+                "title": "Solicitud de Registro de Usuario",
+                "description": "Datos requeridos para crear una cuenta nueva",
+                "required": [
+                    "nombre",
+                    "correo",
+                    "contrasena",
+                    "confirmar_contrasena"
+                ],
+                "properties": {
+                    "nombre": {
+                        "description": "Nombre completo del usuario",
+                        "type": "string",
+                        "example": "Paulo Armenta"
+                    },
+                    "correo": {
+                        "description": "Correo electrónico del usuario",
+                        "type": "string",
+                        "format": "email",
+                        "example": "usuario@paulobot.com"
+                    },
+                    "contrasena": {
+                        "description": "Contraseña segura (mínimo 6 caracteres)",
+                        "type": "string",
+                        "format": "password",
+                        "example": "Secreto123!"
+                    },
+                    "confirmar_contrasena": {
+                        "description": "Confirmación de la contraseña",
+                        "type": "string",
+                        "format": "password",
+                        "example": "Secreto123!"
+                    }
+                },
+                "type": "object"
+            },
+            "SalesMetricsDto": {
+                "title": "Métricas de Ventas",
+                "required": [
+                    "ventasHoyCnt",
+                    "ventasHoyMonto",
+                    "ventasMesCnt",
+                    "ventasMesMonto",
+                    "promedioVenta",
+                    "fechaLabel"
+                ],
+                "properties": {
+                    "ventasHoyCnt": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "ventasHoyMonto": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 450.5
+                    },
+                    "ventasMesCnt": {
+                        "type": "integer",
+                        "example": 180
+                    },
+                    "ventasMesMonto": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 6850
+                    },
+                    "promedioVenta": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 38.05
+                    },
+                    "fechaLabel": {
+                        "type": "string",
+                        "example": "01/09/2026"
+                    }
+                },
+                "type": "object"
+            },
+            "TopProductDto": {
+                "title": "Producto Más Vendido",
+                "properties": {
+                    "nombre_producto": {
+                        "type": "string",
+                        "example": "Coca Cola 600ml"
+                    },
+                    "unidades": {
+                        "type": "integer",
+                        "example": 45
+                    },
+                    "ingresos": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 900
+                    }
+                },
+                "type": "object"
+            },
+            "UserDto": {
+                "title": "Información de Usuario",
+                "description": "Datos del usuario autenticado",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Administrador"
+                    },
+                    "correo": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "admin@paulobot.com"
+                    },
+                    "tipo_usuario": {
+                        "description": "1 = Admin, 2 = Empleado/Cajero",
+                        "type": "string",
+                        "example": "1"
+                    },
+                    "activo": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Introduce el token JWT para acceder a los endpoints protegidos",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Autenticación",
+            "description": "Endpoints de inicio de sesión, registro, sesión activa y cierre de sesión"
+        },
+        {
+            "name": "Dashboard",
+            "description": "Endpoints de métricas, estadísticas e información operativa en tiempo real"
+        },
+        {
+            "name": "Documentación",
+            "description": "Endpoints de especificación Swagger y OpenAPI"
+        }
+    ]
+}

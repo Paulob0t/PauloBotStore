@@ -11,12 +11,23 @@ date_default_timezone_set('America/Mexico_City');
 // Cargar variables de entorno desde .env si existe en la raíz del proyecto
 $envPath = __DIR__ . '/../.env';
 if (file_exists($envPath)) {
-    $envVars = parse_ini_file($envPath, false, INI_SCANNER_RAW);
-    if (is_array($envVars)) {
-        foreach ($envVars as $key => $value) {
-            putenv("$key=$value");
-            $_ENV[$key] = $value;
-            $_SERVER[$key] = $value;
+    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines !== false) {
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+            if (str_contains($line, '=')) {
+                [$key, $val] = explode('=', $line, 2);
+                $key = trim($key);
+                $val = trim($val, " \t\n\r\0\x0B\"'");
+                if ($key !== '') {
+                    putenv("$key=$val");
+                    $_ENV[$key] = $val;
+                    $_SERVER[$key] = $val;
+                }
+            }
         }
     }
 }
@@ -26,54 +37,33 @@ $DB_USER = getenv('DB_USER') ?: (getenv('DB_NUBE_USER') ?: 'root');
 $DB_PASS = getenv('DB_PASS') ?: (getenv('DB_NUBE_PASS') ?: '');
 $DB_NAME = getenv('DB_NAME') ?: (getenv('DB_NUBE_NAME') ?: 'paulobot_vending');
 $DB_PORT = (int)(getenv('DB_PORT') ?: 3306);
-$DB_NUBE_HOST = getenv('DB_NUBE_HOST') ?: 'localhost';
+$DB_NUBE_HOST = getenv('DB_NUBE_HOST') ?: 'cpanel.colegos.com.mx';
+$DB_NUBE_USER = getenv('DB_NUBE_USER') ?: $DB_USER;
+$DB_NUBE_PASS = getenv('DB_NUBE_PASS') ?: $DB_PASS;
+$DB_NUBE_NAME = getenv('DB_NUBE_NAME') ?: $DB_NAME;
 
-function isCloudServerRuntime(): bool
-{
-    if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
-        return true;
-    }
+mysqli_report(MYSQLI_REPORT_OFF);
 
-    $host = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
-    if ($host !== '' && strpos($host, 'vendingbox.online') !== false) {
-        return true;
-    }
+$dbHost = getenv('DB_HOST') ?: '127.0.0.1';
 
-    return false;
-}
-
-$isOnServer = isCloudServerRuntime();
-$dbHost = $isOnServer ? (getenv('DB_HOST') ?: 'localhost') : $DB_NUBE_HOST;
-
+$conn = null;
 try {
     $conn = @new mysqli($dbHost, $DB_USER, $DB_PASS, $DB_NAME, $DB_PORT);
+} catch (\Throwable $e) {
+    $conn = null;
+}
 
-    if ($conn->connect_error) {
-        // Fallback a host remoto si falló localhost
-        $fallbackHost = $DB_NUBE_HOST;
-        $conn = @new mysqli($fallbackHost, $DB_USER, $DB_PASS, $DB_NAME, $DB_PORT);
-        if ($conn->connect_error) {
-            error_log("ERROR BD NUBE ($fallbackHost): " . $conn->connect_error);
-            die(json_encode([
-                'error'   => 'Error de conexión a base de datos',
-                'details' => 'No se pudo conectar a la base de datos.',
-                'host'    => $fallbackHost,
-            ]));
-        }
-    }
-
-    $conn->set_charset('utf8mb4');
-} catch (Exception $e) {
+if (!$conn || $conn->connect_error) {
     try {
-        $fallbackHost = $DB_NUBE_HOST;
-        $conn = new mysqli($fallbackHost, $DB_USER, $DB_PASS, $DB_NAME, $DB_PORT);
-        $conn->set_charset('utf8mb4');
-    } catch (Exception $e2) {
-        error_log("ERROR BD: " . $e2->getMessage());
-        die(json_encode([
-            'error'   => 'Error de conexión a base de datos',
-            'details' => $e2->getMessage(),
-            'host'    => $DB_NUBE_HOST,
-        ]));
+        $conn = @new mysqli($DB_NUBE_HOST, $DB_NUBE_USER, $DB_NUBE_PASS, $DB_NUBE_NAME, $DB_PORT);
+    } catch (\Throwable $e2) {
+        $conn = null;
     }
+}
+
+if ($conn && !$conn->connect_error) {
+    $conn->set_charset('utf8mb4');
+} else {
+    $errMsg = $conn ? $conn->connect_error : 'No se pudo conectar a la base de datos local ni remota.';
+    error_log("ERROR BD: " . $errMsg);
 }
