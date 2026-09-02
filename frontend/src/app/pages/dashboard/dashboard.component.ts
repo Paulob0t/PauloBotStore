@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="space-y-8 animate-fade-in">
       
@@ -20,14 +21,25 @@ import { DashboardService } from '../../core/services/dashboard.service';
             Resumen operativo y rendimiento del sistema de ventas en tiempo real.
           </p>
         </div>
-        <button
-          (click)="refresh()"
-          [disabled]="isLoading()"
-          class="self-start sm:self-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-semibold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all cursor-pointer disabled:opacity-50"
-        >
-          <i class="fas fa-arrows-rotate" [class.fa-spin]="isLoading()"></i>
-          <span>Actualizar Datos</span>
-        </button>
+        
+        <div class="flex items-center gap-3">
+          <a
+            routerLink="/admin/productos/nuevo"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            <i class="fas fa-plus text-xs"></i>
+            <span>Agregar Producto</span>
+          </a>
+
+          <button
+            (click)="refresh()"
+            [disabled]="isLoading()"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-semibold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all cursor-pointer disabled:opacity-50"
+          >
+            <i class="fas fa-arrows-rotate" [class.fa-spin]="isLoading()"></i>
+            <span>Actualizar</span>
+          </button>
+        </div>
       </div>
 
       <!-- Estado de Carga / Spinner inicial -->

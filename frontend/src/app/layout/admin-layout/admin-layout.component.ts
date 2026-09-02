@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -39,19 +39,34 @@ import { AuthService } from '../../core/services/auth.service';
             </a>
 
             <div class="pt-4 pb-2 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              Operación & Ventas
+              Operación & Catálogo
             </div>
 
+            <!-- Consulta de Productos (Módulo Migrado) -->
             <a
-              href="javascript:void(0)"
-              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition-all opacity-70 group"
-              title="Módulo en proceso de migración"
+              routerLink="/admin/productos"
+              routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-300 hover:bg-slate-800 hover:text-white transition-all group"
             >
               <div class="flex items-center gap-3">
-                <i class="fas fa-boxes-stacked w-5 text-slate-500"></i>
-                <span>Productos</span>
+                <i class="fas fa-boxes-stacked text-slate-400 group-hover:text-indigo-400 w-5"></i>
+                <span>Consulta Productos</span>
               </div>
-              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Próx.</span>
+              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
+            </a>
+
+            <!-- Agregar Producto (Módulo Migrado) -->
+            <a
+              routerLink="/admin/productos/nuevo"
+              routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
+              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-300 hover:bg-slate-800 hover:text-white transition-all group"
+            >
+              <div class="flex items-center gap-3">
+                <i class="fas fa-box-open text-slate-400 group-hover:text-indigo-400 w-5"></i>
+                <span>Agregar Producto</span>
+              </div>
+              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
             </a>
 
             <a

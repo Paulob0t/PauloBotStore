@@ -23,6 +23,14 @@ use OpenApi\Attributes as OA;
     description: "Endpoints de métricas, estadísticas e información operativa en tiempo real"
 )]
 #[OA\Tag(
+    name: "Productos",
+    description: "Endpoints de gestión de catálogo, creación, consulta e inventario de productos"
+)]
+#[OA\Tag(
+    name: "Categorías",
+    description: "Endpoints de consulta de categorías y subcategorías"
+)]
+#[OA\Tag(
     name: "Documentación",
     description: "Endpoints de especificación Swagger y OpenAPI"
 )]

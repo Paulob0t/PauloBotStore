@@ -186,6 +186,41 @@
                 }
             }
         },
+        "/api/v1/categories": {
+            "get": {
+                "tags": [
+                    "Categorías"
+                ],
+                "summary": "Obtener listado de categorías con sus subcategorías",
+                "description": "Retorna todas las categorías registradas con sus subcategorías anidadas para selectors y filtros.",
+                "operationId": "getCategories",
+                "responses": {
+                    "200": {
+                        "description": "Listado de categorías",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoryDto"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al consultar categorías",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/dashboard": {
             "get": {
                 "tags": [
@@ -232,6 +267,301 @@
                     }
                 }
             }
+        },
+        "/api/v1/products": {
+            "get": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Listar productos del catálogo",
+                "description": "Retorna el listado completo de productos registrados con su información de stock, categoría y estado.",
+                "operationId": "getProducts",
+                "responses": {
+                    "200": {
+                        "description": "Lista de productos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProductDto"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al consultar productos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Registrar un nuevo producto en el catálogo",
+                "description": "Crea un producto nuevo con validaciones de negocio, ubicación, categoría y almacenamiento de imágenes.",
+                "operationId": "createProduct",
+                "requestBody": {
+                    "description": "Datos del nuevo producto",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateProductRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Producto creado exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Datos requeridos faltantes o formato inválido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno al guardar en base de datos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/products/{id}": {
+            "get": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Obtener detalle de un producto",
+                "description": "Retorna el producto con sus imágenes y datos completos.",
+                "operationId": "getProductById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del producto",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del producto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductDto"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Producto no encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Eliminar un producto",
+                "description": "Elimina permanentemente un producto del catálogo.",
+                "operationId": "deleteProduct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del producto a eliminar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Producto eliminado correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al eliminar producto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/products/{id}/image": {
+            "get": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Obtener imagen optimizada del producto con cache",
+                "description": "Devuelve el binario de la imagen del producto con cabecera Cache-Control pública para máxima velocidad.",
+                "operationId": "getProductImage",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del producto",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Tipo de imagen: main, sec1, sec2, sec3",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "main"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Imagen del producto"
+                    },
+                    "404": {
+                        "description": "Imagen no encontrada"
+                    }
+                }
+            }
+        },
+        "/api/v1/products/featured-order/{order}": {
+            "get": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Verificar disponibilidad de número de orden destacado",
+                "description": "Verifica si una posición de orden destacado ya se encuentra asignada a otro producto.",
+                "operationId": "checkFeaturedOrder",
+                "parameters": [
+                    {
+                        "name": "order",
+                        "in": "path",
+                        "description": "Número de orden a validar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Disponibilidad del orden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "occupied": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "order": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/products/{id}/status": {
+            "patch": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Alternar estado activo/inactivo del producto",
+                "description": "Habilita o deshabilita la disponibilidad del producto en el catálogo.",
+                "operationId": "toggleProductStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del producto",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Estado actualizado exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al actualizar estado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -251,6 +581,31 @@
                     "data": {
                         "type": "object",
                         "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CategoryDto": {
+                "title": "Categoría con Subcategorías",
+                "required": [
+                    "id",
+                    "nombre",
+                    "subcategorias"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Bebidas"
+                    },
+                    "subcategorias": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubcategoryDto"
+                        }
                     }
                 },
                 "type": "object"
@@ -308,6 +663,93 @@
                             720,
                             490
                         ]
+                    }
+                },
+                "type": "object"
+            },
+            "CreateProductRequest": {
+                "title": "Solicitud de Creación de Producto",
+                "description": "Estructura requerida para registrar un nuevo producto en el catálogo",
+                "required": [
+                    "nombre_producto",
+                    "descripcion",
+                    "precio",
+                    "stock",
+                    "id_categoria",
+                    "ubicacion",
+                    "imagen_principal"
+                ],
+                "properties": {
+                    "nombre_producto": {
+                        "type": "string",
+                        "example": "Coca Cola 600ml"
+                    },
+                    "sku": {
+                        "type": "string",
+                        "example": "BEB-001",
+                        "nullable": true
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Bebida refrescante sabor cola de 600 mililitros."
+                    },
+                    "id_categoria": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "id_subcategoria": {
+                        "type": "integer",
+                        "example": 4,
+                        "nullable": true
+                    },
+                    "precio": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 25
+                    },
+                    "descuento": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 2.5,
+                        "nullable": true
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "example": 24
+                    },
+                    "ubicacion": {
+                        "description": "Letra y número de slot (Ej: A1, B2)",
+                        "type": "string",
+                        "example": "A1"
+                    },
+                    "imagen_principal": {
+                        "description": "Cadena Base64 o URL de la imagen principal",
+                        "type": "string"
+                    },
+                    "imagen_secundaria_1": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "imagen_secundaria_2": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "imagen_secundaria_3": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "destacado": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "orden_destacado": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "activo": {
+                        "type": "boolean",
+                        "example": true
                     }
                 },
                 "type": "object"
@@ -420,6 +862,116 @@
                 },
                 "type": "object"
             },
+            "ProductDto": {
+                "title": "Detalle de Producto",
+                "required": [
+                    "id_producto",
+                    "nombre_producto",
+                    "precio",
+                    "stock",
+                    "ubicacion",
+                    "activo"
+                ],
+                "properties": {
+                    "id_producto": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "id_categoria": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "id_subcategoria": {
+                        "type": "integer",
+                        "example": 4,
+                        "nullable": true
+                    },
+                    "nombre_categoria": {
+                        "type": "string",
+                        "example": "Bebidas",
+                        "nullable": true
+                    },
+                    "nombre_subcategoria": {
+                        "type": "string",
+                        "example": "Refrescos",
+                        "nullable": true
+                    },
+                    "nombre_producto": {
+                        "type": "string",
+                        "example": "Coca Cola 600ml"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "precio": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 25
+                    },
+                    "descuento": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "example": 24
+                    },
+                    "sku": {
+                        "type": "string",
+                        "example": "BEB-001",
+                        "nullable": true
+                    },
+                    "ubicacion": {
+                        "type": "string",
+                        "example": "A1"
+                    },
+                    "destacado": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "orden_destacado": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "activo": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "tiene_imagen": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "ProductResponse": {
+                "title": "Respuesta de Operación de Producto",
+                "required": [
+                    "success",
+                    "message"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Producto creado exitosamente."
+                    },
+                    "id_producto": {
+                        "type": "integer",
+                        "example": 15,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "RecentSaleDto": {
                 "title": "Venta Reciente",
                 "properties": {
@@ -526,6 +1078,24 @@
                 },
                 "type": "object"
             },
+            "SubcategoryDto": {
+                "title": "Subcategoría",
+                "required": [
+                    "id",
+                    "nombre"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 4
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Refrescos"
+                    }
+                },
+                "type": "object"
+            },
             "TopProductDto": {
                 "title": "Producto Más Vendido",
                 "properties": {
@@ -592,6 +1162,14 @@
         {
             "name": "Dashboard",
             "description": "Endpoints de métricas, estadísticas e información operativa en tiempo real"
+        },
+        {
+            "name": "Productos",
+            "description": "Endpoints de gestión de catálogo, creación, consulta e inventario de productos"
+        },
+        {
+            "name": "Categorías",
+            "description": "Endpoints de consulta de categorías y subcategorías"
         },
         {
             "name": "Documentación",
