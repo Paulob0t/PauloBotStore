@@ -42,8 +42,14 @@ $router->post('/api/v1/auth/logout', [AuthController::class, 'logout']);
 // Rutas del Dashboard
 $router->get('/api/v1/dashboard', [DashboardController::class, 'getMetrics']);
 
-// Rutas de Categorías
+// Rutas de Categorías & Subcategorías
 $router->get('/api/v1/categories', [CategoryController::class, 'getCategories']);
+$router->post('/api/v1/categories', [CategoryController::class, 'create']);
+$router->put('/api/v1/categories/{id}', [CategoryController::class, 'update']);
+$router->delete('/api/v1/categories/{id}', [CategoryController::class, 'delete']);
+$router->post('/api/v1/categories/{id}/subcategories', [CategoryController::class, 'addSubcategory']);
+$router->put('/api/v1/subcategories/{id}', [CategoryController::class, 'updateSubcategory']);
+$router->delete('/api/v1/subcategories/{id}', [CategoryController::class, 'deleteSubcategory']);
 
 // Rutas de Productos
 $router->get('/api/v1/products', [ProductController::class, 'getAll']);

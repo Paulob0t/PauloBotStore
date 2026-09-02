@@ -3,8 +3,11 @@
 
 export type { ApiResponse } from './models/api-response';
 export type { CategoryDto } from './models/category-dto';
+export type { CategoryResponse } from './models/category-response';
 export type { ChartDto } from './models/chart-dto';
+export type { CreateCategoryRequest } from './models/create-category-request';
 export type { CreateProductRequest } from './models/create-product-request';
+export type { CreateSubcategoryRequest } from './models/create-subcategory-request';
 export type { DashboardMetricsDto } from './models/dashboard-metrics-dto';
 export type { InventoryMetricsDto } from './models/inventory-metrics-dto';
 export type { LoginRequest } from './models/login-request';
@@ -16,4 +19,6 @@ export type { RegisterRequest } from './models/register-request';
 export type { SalesMetricsDto } from './models/sales-metrics-dto';
 export type { SubcategoryDto } from './models/subcategory-dto';
 export type { TopProductDto } from './models/top-product-dto';
+export type { UpdateCategoryRequest } from './models/update-category-request';
+export type { UpdateSubcategoryRequest } from './models/update-subcategory-request';
 export type { UserDto } from './models/user-dto';

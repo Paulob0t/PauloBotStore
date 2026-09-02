@@ -1,7 +1,22 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Api } from '../../api/api';
-import { getCategories } from '../../api/functions';
-import { CategoryDto } from '../../api/models';
+import {
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  createSubcategory,
+  updateSubcategory,
+  deleteSubcategory
+} from '../../api/functions';
+import {
+  CategoryDto,
+  CategoryResponse,
+  CreateCategoryRequest,
+  CreateSubcategoryRequest,
+  UpdateCategoryRequest,
+  UpdateSubcategoryRequest
+} from '../../api/models';
 
 @Injectable({
   providedIn: 'root'
@@ -9,9 +24,33 @@ import { CategoryDto } from '../../api/models';
 export class CategoryService {
   private categoriesSignal = signal<CategoryDto[]>([]);
   private loadingSignal = signal<boolean>(false);
+  private searchQuerySignal = signal<string>('');
 
   readonly categories = this.categoriesSignal.asReadonly();
   readonly isLoading = this.loadingSignal.asReadonly();
+  readonly searchQuery = this.searchQuerySignal.asReadonly();
+
+  // Categorías filtradas por búsqueda reactiva
+  readonly filteredCategories = computed(() => {
+    const query = this.searchQuerySignal().toLowerCase().trim();
+    const list = this.categoriesSignal();
+
+    if (!query) return list;
+
+    return list.filter(cat =>
+      cat.nombre.toLowerCase().includes(query) ||
+      cat.subcategorias.some(sub => sub.nombre.toLowerCase().includes(query))
+    );
+  });
+
+  // Métricas para tarjetas de resumen
+  readonly totalCategoriesCount = computed(() => this.categoriesSignal().length);
+  readonly totalSubcategoriesCount = computed(() =>
+    this.categoriesSignal().reduce((sum, cat) => sum + (cat.subcategorias?.length || 0), 0)
+  );
+  readonly withoutSubcategoriesCount = computed(() =>
+    this.categoriesSignal().filter(cat => !cat.subcategorias || cat.subcategorias.length === 0).length
+  );
 
   constructor(private api: Api) {}
 
@@ -24,6 +63,88 @@ export class CategoryService {
     } catch (error) {
       console.error('Error cargando categorías:', error);
       return [];
+    } finally {
+      this.loadingSignal.set(false);
+    }
+  }
+
+  setSearchQuery(query: string): void {
+    this.searchQuerySignal.set(query);
+  }
+
+  async create(data: CreateCategoryRequest): Promise<CategoryResponse> {
+    this.loadingSignal.set(true);
+    try {
+      const res = await this.api.invoke(createCategory, { body: data });
+      await this.loadCategories();
+      return res;
+    } catch (error: any) {
+      throw new Error(error?.error?.message || error?.message || 'Error al crear la categoría.');
+    } finally {
+      this.loadingSignal.set(false);
+    }
+  }
+
+  async update(id: number, data: UpdateCategoryRequest): Promise<CategoryResponse> {
+    this.loadingSignal.set(true);
+    try {
+      const res = await this.api.invoke(updateCategory, { id, body: data });
+      await this.loadCategories();
+      return res;
+    } catch (error: any) {
+      throw new Error(error?.error?.message || error?.message || 'Error al actualizar la categoría.');
+    } finally {
+      this.loadingSignal.set(false);
+    }
+  }
+
+  async delete(id: number): Promise<CategoryResponse> {
+    this.loadingSignal.set(true);
+    try {
+      const res = await this.api.invoke(deleteCategory, { id });
+      this.categoriesSignal.update(list => list.filter(c => c.id !== id));
+      return res;
+    } catch (error: any) {
+      throw new Error(error?.error?.message || error?.message || 'Error al eliminar la categoría.');
+    } finally {
+      this.loadingSignal.set(false);
+    }
+  }
+
+  async addSubcategory(categoryId: number, data: CreateSubcategoryRequest): Promise<CategoryResponse> {
+    this.loadingSignal.set(true);
+    try {
+      const res = await this.api.invoke(createSubcategory, { id: categoryId, body: data });
+      await this.loadCategories();
+      return res;
+    } catch (error: any) {
+      throw new Error(error?.error?.message || error?.message || 'Error al agregar subcategoría.');
+    } finally {
+      this.loadingSignal.set(false);
+    }
+  }
+
+  async updateSubcategory(subcategoryId: number, data: UpdateSubcategoryRequest): Promise<CategoryResponse> {
+    this.loadingSignal.set(true);
+    try {
+      const res = await this.api.invoke(updateSubcategory, { id: subcategoryId, body: data });
+      await this.loadCategories();
+      return res;
+    } catch (error: any) {
+      throw new Error(error?.error?.message || error?.message || 'Error al actualizar subcategoría.');
+    } finally {
+      this.loadingSignal.set(false);
+    }
+  }
+
+  async deleteSubcategory(subcategoryId: number): Promise<CategoryResponse> {
+    this.loadingSignal.set(true);
+    try {
+      const res = await this.api.invoke(deleteSubcategory, { id: subcategoryId });
+      await this.loadCategories();
+      return res;
+    } catch (error: any) {
+      throw new Error(error?.error?.message || error?.message || 'Error al eliminar subcategoría.');
     } finally {
       this.loadingSignal.set(false);
     }

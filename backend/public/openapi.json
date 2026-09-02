@@ -219,6 +219,253 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "tags": [
+                    "Categorías"
+                ],
+                "summary": "Crear una nueva categoría",
+                "description": "Registra una categoría nueva y opcionalmente sus subcategorías asociadas.",
+                "operationId": "createCategory",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCategoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Categoría creada con éxito",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CategoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Nombre de categoría inválido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/categories/{id}": {
+            "put": {
+                "tags": [
+                    "Categorías"
+                ],
+                "summary": "Actualizar una categoría",
+                "description": "Actualiza el nombre y/o imagen de una categoría existente.",
+                "operationId": "updateCategory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la categoría a actualizar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCategoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Categoría actualizada exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CategoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Datos inválidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Categorías"
+                ],
+                "summary": "Eliminar una categoría",
+                "description": "Elimina una categoría y todas sus subcategorías vinculadas.",
+                "operationId": "deleteCategory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la categoría a eliminar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Categoría eliminada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CategoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al eliminar categoría",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/categories/{id}/subcategories": {
+            "post": {
+                "tags": [
+                    "Categorías"
+                ],
+                "summary": "Agregar subcategoría a una categoría",
+                "description": "Crea una subcategoría vinculada a la categoría indicada.",
+                "operationId": "createSubcategory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la categoría padre",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSubcategoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Subcategoría creada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CategoryResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/subcategories/{id}": {
+            "put": {
+                "tags": [
+                    "Categorías"
+                ],
+                "summary": "Actualizar una subcategoría",
+                "operationId": "updateSubcategory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSubcategoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Subcategoría actualizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CategoryResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Categorías"
+                ],
+                "summary": "Eliminar una subcategoría",
+                "operationId": "deleteSubcategory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subcategoría eliminada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CategoryResponse"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/dashboard": {
@@ -610,6 +857,34 @@
                 },
                 "type": "object"
             },
+            "CategoryResponse": {
+                "title": "Respuesta de Operación de Categoría",
+                "required": [
+                    "success",
+                    "message"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Categoría guardada exitosamente."
+                    },
+                    "id_categoria": {
+                        "type": "integer",
+                        "example": 5,
+                        "nullable": true
+                    },
+                    "id_subcategoria": {
+                        "type": "integer",
+                        "example": 12,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "ChartDto": {
                 "title": "Datos de Gráfica de Ventas",
                 "required": [
@@ -663,6 +938,36 @@
                             720,
                             490
                         ]
+                    }
+                },
+                "type": "object"
+            },
+            "CreateCategoryRequest": {
+                "title": "Crear Categoría",
+                "required": [
+                    "nombre_categoria"
+                ],
+                "properties": {
+                    "nombre_categoria": {
+                        "type": "string",
+                        "example": "Bebidas"
+                    },
+                    "imagen_categoria": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "subcategorias": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "Refrescos",
+                            "Jugos",
+                            "Agua"
+                        ],
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -750,6 +1055,23 @@
                     "activo": {
                         "type": "boolean",
                         "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "CreateSubcategoryRequest": {
+                "title": "Crear Subcategoría",
+                "required": [
+                    "nombre_subcategoria"
+                ],
+                "properties": {
+                    "nombre_subcategoria": {
+                        "type": "string",
+                        "example": "Isotónicas"
+                    },
+                    "imagen_subcategoria": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -1111,6 +1433,41 @@
                         "type": "number",
                         "format": "float",
                         "example": 900
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateCategoryRequest": {
+                "title": "Actualizar Categoría",
+                "required": [
+                    "nombre_categoria"
+                ],
+                "properties": {
+                    "nombre_categoria": {
+                        "type": "string",
+                        "example": "Bebidas Energéticas"
+                    },
+                    "imagen_categoria": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateSubcategoryRequest": {
+                "title": "Actualizar Subcategoría",
+                "required": [
+                    "nombre_subcategoria"
+                ],
+                "properties": {
+                    "nombre_subcategoria": {
+                        "type": "string",
+                        "example": "Refrescos y Sodas"
+                    },
+                    "id_categoria": {
+                        "type": "integer",
+                        "example": 3,
+                        "nullable": true
                     }
                 },
                 "type": "object"
