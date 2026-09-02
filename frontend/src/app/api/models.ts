@@ -17,6 +17,7 @@ export type { ProductResponse } from './models/product-response';
 export type { RecentSaleDto } from './models/recent-sale-dto';
 export type { RegisterRequest } from './models/register-request';
 export type { SalesMetricsDto } from './models/sales-metrics-dto';
+export type { SubcategoryDetailDto } from './models/subcategory-detail-dto';
 export type { SubcategoryDto } from './models/subcategory-dto';
 export type { TopProductDto } from './models/top-product-dto';
 export type { UpdateCategoryRequest } from './models/update-category-request';

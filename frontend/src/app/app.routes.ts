@@ -6,6 +6,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ProductFormComponent } from './pages/products/product-form/product-form.component';
 import { ProductListComponent } from './pages/products/product-list/product-list.component';
 import { CategoryListComponent } from './pages/categories/category-list/category-list.component';
+import { SubcategoryListComponent } from './pages/categories/subcategory-list/subcategory-list.component';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 
@@ -45,6 +46,11 @@ export const routes: Routes = [
         path: 'categorias',
         component: CategoryListComponent,
         title: 'Gestión de Categorías | PauloBot Store'
+      },
+      {
+        path: 'subcategorias',
+        component: SubcategoryListComponent,
+        title: 'Gestión de Subcategorías | PauloBot Store'
       }
     ]
   },

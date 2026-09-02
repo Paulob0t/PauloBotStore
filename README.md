@@ -11,154 +11,124 @@
 
 ## 📌 Visión General de la Arquitectura
 
-**PauloBot Store** se encuentra en un proceso de **refactorización y migración arquitectónica** desde un monolito en PHP nativo hacia una arquitectura desacoplada y moderna basada en **API REST (PHP 8 + FrankenPHP + Swagger/OpenAPI)** y una **Single Page Application (SPA en Angular + Tailwind CSS + Vite)**.
+**PauloBot Store** se encuentra en un proceso continuo de **refactorización y migración arquitectónica** desde un monolito en PHP nativo hacia una arquitectura desacoplada moderna basada en **API REST (PHP 8 + FrankenPHP + Swagger/OpenAPI)** y una **Single Page Application (SPA en Angular 22 + Tailwind CSS + Vite)**.
 
 ```mermaid
 graph TD
     subgraph Frontend_SPA ["⚡ Frontend SPA (Angular 22 + Tailwind CSS)"]
         Landing["Landing Page (HomeComponent)"]
         Login["Login Screen (LoginComponent)"]
-        AdminLayout["Admin Shell (AdminLayoutComponent)"]
-        Dashboard["Dashboard (DashboardComponent)"]
-        AuthSvc["AuthService (Signals State)"]
-        DashSvc["DashboardService"]
+        AdminShell["Admin Layout (Sidebar Modular)"]
+        Dashboard["Dashboard (KPIs & Gráfica 7 Días)"]
+        ProductsList["Consulta Productos (ProductListComponent)"]
+        ProductsForm["Agregar Producto (ProductFormComponent)"]
+        CategoriesList["Categorías (CategoryListComponent)"]
+        SubcategoriesList["Subcategorías (SubcategoryListComponent)"]
+        AuthSvc["AuthService (Signals)"]
+        ProdSvc["ProductService (Signals)"]
+        CatSvc["CategoryService (Signals)"]
         OpenApiGen["Servicios Generados (ng-openapi-gen)"]
     end
 
     subgraph Backend_REST ["🔙 Backend REST API (PHP 8 + FrankenPHP)"]
         Router["Router REST & CORS"]
-        AuthController["AuthController (#[OA\\Post], #[OA\\Get])"]
-        DashboardController["DashboardController (#[OA\\Get])"]
+        AuthController["AuthController (/api/v1/auth/*)"]
+        DashboardController["DashboardController (/api/v1/dashboard)"]
+        ProductController["ProductController (/api/v1/products/*)"]
+        CategoryController["CategoryController (/api/v1/categories/*, /api/v1/subcategories/*)"]
         DocsController["DocsController (/api/v1/openapi.json, /api/docs)"]
-        UserModel["UserModel (BCrypt + Fallbacks Legacy)"]
-        DashboardModel["DashboardModel (Métricas Reales)"]
         Database["Database Dual (Local / Nube Fallback)"]
     end
 
-    Landing --> Login
-    Login --> AuthSvc
-    AdminLayout --> Dashboard
-    Dashboard --> DashSvc
+    AdminShell --> Dashboard
+    AdminShell --> ProductsList
+    AdminShell --> ProductsForm
+    AdminShell --> CategoriesList
+    AdminShell --> SubcategoriesList
+    ProductsList --> ProdSvc
+    ProductsForm --> ProdSvc
+    ProductsForm --> CatSvc
+    CategoriesList --> CatSvc
+    SubcategoriesList --> CatSvc
     AuthSvc --> OpenApiGen
-    DashSvc --> OpenApiGen
+    ProdSvc --> OpenApiGen
+    CatSvc --> OpenApiGen
     OpenApiGen -->|JSON / HTTP| Router
     Router --> AuthController
     Router --> DashboardController
-    AuthController --> UserModel
-    DashboardController --> DashboardModel
-    UserModel --> Database
-    DashboardModel --> Database
-    DocsController -.->|Genera Swagger JSON| OpenApiGen
+    Router --> ProductController
+    Router --> CategoryController
+    ProductController --> Database
+    CategoryController --> Database
+    DashboardController --> Database
+    AuthController --> Database
 ```
 
 ---
 
-## 🚀 Lo que se implementó en esta fase
+## 🚀 Módulos Migrados
 
 ### 🔙 1. Backend REST API (`backend/`)
-- **Cero HTML:** Todo controlador y endpoint responde exclusivamente en formato `application/json` con cabeceras CORS unificadas.
-- **Swagger / OpenAPI 3.0 Integrado:**
-  - Uso de atributos nativos PHP 8 (`#[OA\Info]`, `#[OA\Post]`, `#[OA\Get]`, `#[OA\Schema]`).
-  - DTOs fuertemente tipados (`LoginRequest`, `LoginResponse`, `DashboardMetricsDto`, `SalesMetricsDto`, `InventoryMetricsDto`, `ChartDto`, `TopProductDto`, `RecentSaleDto`).
+- **Cero HTML:** Todo endpoint responde exclusivamente en `application/json` con cabeceras CORS unificadas.
+- **Swagger / OpenAPI 3.0 Integrado:** Atributos nativos PHP 8 (`#[OA\Post]`, `#[OA\Get]`, `#[OA\Put]`, `#[OA\Delete]`, `#[OA\Patch]`).
   - Documentación interactiva en [`/api/docs`](http://localhost:8000/api/docs) con **Swagger UI**.
   - Esquema dinámico en [`/api/v1/openapi.json`](http://localhost:8000/api/v1/openapi.json).
-- **Módulo de Autenticación:**
-  - `POST /api/v1/auth/login`: Validación de credenciales con hashing multi-algoritmo (BCrypt con actualización progresiva de hashes MD5/texto plano antiguos).
-  - `POST /api/v1/auth/register`: Registro seguro de nuevos usuarios.
-  - `GET /api/v1/auth/me`: Consulta de la sesión activa del usuario.
-  - `POST /api/v1/auth/logout`: Invalidation de sesión.
-- **Módulo de Dashboard:**
-  - `GET /api/v1/dashboard`: Retorna ventas de hoy, ventas del mes, inventario en stock, alertas de stock crítico ($\le 5$), histórico de 7 días y top de ventas.
-- **Base de Datos Resiliente:** Manejo de conexión dual con fallback automático y silencioso hacia la base de datos remota (`cpanel.colegos.com.mx`).
+- **Módulo de Autenticación:** `login`, `register`, `me`, `logout` con verificación multi-hash (BCrypt + MD5 upgrade).
+- **Módulo de Dashboard:** KPIs en tiempo real (Ventas Hoy, Ventas Mes, Inventario, Stock Bajo, Gráfica 7 días, Top Ventas).
+- **Módulo de Productos:**
+  - `GET /api/v1/products`: Catálogo completo con stock, slots de ubicación y precios.
+  - `POST /api/v1/products`: Alta de productos con validaciones y compresión.
+  - `GET /api/v1/products/{id}`: Detalle de producto.
+  - `GET /api/v1/products/{id}/image`: Servidor de imágenes con caché HTTP de 24 horas.
+  - `DELETE /api/v1/products/{id}`: Eliminación segura.
+- **Módulo de Categorías y Subcategorías:**
+  - `GET /api/v1/categories`: Lista anidada de categorías y subcategorías.
+  - `POST /api/v1/categories`: Crear categoría con subcategorías al vuelo.
+  - `PUT /api/v1/categories/{id}`: Actualizar categoría.
+  - `DELETE /api/v1/categories/{id}`: Eliminar categoría en cascada.
+  - `GET /api/v1/subcategories`: Lista plana de subcategorías con categoría padre.
+  - `POST /api/v1/categories/{id}/subcategories`: Agregar subcategoría.
+  - `PUT /api/v1/subcategories/{id}`: Actualizar subcategoría.
+  - `DELETE /api/v1/subcategories/{id}`: Eliminar subcategoría.
 
 ### ⚡ 2. Frontend SPA (`frontend/`)
-- **Stack Moderno:** Angular Standalone Components, TypeScript estricto, Angular Signals (`signal`, `computed`) y Tailwind CSS v4.
-- **Generación de Clientes con `ng-openapi-gen`:** Autogeneración de interfaces y servicios de TypeScript consumiendo el `openapi.json` del backend.
-- **Landing Page ([`HomeComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/home/home.component.ts)):** Migración de la portada con navbar glassmorphism, accesos rápidos, grid de portales y capacidades del sistema.
-- **Pantalla de Login ([`LoginComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/login/login.component.ts)):** Formulario reactivo con validaciones estrictas, toggles de visibilidad de contraseña, alertas dinámicas y redirección inmediata a administración.
-- **Layout Modular de Administración ([`AdminLayoutComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/layout/admin-layout/admin-layout.component.ts)):** Sidebar responsivo con enlaces de navegación, perfil de usuario logueado, botón de logout e indicador de estado del sistema.
-- **Dashboard Principal ([`DashboardComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/dashboard/dashboard.component.ts)):** KPIs de ventas en tiempo real, gráfica interactiva de tendencia de 7 días, tabla de Top 5 productos más vendidos y tabla de últimas transacciones.
-- **Guards de Ruta:** `authGuard` (protege `/admin` redirigiendo a `/login`) y `guestGuard` (previene ver login si ya se está autenticado).
-
----
-
-## 🏗️ Estructura del Proyecto
-
-```text
-PauloBotStore/
-├── backend/                      # 🔙 API REST (PHP + FrankenPHP)
-│   ├── public/
-│   │   ├── index.php             # Entrypoint y Router REST
-│   │   └── openapi.json          # Especificación OpenAPI 3.0 exportada
-│   ├── src/
-│   │   ├── Core/                 # Database, Response (JSON/CORS), Router
-│   │   ├── Controllers/          # AuthController, DashboardController, DocsController
-│   │   ├── Models/               # User, Dashboard
-│   │   ├── DTOs/                 # LoginRequest, DashboardMetricsDto, etc.
-│   │   └── OpenApi.php           # Configuración raíz de Swagger
-│   ├── Caddyfile                 # Configuración de FrankenPHP / Caddy
-│   └── composer.json             # Dependencias (zircote/swagger-php)
-│
-├── frontend/                     # ⚡ SPA FRONTEND (Angular + Tailwind)
-│   ├── src/app/
-│   │   ├── api/                  # Código autogenerado por ng-openapi-gen
-│   │   ├── core/
-│   │   │   ├── guards/           # auth.guard.ts, guest.guard.ts
-│   │   │   └── services/         # auth.service.ts, dashboard.service.ts
-│   │   ├── layout/
-│   │   │   └── admin-layout/     # AdminLayoutComponent (Sidebar + Header)
-│   │   └── pages/
-│   │       ├── home/             # HomeComponent (Landing Page)
-│   │       ├── login/            # LoginComponent (Login reactivo)
-│   │       └── dashboard/        # DashboardComponent (Métricas & KPIs)
-│   ├── proxy.conf.json           # Proxy de desarrollo para /api -> :8000
-│   └── package.json
-│
-├── admin/                        # 🏛️ Monolito Legacy (Admin)
-├── store/                        # 🏛️ Monolito Legacy (Tienda)
-├── .env.example                  # Plantilla de variables de entorno
-└── compose.yaml                  # Orquestación de contenedores
-```
+- **Stack Moderno:** Angular 22 Standalone Components, Signals (`signal`, `computed`), Formularios Reactivos y Tailwind CSS v4.
+- **Generación Automática:** Cliente TypeScript generado con `ng-openapi-gen` desde la API.
+- **Vistas Disponibles:**
+  - 🏠 **Landing Page:** [`HomeComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/home/home.component.ts)
+  - 🔐 **Login Administrador:** [`LoginComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/login/login.component.ts)
+  - 📊 **Dashboard:** [`DashboardComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/dashboard/dashboard.component.ts)
+  - 📋 **Consulta de Productos:** [`ProductListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/products/product-list/product-list.component.ts)
+  - ➕ **Agregar Producto:** [`ProductFormComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/products/product-form/product-form.component.ts) (con compresión Canvas en cliente)
+  - 🏷️ **Gestión de Categorías:** [`CategoryListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/categories/category-list/category-list.component.ts)
+  - 🗂️ **Gestión de Subcategorías:** [`SubcategoryListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/categories/subcategory-list/subcategory-list.component.ts)
 
 ---
 
 ## ⚙️ Cómo Ejecutar el Proyecto
 
-### 1. Variables de Entorno
-Copia la plantilla `.env.example` en la raíz del proyecto y en el backend:
-```bash
-cp .env.example .env
-cp .env.example backend/.env
-```
-
-### 2. Iniciar el Backend REST API (Puerto 8000)
+### 1. Iniciar Backend REST API (Puerto 8000)
 ```bash
 cd PauloBotStore
 ./frankenphp php-server --listen 0.0.0.0:8000 --root ./backend/public
 ```
-- **Swagger UI interactivo:** [`http://localhost:8000/api/docs`](http://localhost:8000/api/docs)
+- **Swagger UI:** [`http://localhost:8000/api/docs`](http://localhost:8000/api/docs)
 - **OpenAPI JSON:** [`http://localhost:8000/api/v1/openapi.json`](http://localhost:8000/api/v1/openapi.json)
 
-### 3. Iniciar el Frontend SPA (Puerto 4200)
+### 2. Iniciar Frontend SPA (Puerto 4200)
 ```bash
 cd PauloBotStore/frontend
 npm start
 ```
-- **Aplicación Angular:** [`http://localhost:4200/`](http://localhost:4200/)
-- **Login:** [`http://localhost:4200/login`](http://localhost:4200/login)
-- **Dashboard Administrador:** [`http://localhost:4200/admin`](http://localhost:4200/admin)
+- **SPA General:** [`http://localhost:4200/`](http://localhost:4200/)
+- **Dashboard:** [`http://localhost:4200/admin`](http://localhost:4200/admin)
+- **Consulta Productos:** [`http://localhost:4200/admin/productos`](http://localhost:4200/admin/productos)
+- **Agregar Producto:** [`http://localhost:4200/admin/productos/nuevo`](http://localhost:4200/admin/productos/nuevo)
+- **Categorías:** [`http://localhost:4200/admin/categorias`](http://localhost:4200/admin/categorias)
+- **Subcategorías:** [`http://localhost:4200/admin/subcategorias`](http://localhost:4200/admin/subcategorias)
 
-### 4. Regenerar Servicios e Interfaces de TypeScript
-Cada vez que agregues o modifiques atributos Swagger en el backend:
+### 3. Regenerar Servicios e Interfaces de TypeScript
 ```bash
 cd PauloBotStore/frontend
 npm run api:generate
 ```
-
-### 5. Monolito PHP Legacy (Opcional - Puerto 8080)
-Para comparar o consultar módulos legacy en desarrollo:
-```bash
-cd PauloBotStore
-./frankenphp php-server --listen 0.0.0.0:8080 --root .
-```
-- **Monolito Legacy:** [`http://localhost:8080/admin/login.php`](http://localhost:8080/admin/login.php)

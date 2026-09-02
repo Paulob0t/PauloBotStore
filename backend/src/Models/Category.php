@@ -53,6 +53,36 @@ class Category
     }
 
     /**
+     * Obtener todas las subcategorías con su nombre de categoría padre.
+     */
+    public function getAllSubcategories(): array
+    {
+        $subcats = [];
+        if (!$this->db || $this->db->connect_error) {
+            return $subcats;
+        }
+
+        $sql = "SELECT s.id_subcategoria, s.id_categoria, s.nombre_subcategoria, s.imagen_subcategoria, c.nombre_categoria
+                FROM subcategorias s
+                JOIN categorias c ON s.id_categoria = c.id_categoria
+                ORDER BY c.nombre_categoria ASC, s.nombre_subcategoria ASC";
+
+        if ($res = $this->db->query($sql)) {
+            while ($row = $res->fetch_assoc()) {
+                $subcats[] = [
+                    'id_subcategoria' => (int)$row['id_subcategoria'],
+                    'id_categoria' => (int)$row['id_categoria'],
+                    'nombre_subcategoria' => (string)$row['nombre_subcategoria'],
+                    'nombre_categoria' => (string)$row['nombre_categoria'],
+                    'imagen_subcategoria' => $row['imagen_subcategoria'] ?: null
+                ];
+            }
+        }
+
+        return $subcats;
+    }
+
+    /**
      * Crear una nueva categoría con subcategorías opcionales.
      */
     public function create(string $name, ?string $image = null, array $subcategories = []): array

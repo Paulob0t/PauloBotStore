@@ -261,6 +261,31 @@
                 }
             }
         },
+        "/api/v1/subcategories": {
+            "get": {
+                "tags": [
+                    "Categorías"
+                ],
+                "summary": "Obtener listado plano de todas las subcategorías",
+                "description": "Retorna todas las subcategorías con los datos de su categoría padre.",
+                "operationId": "getSubcategories",
+                "responses": {
+                    "200": {
+                        "description": "Listado de subcategorías",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SubcategoryDetailDto"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/categories/{id}": {
             "put": {
                 "tags": [
@@ -1396,6 +1421,39 @@
                     "fechaLabel": {
                         "type": "string",
                         "example": "01/09/2026"
+                    }
+                },
+                "type": "object"
+            },
+            "SubcategoryDetailDto": {
+                "title": "Detalle de Subcategoría",
+                "required": [
+                    "id_subcategoria",
+                    "id_categoria",
+                    "nombre_subcategoria",
+                    "nombre_categoria"
+                ],
+                "properties": {
+                    "id_subcategoria": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "id_categoria": {
+                        "type": "integer",
+                        "example": 7
+                    },
+                    "nombre_subcategoria": {
+                        "type": "string",
+                        "example": "Refrigerado"
+                    },
+                    "nombre_categoria": {
+                        "type": "string",
+                        "example": "Bebida"
+                    },
+                    "imagen_subcategoria": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
                     }
                 },
                 "type": "object"

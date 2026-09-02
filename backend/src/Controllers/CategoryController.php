@@ -8,6 +8,7 @@ use App\DTOs\CategoryDto;
 use App\DTOs\CategoryResponse;
 use App\DTOs\CreateCategoryRequest;
 use App\DTOs\CreateSubcategoryRequest;
+use App\DTOs\SubcategoryDetailDto;
 use App\DTOs\UpdateCategoryRequest;
 use App\DTOs\UpdateSubcategoryRequest;
 use App\Models\Category;
@@ -51,6 +52,33 @@ class CategoryController
             Response::json($categories, 200);
         } catch (\Throwable $e) {
             Response::error('Error al obtener categorías: ' . $e->getMessage(), null, 500);
+        }
+    }
+
+    #[OA\Get(
+        path: "/api/v1/subcategories",
+        operationId: "getSubcategories",
+        summary: "Obtener listado plano de todas las subcategorías",
+        description: "Retorna todas las subcategorías con los datos de su categoría padre.",
+        tags: ["Categorías"],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Listado de subcategorías",
+                content: new OA\JsonContent(
+                    type: "array",
+                    items: new OA\Items(ref: "#/components/schemas/SubcategoryDetailDto")
+                )
+            )
+        ]
+    )]
+    public function getSubcategories(): void
+    {
+        try {
+            $subcats = $this->categoryModel->getAllSubcategories();
+            Response::json($subcats, 200);
+        } catch (\Throwable $e) {
+            Response::error('Error al obtener subcategorías: ' . $e->getMessage(), null, 500);
         }
     }
 

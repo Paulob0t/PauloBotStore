@@ -69,7 +69,7 @@ import { AuthService } from '../../core/services/auth.service';
               <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
             </a>
 
-            <!-- Categorías (Módulo Migrado) -->
+            <!-- Categorías -->
             <a
               routerLink="/admin/categorias"
               routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
@@ -78,6 +78,19 @@ import { AuthService } from '../../core/services/auth.service';
               <div class="flex items-center gap-3">
                 <i class="fas fa-tags text-slate-400 group-hover:text-indigo-400 w-5"></i>
                 <span>Categorías</span>
+              </div>
+              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
+            </a>
+
+            <!-- Subcategorías (Módulo Migrado) -->
+            <a
+              routerLink="/admin/subcategorias"
+              routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
+              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-300 hover:bg-slate-800 hover:text-white transition-all group"
+            >
+              <div class="flex items-center gap-3">
+                <i class="fas fa-folder-tree text-slate-400 group-hover:text-indigo-400 w-5"></i>
+                <span>Subcategorías</span>
               </div>
               <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
             </a>
