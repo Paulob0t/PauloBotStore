@@ -39,6 +39,10 @@ export type { UpdateSubcategory$Params as UpdateSubcategory$Params } from './fn/
 export { updateSubcategory as updateSubcategory } from './fn/categorias/update-subcategory';
 export type { DeleteSubcategory$Params as DeleteSubcategory$Params } from './fn/categorias/delete-subcategory';
 export { deleteSubcategory as deleteSubcategory } from './fn/categorias/delete-subcategory';
+export type { GetCompanyConfig$Params as GetCompanyConfig$Params } from './fn/configuracion/get-company-config';
+export { getCompanyConfig as getCompanyConfig } from './fn/configuracion/get-company-config';
+export type { UpdateCompanyConfig$Params as UpdateCompanyConfig$Params } from './fn/configuracion/update-company-config';
+export { updateCompanyConfig as updateCompanyConfig } from './fn/configuracion/update-company-config';
 export type { GetDashboardMetrics$Params as GetDashboardMetrics$Params } from './fn/dashboard/get-dashboard-metrics';
 export { getDashboardMetrics as getDashboardMetrics } from './fn/dashboard/get-dashboard-metrics';
 export type { GetOpenApiSpec$Params as GetOpenApiSpec$Params } from './fn/documentacion/get-open-api-spec';

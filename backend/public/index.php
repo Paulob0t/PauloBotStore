@@ -18,6 +18,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Controllers\AuthController;
 use App\Controllers\CashRegisterController;
 use App\Controllers\CategoryController;
+use App\Controllers\ConfigController;
 use App\Controllers\DashboardController;
 use App\Controllers\DocsController;
 use App\Controllers\MovementController;
@@ -75,6 +76,10 @@ $router->post('/api/v1/cash-register/movements', [CashRegisterController::class,
 $router->get('/api/v1/cash-register/history', [CashRegisterController::class, 'getHistory']);
 $router->get('/api/v1/cash-register/{id}', [CashRegisterController::class, 'getById']);
 $router->put('/api/v1/cash-register/config', [CashRegisterController::class, 'updateConfig']);
+
+// Rutas de Configuración
+$router->get('/api/v1/config/company', [ConfigController::class, 'getCompany']);
+$router->put('/api/v1/config/company', [ConfigController::class, 'updateCompany']);
 
 // Dispatch de la solicitud
 $router->dispatch();

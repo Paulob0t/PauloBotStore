@@ -772,6 +772,78 @@
                 }
             }
         },
+        "/api/v1/config/company": {
+            "get": {
+                "tags": [
+                    "Configuración"
+                ],
+                "summary": "Obtener datos de la empresa y configuración de tickets",
+                "description": "Retorna el nombre comercial, RFC, domicilio, datos de contacto y leyenda para tickets impresos.",
+                "operationId": "getCompanyConfig",
+                "responses": {
+                    "200": {
+                        "description": "Configuración de la empresa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompanyConfigDto"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al consultar configuración",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Configuración"
+                ],
+                "summary": "Actualizar datos de la empresa y tickets",
+                "description": "Modifica la información corporativa, teléfonos, dirección fiscal y pie de ticket de venta.",
+                "operationId": "updateCompanyConfig",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCompanyConfigRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Configuración guardada exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Datos inválidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/dashboard": {
             "get": {
                 "tags": [
@@ -1692,6 +1764,59 @@
                 },
                 "type": "object"
             },
+            "CompanyConfigDto": {
+                "title": "Configuración de Empresa y Ticket",
+                "required": [
+                    "nombre_empresa"
+                ],
+                "properties": {
+                    "nombre_empresa": {
+                        "type": "string",
+                        "example": "PauloBot Store"
+                    },
+                    "direccion": {
+                        "type": "string",
+                        "example": "Av. Tecnológico 123",
+                        "nullable": true
+                    },
+                    "ciudad": {
+                        "type": "string",
+                        "example": "León",
+                        "nullable": true
+                    },
+                    "estado": {
+                        "type": "string",
+                        "example": "Guanajuato",
+                        "nullable": true
+                    },
+                    "telefono": {
+                        "type": "string",
+                        "example": "477-123-4567",
+                        "nullable": true
+                    },
+                    "rfc": {
+                        "type": "string",
+                        "example": "XAXX010101000",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "contacto@paulobot.com",
+                        "nullable": true
+                    },
+                    "website": {
+                        "type": "string",
+                        "example": "https://paulobot.store",
+                        "nullable": true
+                    },
+                    "mensaje_ticket": {
+                        "type": "string",
+                        "example": "¡GRACIAS POR SU COMPRA! VUELVA PRONTO",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "CreateCashMovementRequest": {
                 "title": "Registro de Movimiento Manual de Caja",
                 "required": [
@@ -2542,6 +2667,59 @@
                 },
                 "type": "object"
             },
+            "UpdateCompanyConfigRequest": {
+                "title": "Solicitud de Actualización de Empresa",
+                "required": [
+                    "nombre_empresa"
+                ],
+                "properties": {
+                    "nombre_empresa": {
+                        "type": "string",
+                        "example": "PauloBot Store"
+                    },
+                    "direccion": {
+                        "type": "string",
+                        "example": "Av. Tecnológico 123",
+                        "nullable": true
+                    },
+                    "ciudad": {
+                        "type": "string",
+                        "example": "León",
+                        "nullable": true
+                    },
+                    "estado": {
+                        "type": "string",
+                        "example": "Guanajuato",
+                        "nullable": true
+                    },
+                    "telefono": {
+                        "type": "string",
+                        "example": "477-123-4567",
+                        "nullable": true
+                    },
+                    "rfc": {
+                        "type": "string",
+                        "example": "XAXX010101000",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "contacto@paulobot.com",
+                        "nullable": true
+                    },
+                    "website": {
+                        "type": "string",
+                        "example": "https://paulobot.store",
+                        "nullable": true
+                    },
+                    "mensaje_ticket": {
+                        "type": "string",
+                        "example": "¡GRACIAS POR SU COMPRA!",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "UpdateSubcategoryRequest": {
                 "title": "Actualizar Subcategoría",
                 "required": [
@@ -2623,6 +2801,10 @@
         {
             "name": "Cortes de Caja",
             "description": "Endpoints de gestión de caja, apertura de jornada, cierre de turno, arqueo y corte de caja"
+        },
+        {
+            "name": "Configuración",
+            "description": "Endpoints de configuración general de la empresa, datos fiscales y formato de tickets"
         },
         {
             "name": "Documentación",

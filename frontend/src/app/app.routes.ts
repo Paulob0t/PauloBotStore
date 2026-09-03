@@ -9,6 +9,7 @@ import { CategoryListComponent } from './pages/categories/category-list/category
 import { SubcategoryListComponent } from './pages/categories/subcategory-list/subcategory-list.component';
 import { MovementListComponent } from './pages/movements/movement-list/movement-list.component';
 import { CashRegisterComponent } from './pages/cash-register/cash-register.component';
+import { CompanyConfigComponent } from './pages/config/company-config/company-config.component';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 
@@ -63,6 +64,11 @@ export const routes: Routes = [
         path: 'cortes-caja',
         component: CashRegisterComponent,
         title: 'Cortes de Caja | PauloBot Store'
+      },
+      {
+        path: 'configuracion',
+        component: CompanyConfigComponent,
+        title: 'Configuración de Empresa | PauloBot Store'
       }
     ]
   },
