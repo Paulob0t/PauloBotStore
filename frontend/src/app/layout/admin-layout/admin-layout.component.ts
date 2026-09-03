@@ -82,7 +82,7 @@ import { AuthService } from '../../core/services/auth.service';
               <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
             </a>
 
-            <!-- Subcategorías (Módulo Migrado) -->
+            <!-- Subcategorías -->
             <a
               routerLink="/admin/subcategorias"
               routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
@@ -91,6 +91,23 @@ import { AuthService } from '../../core/services/auth.service';
               <div class="flex items-center gap-3">
                 <i class="fas fa-folder-tree text-slate-400 group-hover:text-indigo-400 w-5"></i>
                 <span>Subcategorías</span>
+              </div>
+              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
+            </a>
+
+            <div class="pt-4 pb-2 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Finanzas & Ventas
+            </div>
+
+            <!-- Movimientos (Nuevo Módulo Migrado) -->
+            <a
+              routerLink="/admin/movimientos"
+              routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
+              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-300 hover:bg-slate-800 hover:text-white transition-all group"
+            >
+              <div class="flex items-center gap-3">
+                <i class="fas fa-money-bill-transfer text-slate-400 group-hover:text-indigo-400 w-5"></i>
+                <span>Movimientos</span>
               </div>
               <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
             </a>

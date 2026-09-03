@@ -28,7 +28,11 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\Tag(
     name: "Categorías",
-    description: "Endpoints de consulta de categorías y subcategorías"
+    description: "Endpoints de consulta y administración de categorías y subcategorías"
+)]
+#[OA\Tag(
+    name: "Movimientos",
+    description: "Endpoints de consulta de ventas, historial de transacciones y desglose de tickets"
 )]
 #[OA\Tag(
     name: "Documentación",

@@ -24,9 +24,11 @@ graph TD
         ProductsForm["Agregar Producto (ProductFormComponent)"]
         CategoriesList["Categorías (CategoryListComponent)"]
         SubcategoriesList["Subcategorías (SubcategoryListComponent)"]
+        MovementsList["Movimientos (MovementListComponent)"]
         AuthSvc["AuthService (Signals)"]
         ProdSvc["ProductService (Signals)"]
         CatSvc["CategoryService (Signals)"]
+        MoveSvc["MovementService (Signals)"]
         OpenApiGen["Servicios Generados (ng-openapi-gen)"]
     end
 
@@ -36,6 +38,7 @@ graph TD
         DashboardController["DashboardController (/api/v1/dashboard)"]
         ProductController["ProductController (/api/v1/products/*)"]
         CategoryController["CategoryController (/api/v1/categories/*, /api/v1/subcategories/*)"]
+        MovementController["MovementController (/api/v1/movements/*)"]
         DocsController["DocsController (/api/v1/openapi.json, /api/docs)"]
         Database["Database Dual (Local / Nube Fallback)"]
     end
@@ -45,6 +48,8 @@ graph TD
     AdminShell --> ProductsForm
     AdminShell --> CategoriesList
     AdminShell --> SubcategoriesList
+    AdminShell --> MovementsList
+    MovementsList --> MoveSvc
     ProductsList --> ProdSvc
     ProductsForm --> ProdSvc
     ProductsForm --> CatSvc
@@ -53,11 +58,14 @@ graph TD
     AuthSvc --> OpenApiGen
     ProdSvc --> OpenApiGen
     CatSvc --> OpenApiGen
+    MoveSvc --> OpenApiGen
     OpenApiGen -->|JSON / HTTP| Router
     Router --> AuthController
     Router --> DashboardController
     Router --> ProductController
     Router --> CategoryController
+    Router --> MovementController
+    MovementController --> Database
     ProductController --> Database
     CategoryController --> Database
     DashboardController --> Database
@@ -75,21 +83,12 @@ graph TD
   - Esquema dinámico en [`/api/v1/openapi.json`](http://localhost:8000/api/v1/openapi.json).
 - **Módulo de Autenticación:** `login`, `register`, `me`, `logout` con verificación multi-hash (BCrypt + MD5 upgrade).
 - **Módulo de Dashboard:** KPIs en tiempo real (Ventas Hoy, Ventas Mes, Inventario, Stock Bajo, Gráfica 7 días, Top Ventas).
-- **Módulo de Productos:**
-  - `GET /api/v1/products`: Catálogo completo con stock, slots de ubicación y precios.
-  - `POST /api/v1/products`: Alta de productos con validaciones y compresión.
-  - `GET /api/v1/products/{id}`: Detalle de producto.
-  - `GET /api/v1/products/{id}/image`: Servidor de imágenes con caché HTTP de 24 horas.
-  - `DELETE /api/v1/products/{id}`: Eliminación segura.
-- **Módulo de Categorías y Subcategorías:**
-  - `GET /api/v1/categories`: Lista anidada de categorías y subcategorías.
-  - `POST /api/v1/categories`: Crear categoría con subcategorías al vuelo.
-  - `PUT /api/v1/categories/{id}`: Actualizar categoría.
-  - `DELETE /api/v1/categories/{id}`: Eliminar categoría en cascada.
-  - `GET /api/v1/subcategories`: Lista plana de subcategorías con categoría padre.
-  - `POST /api/v1/categories/{id}/subcategories`: Agregar subcategoría.
-  - `PUT /api/v1/subcategories/{id}`: Actualizar subcategoría.
-  - `DELETE /api/v1/subcategories/{id}`: Eliminar subcategoría.
+- **Módulo de Productos:** Catálogo completo, altas con imágenes optimizadas, detalle, servidor de imágenes con caché HTTP de 24 horas y eliminación.
+- **Módulo de Categorías y Subcategorías:** CRUD completo de categorías y subcategorías, asignaciones relacionales y consultas planas.
+- **Módulo de Movimientos / Finanzas:**
+  - `GET /api/v1/movements`: Historial cronológico de ventas con información de usuarios y métodos de cobro.
+  - `GET /api/v1/movements/summary`: KPIs financieros (total ventas, ingresos acumulados, ventas de hoy, ticket promedio).
+  - `GET /api/v1/movements/{id}`: Desglose completo de cada ticket con productos adquiridos, cantidades, precios unitarios e importes.
 
 ### ⚡ 2. Frontend SPA (`frontend/`)
 - **Stack Moderno:** Angular 22 Standalone Components, Signals (`signal`, `computed`), Formularios Reactivos y Tailwind CSS v4.
@@ -99,9 +98,10 @@ graph TD
   - 🔐 **Login Administrador:** [`LoginComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/login/login.component.ts)
   - 📊 **Dashboard:** [`DashboardComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/dashboard/dashboard.component.ts)
   - 📋 **Consulta de Productos:** [`ProductListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/products/product-list/product-list.component.ts)
-  - ➕ **Agregar Producto:** [`ProductFormComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/products/product-form/product-form.component.ts) (con compresión Canvas en cliente)
+  - ➕ **Agregar Producto:** [`ProductFormComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/products/product-form/product-form.component.ts)
   - 🏷️ **Gestión de Categorías:** [`CategoryListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/categories/category-list/category-list.component.ts)
   - 🗂️ **Gestión de Subcategorías:** [`SubcategoryListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/categories/subcategory-list/subcategory-list.component.ts)
+  - 💸 **Consulta de Movimientos:** [`MovementListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/movements/movement-list/movement-list.component.ts)
 
 ---
 
@@ -122,6 +122,7 @@ npm start
 ```
 - **SPA General:** [`http://localhost:4200/`](http://localhost:4200/)
 - **Dashboard:** [`http://localhost:4200/admin`](http://localhost:4200/admin)
+- **Movimientos:** [`http://localhost:4200/admin/movimientos`](http://localhost:4200/admin/movimientos)
 - **Consulta Productos:** [`http://localhost:4200/admin/productos`](http://localhost:4200/admin/productos)
 - **Agregar Producto:** [`http://localhost:4200/admin/productos/nuevo`](http://localhost:4200/admin/productos/nuevo)
 - **Categorías:** [`http://localhost:4200/admin/categorias`](http://localhost:4200/admin/categorias)

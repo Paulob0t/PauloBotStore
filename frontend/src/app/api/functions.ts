@@ -29,6 +29,12 @@ export type { GetDashboardMetrics$Params as GetDashboardMetrics$Params } from '.
 export { getDashboardMetrics as getDashboardMetrics } from './fn/dashboard/get-dashboard-metrics';
 export type { GetOpenApiSpec$Params as GetOpenApiSpec$Params } from './fn/documentacion/get-open-api-spec';
 export { getOpenApiSpec as getOpenApiSpec } from './fn/documentacion/get-open-api-spec';
+export type { GetMovements$Params as GetMovements$Params } from './fn/movimientos/get-movements';
+export { getMovements as getMovements } from './fn/movimientos/get-movements';
+export type { GetMovementsSummary$Params as GetMovementsSummary$Params } from './fn/movimientos/get-movements-summary';
+export { getMovementsSummary as getMovementsSummary } from './fn/movimientos/get-movements-summary';
+export type { GetMovementById$Params as GetMovementById$Params } from './fn/movimientos/get-movement-by-id';
+export { getMovementById as getMovementById } from './fn/movimientos/get-movement-by-id';
 export type { GetProducts$Params as GetProducts$Params } from './fn/productos/get-products';
 export { getProducts as getProducts } from './fn/productos/get-products';
 export type { CreateProduct$Params as CreateProduct$Params } from './fn/productos/create-product';

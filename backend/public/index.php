@@ -19,6 +19,7 @@ use App\Controllers\AuthController;
 use App\Controllers\CategoryController;
 use App\Controllers\DashboardController;
 use App\Controllers\DocsController;
+use App\Controllers\MovementController;
 use App\Controllers\ProductController;
 use App\Core\Response;
 use App\Core\Router;
@@ -59,6 +60,11 @@ $router->get('/api/v1/products/featured-order/{order}', [ProductController::clas
 $router->get('/api/v1/products/{id}/image', [ProductController::class, 'getImage']);
 $router->get('/api/v1/products/{id}', [ProductController::class, 'getById']);
 $router->delete('/api/v1/products/{id}', [ProductController::class, 'delete']);
+
+// Rutas de Movimientos / Ventas
+$router->get('/api/v1/movements', [MovementController::class, 'getAll']);
+$router->get('/api/v1/movements/summary', [MovementController::class, 'getSummary']);
+$router->get('/api/v1/movements/{id}', [MovementController::class, 'getById']);
 
 // Dispatch de la solicitud
 $router->dispatch();
