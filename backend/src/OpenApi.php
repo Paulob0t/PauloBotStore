@@ -35,6 +35,10 @@ use OpenApi\Attributes as OA;
     description: "Endpoints de consulta de ventas, historial de transacciones y desglose de tickets"
 )]
 #[OA\Tag(
+    name: "Cortes de Caja",
+    description: "Endpoints de gestión de caja, apertura de jornada, cierre de turno, arqueo y corte de caja"
+)]
+#[OA\Tag(
     name: "Documentación",
     description: "Endpoints de especificación Swagger y OpenAPI"
 )]

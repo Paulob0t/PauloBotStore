@@ -8,6 +8,7 @@ import { ProductListComponent } from './pages/products/product-list/product-list
 import { CategoryListComponent } from './pages/categories/category-list/category-list.component';
 import { SubcategoryListComponent } from './pages/categories/subcategory-list/subcategory-list.component';
 import { MovementListComponent } from './pages/movements/movement-list/movement-list.component';
+import { CashRegisterComponent } from './pages/cash-register/cash-register.component';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 
@@ -57,6 +58,11 @@ export const routes: Routes = [
         path: 'movimientos',
         component: MovementListComponent,
         title: 'Consulta de Movimientos | PauloBot Store'
+      },
+      {
+        path: 'cortes-caja',
+        component: CashRegisterComponent,
+        title: 'Cortes de Caja | PauloBot Store'
       }
     ]
   },

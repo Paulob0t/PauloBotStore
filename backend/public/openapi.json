@@ -186,6 +186,285 @@
                 }
             }
         },
+        "/api/v1/cash-register/status": {
+            "get": {
+                "tags": [
+                    "Cortes de Caja"
+                ],
+                "summary": "Obtener estado actual de la caja y corte en vivo",
+                "description": "Retorna si la caja está abierta o cerrada, configuración de cierre, corte activo con totales en tiempo real y lista de movimientos del turno.",
+                "operationId": "getCashRegisterStatus",
+                "responses": {
+                    "200": {
+                        "description": "Estado actual de la caja",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CashRegisterStatusDto"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al consultar estado de caja",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cash-register/open": {
+            "post": {
+                "tags": [
+                    "Cortes de Caja"
+                ],
+                "summary": "Iniciar nueva jornada / Apertura de caja",
+                "description": "Inicia una jornada con un fondo inicial declarado y habilita la recepción de movimientos.",
+                "operationId": "openCashRegister",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OpenCashRegisterRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Caja abierta con éxito",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CashRegisterActionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error de validación o caja ya abierta",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cash-register/close": {
+            "post": {
+                "tags": [
+                    "Cortes de Caja"
+                ],
+                "summary": "Cerrar caja / Realizar corte de turno",
+                "description": "Cierra el corte activo con el monto final contado físicamente, calculando diferencias y total de ventas.",
+                "operationId": "closeCashRegister",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CloseCashRegisterRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Caja cerrada y corte guardado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CashRegisterActionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error al cerrar caja",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cash-register/movements": {
+            "post": {
+                "tags": [
+                    "Cortes de Caja"
+                ],
+                "summary": "Registrar movimiento manual de caja (ingreso / egreso)",
+                "description": "Registra una entrada o salida extraordinaria de efectivo vinculada al corte activo.",
+                "operationId": "createCashMovement",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCashMovementRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Movimiento registrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CashRegisterActionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Datos inválidos o caja cerrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cash-register/history": {
+            "get": {
+                "tags": [
+                    "Cortes de Caja"
+                ],
+                "summary": "Obtener historial de cortes cerrados",
+                "description": "Lista de cortes de caja finalizados con fecha, montos inicial/final, ingresos, egresos y diferencias.",
+                "operationId": "getCashRegisterHistory",
+                "parameters": [
+                    {
+                        "name": "desde",
+                        "in": "query",
+                        "description": "Fecha desde (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "hasta",
+                        "in": "query",
+                        "description": "Fecha hasta (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Historial de cortes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CashRegisterCutDto"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cash-register/{id}": {
+            "get": {
+                "tags": [
+                    "Cortes de Caja"
+                ],
+                "summary": "Obtener detalle completo de un corte específico",
+                "description": "Retorna toda la información de un corte histórico con sus movimientos individuales y balance.",
+                "operationId": "getCashRegisterCutById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del corte",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del corte",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Corte no encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cash-register/config": {
+            "put": {
+                "tags": [
+                    "Cortes de Caja"
+                ],
+                "summary": "Actualizar parámetros de configuración de corte automático",
+                "operationId": "updateCashRegisterConfig",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCashConfigRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Configuración actualizada con éxito",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CashRegisterActionResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/categories": {
             "get": {
                 "tags": [
@@ -979,6 +1258,311 @@
                 },
                 "type": "object"
             },
+            "CashRegisterActionResponse": {
+                "title": "Respuesta de Acción en Caja",
+                "required": [
+                    "success",
+                    "message"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Caja iniciada exitosamente."
+                    },
+                    "id_corte": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "monto_esperado": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 500,
+                        "nullable": true
+                    },
+                    "monto_declarado": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 500,
+                        "nullable": true
+                    },
+                    "diferencia": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CashRegisterConfigDto": {
+                "title": "Configuración de Caja",
+                "required": [
+                    "caja_activa",
+                    "corte_automatico_habilitado",
+                    "hora_corte_automatico",
+                    "monto_inicial_default"
+                ],
+                "properties": {
+                    "caja_activa": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "id_corte_actual": {
+                        "type": "integer",
+                        "example": 5,
+                        "nullable": true
+                    },
+                    "fecha_ultimo_corte": {
+                        "type": "string",
+                        "example": "2026-09-02 23:59:00",
+                        "nullable": true
+                    },
+                    "corte_automatico_habilitado": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "hora_corte_automatico": {
+                        "type": "string",
+                        "example": "23:59:00"
+                    },
+                    "monto_inicial_default": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 100
+                    }
+                },
+                "type": "object"
+            },
+            "CashRegisterCutDto": {
+                "title": "Registro de Corte de Caja",
+                "required": [
+                    "id",
+                    "fecha",
+                    "hora",
+                    "tipo_movimiento",
+                    "monto_inicial"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "fecha": {
+                        "type": "string",
+                        "example": "2026-09-02"
+                    },
+                    "hora": {
+                        "type": "string",
+                        "example": "14:30:00"
+                    },
+                    "tipo_movimiento": {
+                        "type": "string",
+                        "enum": [
+                            "inicio",
+                            "fin"
+                        ],
+                        "example": "fin"
+                    },
+                    "monto_inicial": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 100
+                    },
+                    "monto_final": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 550,
+                        "nullable": true
+                    },
+                    "total_ingresos": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 450,
+                        "nullable": true
+                    },
+                    "total_egresos": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "diferencia": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "id_usuario": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "nombre_usuario": {
+                        "type": "string",
+                        "example": "Administrador",
+                        "nullable": true
+                    },
+                    "notas": {
+                        "type": "string",
+                        "example": "Corte regular del turno",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CashRegisterMovementDto": {
+                "title": "Movimiento Interno de Caja",
+                "required": [
+                    "id",
+                    "id_corte",
+                    "tipo_movimiento",
+                    "concepto",
+                    "monto",
+                    "fecha_hora"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "id_corte": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "tipo_movimiento": {
+                        "type": "string",
+                        "enum": [
+                            "ingreso",
+                            "egreso",
+                            "apertura",
+                            "cierre"
+                        ],
+                        "example": "ingreso"
+                    },
+                    "concepto": {
+                        "type": "string",
+                        "example": "Venta Folio #VENTA-001"
+                    },
+                    "monto": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 50
+                    },
+                    "metodo_pago": {
+                        "type": "string",
+                        "example": "Efectivo",
+                        "nullable": true
+                    },
+                    "referencia": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "id_venta": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "nombre_usuario": {
+                        "type": "string",
+                        "example": "Admin",
+                        "nullable": true
+                    },
+                    "fecha_hora": {
+                        "type": "string",
+                        "example": "2026-09-02 15:45:00"
+                    },
+                    "notas": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CashRegisterStatusDto": {
+                "title": "Estado Actual de la Caja",
+                "required": [
+                    "caja_activa",
+                    "config"
+                ],
+                "properties": {
+                    "caja_activa": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "config": {
+                        "$ref": "#/components/schemas/CashRegisterConfigDto"
+                    },
+                    "corte_actual": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CashRegisterCutDto"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "totales": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CashRegisterTotalsDto"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "movimientos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CashRegisterMovementDto"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "CashRegisterTotalsDto": {
+                "title": "Totales de Caja en Vivo",
+                "required": [
+                    "monto_inicial",
+                    "total_ingresos",
+                    "total_egresos",
+                    "num_ingresos",
+                    "num_egresos",
+                    "monto_esperado"
+                ],
+                "properties": {
+                    "monto_inicial": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 100
+                    },
+                    "total_ingresos": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 450
+                    },
+                    "total_egresos": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 50
+                    },
+                    "num_ingresos": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "num_egresos": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "monto_esperado": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 500
+                    }
+                },
+                "type": "object"
+            },
             "CategoryDto": {
                 "title": "Categoría con Subcategorías",
                 "required": [
@@ -1085,6 +1669,62 @@
                             720,
                             490
                         ]
+                    }
+                },
+                "type": "object"
+            },
+            "CloseCashRegisterRequest": {
+                "title": "Solicitud de Cierre de Caja",
+                "required": [
+                    "monto_final"
+                ],
+                "properties": {
+                    "monto_final": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 550
+                    },
+                    "notas": {
+                        "type": "string",
+                        "example": "Cierre sin incidencias",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CreateCashMovementRequest": {
+                "title": "Registro de Movimiento Manual de Caja",
+                "required": [
+                    "tipo_movimiento",
+                    "concepto",
+                    "monto"
+                ],
+                "properties": {
+                    "tipo_movimiento": {
+                        "type": "string",
+                        "enum": [
+                            "ingreso",
+                            "egreso"
+                        ],
+                        "example": "egreso"
+                    },
+                    "concepto": {
+                        "type": "string",
+                        "example": "Compra de cambio de monedas"
+                    },
+                    "monto": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 50
+                    },
+                    "metodo_pago": {
+                        "type": "string",
+                        "example": "Efectivo",
+                        "nullable": true
+                    },
+                    "notas": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -1507,6 +2147,25 @@
                 },
                 "type": "object"
             },
+            "OpenCashRegisterRequest": {
+                "title": "Solicitud de Apertura de Caja",
+                "required": [
+                    "monto_inicial"
+                ],
+                "properties": {
+                    "monto_inicial": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 100
+                    },
+                    "notas": {
+                        "type": "string",
+                        "example": "Apertura turno matutino",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "ProductDto": {
                 "title": "Detalle de Producto",
                 "required": [
@@ -1842,6 +2501,30 @@
                 },
                 "type": "object"
             },
+            "UpdateCashConfigRequest": {
+                "title": "Actualizar Configuración de Caja",
+                "required": [
+                    "corte_automatico_habilitado",
+                    "hora_corte_automatico",
+                    "monto_inicial_default"
+                ],
+                "properties": {
+                    "corte_automatico_habilitado": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "hora_corte_automatico": {
+                        "type": "string",
+                        "example": "23:59:00"
+                    },
+                    "monto_inicial_default": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 100
+                    }
+                },
+                "type": "object"
+            },
             "UpdateCategoryRequest": {
                 "title": "Actualizar Categoría",
                 "required": [
@@ -1936,6 +2619,10 @@
         {
             "name": "Movimientos",
             "description": "Endpoints de consulta de ventas, historial de transacciones y desglose de tickets"
+        },
+        {
+            "name": "Cortes de Caja",
+            "description": "Endpoints de gestión de caja, apertura de jornada, cierre de turno, arqueo y corte de caja"
         },
         {
             "name": "Documentación",

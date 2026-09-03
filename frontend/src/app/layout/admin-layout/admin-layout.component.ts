@@ -96,10 +96,10 @@ import { AuthService } from '../../core/services/auth.service';
             </a>
 
             <div class="pt-4 pb-2 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              Finanzas & Ventas
+              Finanzas & Caja
             </div>
 
-            <!-- Movimientos (Nuevo Módulo Migrado) -->
+            <!-- Movimientos -->
             <a
               routerLink="/admin/movimientos"
               routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
@@ -112,16 +112,17 @@ import { AuthService } from '../../core/services/auth.service';
               <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
             </a>
 
+            <!-- Cortes de Caja (Nuevo Módulo Migrado) -->
             <a
-              href="javascript:void(0)"
-              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition-all opacity-70 group"
-              title="Módulo en proceso de migración"
+              routerLink="/admin/cortes-caja"
+              routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
+              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-300 hover:bg-slate-800 hover:text-white transition-all group"
             >
               <div class="flex items-center gap-3">
-                <i class="fas fa-receipt w-5 text-slate-500"></i>
+                <i class="fas fa-cash-register text-slate-400 group-hover:text-indigo-400 w-5"></i>
                 <span>Cortes de Caja</span>
               </div>
-              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Próx.</span>
+              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
             </a>
 
             <div class="pt-4 pb-2 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">

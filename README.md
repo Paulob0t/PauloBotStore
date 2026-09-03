@@ -25,10 +25,12 @@ graph TD
         CategoriesList["Categorías (CategoryListComponent)"]
         SubcategoriesList["Subcategorías (SubcategoryListComponent)"]
         MovementsList["Movimientos (MovementListComponent)"]
+        CashRegister["Cortes de Caja (CashRegisterComponent)"]
         AuthSvc["AuthService (Signals)"]
         ProdSvc["ProductService (Signals)"]
         CatSvc["CategoryService (Signals)"]
         MoveSvc["MovementService (Signals)"]
+        CashSvc["CashRegisterService (Signals)"]
         OpenApiGen["Servicios Generados (ng-openapi-gen)"]
     end
 
@@ -39,6 +41,7 @@ graph TD
         ProductController["ProductController (/api/v1/products/*)"]
         CategoryController["CategoryController (/api/v1/categories/*, /api/v1/subcategories/*)"]
         MovementController["MovementController (/api/v1/movements/*)"]
+        CashRegisterController["CashRegisterController (/api/v1/cash-register/*)"]
         DocsController["DocsController (/api/v1/openapi.json, /api/docs)"]
         Database["Database Dual (Local / Nube Fallback)"]
     end
@@ -49,6 +52,8 @@ graph TD
     AdminShell --> CategoriesList
     AdminShell --> SubcategoriesList
     AdminShell --> MovementsList
+    AdminShell --> CashRegister
+    CashRegister --> CashSvc
     MovementsList --> MoveSvc
     ProductsList --> ProdSvc
     ProductsForm --> ProdSvc
@@ -59,12 +64,15 @@ graph TD
     ProdSvc --> OpenApiGen
     CatSvc --> OpenApiGen
     MoveSvc --> OpenApiGen
+    CashSvc --> OpenApiGen
     OpenApiGen -->|JSON / HTTP| Router
     Router --> AuthController
     Router --> DashboardController
     Router --> ProductController
     Router --> CategoryController
     Router --> MovementController
+    Router --> CashRegisterController
+    CashRegisterController --> Database
     MovementController --> Database
     ProductController --> Database
     CategoryController --> Database
@@ -85,10 +93,15 @@ graph TD
 - **Módulo de Dashboard:** KPIs en tiempo real (Ventas Hoy, Ventas Mes, Inventario, Stock Bajo, Gráfica 7 días, Top Ventas).
 - **Módulo de Productos:** Catálogo completo, altas con imágenes optimizadas, detalle, servidor de imágenes con caché HTTP de 24 horas y eliminación.
 - **Módulo de Categorías y Subcategorías:** CRUD completo de categorías y subcategorías, asignaciones relacionales y consultas planas.
-- **Módulo de Movimientos / Finanzas:**
-  - `GET /api/v1/movements`: Historial cronológico de ventas con información de usuarios y métodos de cobro.
-  - `GET /api/v1/movements/summary`: KPIs financieros (total ventas, ingresos acumulados, ventas de hoy, ticket promedio).
-  - `GET /api/v1/movements/{id}`: Desglose completo de cada ticket con productos adquiridos, cantidades, precios unitarios e importes.
+- **Módulo de Movimientos / Finanzas:** Historial cronológico de ventas, desglose de tickets, KPIs financieros y filtros por método de cobro.
+- **Módulo de Cortes de Caja (Cash Register):**
+  - `GET /api/v1/cash-register/status`: Estado en tiempo real (caja abierta/cerrada, totales en vivo, balance y movimientos del turno).
+  - `POST /api/v1/cash-register/open`: Inicio de jornada con declaración de fondo inicial en efectivo.
+  - `POST /api/v1/cash-register/close`: Arqueo y cierre de caja con cálculo de diferencias y guardado de balance.
+  - `POST /api/v1/cash-register/movements`: Registro de entradas o salidas extraordinarias de efectivo en el turno activo.
+  - `GET /api/v1/cash-register/history`: Historial de cortes archivados con filtros por fecha.
+  - `GET /api/v1/cash-register/{id}`: Detalle desglosado de un corte específico con sus movimientos.
+  - `PUT /api/v1/cash-register/config`: Configuración de corte automático y montos sugeridos.
 
 ### ⚡ 2. Frontend SPA (`frontend/`)
 - **Stack Moderno:** Angular 22 Standalone Components, Signals (`signal`, `computed`), Formularios Reactivos y Tailwind CSS v4.
@@ -102,6 +115,7 @@ graph TD
   - 🏷️ **Gestión de Categorías:** [`CategoryListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/categories/category-list/category-list.component.ts)
   - 🗂️ **Gestión de Subcategorías:** [`SubcategoryListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/categories/subcategory-list/subcategory-list.component.ts)
   - 💸 **Consulta de Movimientos:** [`MovementListComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/movements/movement-list/movement-list.component.ts)
+  - 🏧 **Cortes de Caja:** [`CashRegisterComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/cash-register/cash-register.component.ts)
 
 ---
 
@@ -122,6 +136,7 @@ npm start
 ```
 - **SPA General:** [`http://localhost:4200/`](http://localhost:4200/)
 - **Dashboard:** [`http://localhost:4200/admin`](http://localhost:4200/admin)
+- **Cortes de Caja:** [`http://localhost:4200/admin/cortes-caja`](http://localhost:4200/admin/cortes-caja)
 - **Movimientos:** [`http://localhost:4200/admin/movimientos`](http://localhost:4200/admin/movimientos)
 - **Consulta Productos:** [`http://localhost:4200/admin/productos`](http://localhost:4200/admin/productos)
 - **Agregar Producto:** [`http://localhost:4200/admin/productos/nuevo`](http://localhost:4200/admin/productos/nuevo)

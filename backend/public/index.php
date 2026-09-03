@@ -16,6 +16,7 @@ set_exception_handler(function (\Throwable $e) {
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Controllers\AuthController;
+use App\Controllers\CashRegisterController;
 use App\Controllers\CategoryController;
 use App\Controllers\DashboardController;
 use App\Controllers\DocsController;
@@ -65,6 +66,15 @@ $router->delete('/api/v1/products/{id}', [ProductController::class, 'delete']);
 $router->get('/api/v1/movements', [MovementController::class, 'getAll']);
 $router->get('/api/v1/movements/summary', [MovementController::class, 'getSummary']);
 $router->get('/api/v1/movements/{id}', [MovementController::class, 'getById']);
+
+// Rutas de Cortes de Caja
+$router->get('/api/v1/cash-register/status', [CashRegisterController::class, 'getStatus']);
+$router->post('/api/v1/cash-register/open', [CashRegisterController::class, 'open']);
+$router->post('/api/v1/cash-register/close', [CashRegisterController::class, 'close']);
+$router->post('/api/v1/cash-register/movements', [CashRegisterController::class, 'addMovement']);
+$router->get('/api/v1/cash-register/history', [CashRegisterController::class, 'getHistory']);
+$router->get('/api/v1/cash-register/{id}', [CashRegisterController::class, 'getById']);
+$router->put('/api/v1/cash-register/config', [CashRegisterController::class, 'updateConfig']);
 
 // Dispatch de la solicitud
 $router->dispatch();
