@@ -1,4 +1,15 @@
-import { Component, ElementRef, OnInit, ViewChild, signal, computed, OnDestroy, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  signal,
+  computed,
+  OnDestroy,
+  inject,
+  AfterViewInit,
+  NgZone
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
@@ -91,17 +102,20 @@ import { ProductDto, CategoryDto } from '../../api/models';
               Tus Snacks & Bebidas favoritas al instante
             </h1>
             <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Explora nuestro catálogo de productos en tiempo real. Selecciona lo que deseas y recógelo inmediatamente en el dispensador automatizado.
+              Explora nuestro catálogo en movimiento constante. Selecciona lo que deseas y recógelo inmediatamente en la máquina expendedora.
             </p>
           </div>
         </section>
 
-        <!-- SECCIÓN 1: Carrusel de Productos Destacados -->
+        <!-- SECCIÓN 1: Carrusel de Productos Destacados (En Movimiento Continuo) -->
         <section class="space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
                 <i class="fas fa-fire text-amber-400"></i> Selección Especial
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span> En Vivo
+                </span>
               </div>
               <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
                 Productos Destacados
@@ -114,7 +128,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
                 type="button"
                 (click)="scrollFeatured('prev')"
                 class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Anterior"
+                title="Deslizar izquierda"
               >
                 <i class="fas fa-chevron-left text-sm"></i>
               </button>
@@ -122,105 +136,111 @@ import { ProductDto, CategoryDto } from '../../api/models';
                 type="button"
                 (click)="scrollFeatured('next')"
                 class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Siguiente"
+                title="Deslizar derecha"
               >
                 <i class="fas fa-chevron-right text-sm"></i>
               </button>
             </div>
           </div>
 
-          <!-- Pista del Carrusel de Productos Destacados -->
+          <!-- Pista del Carrusel de Productos Destacados con Movimiento Continuo -->
           @if (isLoadingFeatured()) {
             <div class="py-16 text-center text-slate-500">
               <i class="fas fa-spinner fa-spin text-3xl text-indigo-500 mb-3"></i>
               <p class="text-sm">Cargando productos destacados...</p>
             </div>
-          } @else if (featuredProducts().length > 0) {
-            <div
-              #featuredCarousel
-              class="flex gap-6 overflow-x-auto pb-4 scroll-smooth no-scrollbar snap-x snap-mandatory"
-            >
-              @for (product of featuredProducts(); track product.id_producto) {
-                <div class="w-72 sm:w-80 shrink-0 snap-start bg-slate-900/90 border border-slate-800 hover:border-indigo-500/40 rounded-3xl p-5 shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col justify-between group">
-                  
-                  <!-- Contenedor Imagen y Badges -->
-                  <div class="space-y-4">
-                    <div class="relative h-48 rounded-2xl bg-slate-950/80 border border-slate-800/80 overflow-hidden flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-300">
-                      
-                      <!-- Badge Destacado / Orden -->
-                      <span class="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 backdrop-blur-md">
-                        <i class="fas fa-star text-[9px]"></i> Top #{{ product.orden_destacado || 1 }}
-                      </span>
-
-                      <!-- Badge Descuento si aplica -->
-                      @if (product.descuento && product.descuento > 0 && product.descuento < product.precio) {
-                        <span class="absolute top-3 right-3 z-10 px-2 py-1 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[10px] font-black uppercase tracking-wider backdrop-blur-md">
-                          ¡OFERTA!
+          } @else if (infiniteFeatured().length > 0) {
+            <div class="relative overflow-hidden mask-carousel">
+              <div
+                #featuredCarousel
+                (mouseenter)="isFeaturedPaused = true"
+                (mouseleave)="isFeaturedPaused = false"
+                (touchstart)="isFeaturedPaused = true"
+                (touchend)="isFeaturedPaused = false"
+                class="flex gap-6 overflow-x-auto pb-4 no-scrollbar cursor-grab active:cursor-grabbing select-none"
+              >
+                @for (product of infiniteFeatured(); track $index) {
+                  <div class="w-72 sm:w-80 shrink-0 bg-slate-900/90 border border-slate-800 hover:border-indigo-500/40 rounded-3xl p-5 shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col justify-between group">
+                    
+                    <!-- Contenedor Imagen y Badges -->
+                    <div class="space-y-4">
+                      <div class="relative h-48 rounded-2xl bg-slate-950/80 border border-slate-800/80 overflow-hidden flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-300">
+                        
+                        <!-- Badge Destacado / Orden -->
+                        <span class="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 backdrop-blur-md">
+                          <i class="fas fa-star text-[9px]"></i> Top #{{ product.orden_destacado || 1 }}
                         </span>
-                      }
 
-                      <!-- Imagen o Fallback Placeholder -->
-                      @if (product.tiene_imagen === 1) {
-                        <img
-                          [src]="getProductImageUrl(product.id_producto)"
-                          [alt]="product.nombre_producto"
-                          class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-                          loading="lazy"
-                          (error)="onImageError($event)"
-                        />
-                      } @else {
-                        <div class="text-center p-6 text-slate-600">
-                          <i class="fas fa-box-open text-4xl mb-2 block text-slate-700"></i>
-                          <span class="text-[11px] font-medium text-slate-500">Sin Fotografía</span>
-                        </div>
-                      }
-                    </div>
+                        <!-- Badge Descuento si aplica -->
+                        @if (product.descuento && product.descuento > 0 && product.descuento < product.precio) {
+                          <span class="absolute top-3 right-3 z-10 px-2 py-1 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[10px] font-black uppercase tracking-wider backdrop-blur-md">
+                            ¡OFERTA!
+                          </span>
+                        }
 
-                    <!-- Datos del Producto -->
-                    <div>
-                      <div class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider mb-1 truncate">
-                        {{ product.nombre_categoria || 'Categoría General' }}
+                        <!-- Imagen o Fallback Placeholder -->
+                        @if (product.tiene_imagen === 1) {
+                          <img
+                            [src]="getProductImageUrl(product.id_producto)"
+                            [alt]="product.nombre_producto"
+                            class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+                            loading="lazy"
+                            (error)="onImageError($event)"
+                          />
+                        } @else {
+                          <div class="text-center p-6 text-slate-600">
+                            <i class="fas fa-box-open text-4xl mb-2 block text-slate-700"></i>
+                            <span class="text-[11px] font-medium text-slate-500">Sin Fotografía</span>
+                          </div>
+                        }
                       </div>
-                      <h3 class="text-base font-bold text-white group-hover:text-indigo-300 transition-colors line-clamp-1" [title]="product.nombre_producto">
-                        {{ product.nombre_producto }}
-                      </h3>
-                      @if (product.descripcion) {
-                        <p class="text-xs text-slate-400 line-clamp-2 mt-1 min-h-[2rem]">
-                          {{ product.descripcion }}
-                        </p>
-                      }
-                    </div>
-                  </div>
 
-                  <!-- Precios y Botón Agregar -->
-                  <div class="pt-4 border-t border-slate-800/80 mt-4 flex items-center justify-between gap-3">
-                    <div>
-                      @if (product.descuento && product.descuento > 0 && product.descuento < product.precio) {
-                        <div class="text-xs text-slate-500 line-through font-mono">
-                          {{ product.precio | currency:'MXN':'symbol':'1.2-2' }}
+                      <!-- Datos del Producto -->
+                      <div>
+                        <div class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider mb-1 truncate">
+                          {{ product.nombre_categoria || 'Categoría General' }}
                         </div>
-                        <div class="text-xl font-black text-emerald-400 font-mono">
-                          {{ product.descuento | currency:'MXN':'symbol':'1.2-2' }}
-                        </div>
-                      } @else {
-                        <div class="text-xl font-black text-white font-mono">
-                          {{ product.precio | currency:'MXN':'symbol':'1.2-2' }}
-                        </div>
-                      }
+                        <h3 class="text-base font-bold text-white group-hover:text-indigo-300 transition-colors line-clamp-1" [title]="product.nombre_producto">
+                          {{ product.nombre_producto }}
+                        </h3>
+                        @if (product.descripcion) {
+                          <p class="text-xs text-slate-400 line-clamp-2 mt-1 min-h-[2rem]">
+                            {{ product.descripcion }}
+                          </p>
+                        }
+                      </div>
                     </div>
 
-                    <button
-                      type="button"
-                      (click)="addToCart(product)"
-                      class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 transition-all cursor-pointer shrink-0"
-                    >
-                      <i class="fas fa-cart-plus"></i>
-                      <span>Agregar</span>
-                    </button>
-                  </div>
+                    <!-- Precios y Botón Agregar -->
+                    <div class="pt-4 border-t border-slate-800/80 mt-4 flex items-center justify-between gap-3">
+                      <div>
+                        @if (product.descuento && product.descuento > 0 && product.descuento < product.precio) {
+                          <div class="text-xs text-slate-500 line-through font-mono">
+                            {{ product.precio | currency:'MXN':'symbol':'1.2-2' }}
+                          </div>
+                          <div class="text-xl font-black text-emerald-400 font-mono">
+                            {{ product.descuento | currency:'MXN':'symbol':'1.2-2' }}
+                          </div>
+                        } @else {
+                          <div class="text-xl font-black text-white font-mono">
+                            {{ product.precio | currency:'MXN':'symbol':'1.2-2' }}
+                          </div>
+                        }
+                      </div>
 
-                </div>
-              }
+                      <button
+                        type="button"
+                        (click)="addToCart(product)"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 transition-all cursor-pointer shrink-0"
+                      >
+                        <i class="fas fa-cart-plus"></i>
+                        <span>Agregar</span>
+                      </button>
+                    </div>
+
+                  </div>
+                }
+              </div>
             </div>
           } @else {
             <div class="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 text-center text-slate-400 text-sm">
@@ -229,12 +249,15 @@ import { ProductDto, CategoryDto } from '../../api/models';
           }
         </section>
 
-        <!-- SECCIÓN 2: Carrusel Infinito de Categorías -->
+        <!-- SECCIÓN 2: Carrusel Infinito de Categorías (En Movimiento Continuo) -->
         <section class="space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
                 <i class="fas fa-layer-group text-indigo-400"></i> Catálogo Completo
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Carrusel Infinito
+                </span>
               </div>
               <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
                 Explora por Categorías
@@ -247,7 +270,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
                 type="button"
                 (click)="scrollCategories('prev')"
                 class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Anterior"
+                title="Deslizar izquierda"
               >
                 <i class="fas fa-chevron-left text-sm"></i>
               </button>
@@ -255,86 +278,91 @@ import { ProductDto, CategoryDto } from '../../api/models';
                 type="button"
                 (click)="scrollCategories('next')"
                 class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Siguiente"
+                title="Deslizar derecha"
               >
                 <i class="fas fa-chevron-right text-sm"></i>
               </button>
             </div>
           </div>
 
-          <!-- Pista del Carrusel Infinito de Categorías -->
+          <!-- Pista del Carrusel Infinito de Categorías con Movimiento Continuo -->
           @if (isLoadingCategories()) {
             <div class="py-16 text-center text-slate-500">
               <i class="fas fa-spinner fa-spin text-3xl text-indigo-500 mb-3"></i>
               <p class="text-sm">Cargando categorías...</p>
             </div>
           } @else if (infiniteCategories().length > 0) {
-            <div
-              #categoryCarousel
-              (scroll)="onCategoryScroll()"
-              class="flex gap-6 overflow-x-auto pb-4 scroll-smooth no-scrollbar snap-x snap-mandatory"
-            >
-              @for (cat of infiniteCategories(); track $index) {
-                <div class="w-72 sm:w-80 h-96 shrink-0 snap-start relative rounded-3xl overflow-hidden border border-slate-800 hover:border-indigo-500/50 shadow-xl group cursor-pointer transition-all duration-300 hover:-translate-y-1">
-                  
-                  <!-- Fondo con Imagen de Categoría o Gradiente Decorativo -->
-                  @if (cat.imagen_categoria) {
-                    <img
-                      [src]="cat.imagen_categoria"
-                      [alt]="cat.nombre"
-                      class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                  } @else {
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/60 via-slate-900 to-slate-950 flex items-center justify-center">
-                      <i class="fas fa-tags text-7xl text-indigo-500/20 group-hover:scale-110 group-hover:text-indigo-500/30 transition-all duration-500"></i>
-                    </div>
-                  }
-
-                  <!-- Overlay Oscuro Degradado -->
-                  <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
-
-                  <!-- Contenido Superior: Badge de Subcategorías -->
-                  <div class="absolute top-4 left-4 right-4 flex justify-between items-center">
-                    <span class="px-3 py-1 rounded-xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 text-indigo-300 text-[11px] font-black uppercase tracking-wider">
-                      {{ (cat.subcategorias?.length || 0) }} Subcategorías
-                    </span>
-                    <div class="w-8 h-8 rounded-xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 text-slate-300 flex items-center justify-center text-xs group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                      <i class="fas fa-arrow-up-right-from-square"></i>
-                    </div>
-                  </div>
-
-                  <!-- Contenido Inferior: Título & Botón -->
-                  <div class="absolute bottom-6 left-6 right-6 space-y-3">
-                    <h3 class="text-2xl font-black text-white uppercase tracking-tight leading-tight group-hover:text-indigo-300 transition-colors">
-                      {{ cat.nombre }}
-                    </h3>
-
-                    @if (cat.subcategorias && cat.subcategorias.length > 0) {
-                      <div class="flex flex-wrap gap-1.5 pt-1">
-                        @for (sub of cat.subcategorias.slice(0, 3); track sub.id) {
-                          <span class="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700 text-[10px] font-semibold text-slate-300">
-                            {{ sub.nombre }}
-                          </span>
-                        }
-                        @if (cat.subcategorias.length > 3) {
-                          <span class="px-1.5 py-0.5 rounded-lg bg-slate-800/60 text-[10px] text-slate-400">
-                            +{{ cat.subcategorias.length - 3 }}
-                          </span>
-                        }
+            <div class="relative overflow-hidden mask-carousel">
+              <div
+                #categoryCarousel
+                (mouseenter)="isCategoriesPaused = true"
+                (mouseleave)="isCategoriesPaused = false"
+                (touchstart)="isCategoriesPaused = true"
+                (touchend)="isCategoriesPaused = false"
+                class="flex gap-6 overflow-x-auto pb-4 no-scrollbar cursor-grab active:cursor-grabbing select-none"
+              >
+                @for (cat of infiniteCategories(); track $index) {
+                  <div class="w-72 sm:w-80 h-96 shrink-0 relative rounded-3xl overflow-hidden border border-slate-800 hover:border-indigo-500/50 shadow-xl group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+                    
+                    <!-- Fondo con Imagen de Categoría o Gradiente Decorativo -->
+                    @if (cat.imagen_categoria) {
+                      <img
+                        [src]="cat.imagen_categoria"
+                        [alt]="cat.nombre"
+                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none"
+                        loading="lazy"
+                      />
+                    } @else {
+                      <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/60 via-slate-900 to-slate-950 flex items-center justify-center">
+                        <i class="fas fa-tags text-7xl text-indigo-500/20 group-hover:scale-110 group-hover:text-indigo-500/30 transition-all duration-500"></i>
                       </div>
                     }
 
-                    <div class="pt-2">
-                      <span class="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 group-hover:text-white group-hover:translate-x-1 transition-all">
-                        <span>Ver Productos</span>
-                        <i class="fas fa-arrow-right text-xs"></i>
-                      </span>
-                    </div>
-                  </div>
+                    <!-- Overlay Oscuro Degradado -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
 
-                </div>
-              }
+                    <!-- Contenido Superior: Badge de Subcategorías -->
+                    <div class="absolute top-4 left-4 right-4 flex justify-between items-center">
+                      <span class="px-3 py-1 rounded-xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 text-indigo-300 text-[11px] font-black uppercase tracking-wider">
+                        {{ (cat.subcategorias?.length || 0) }} Subcategorías
+                      </span>
+                      <div class="w-8 h-8 rounded-xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 text-slate-300 flex items-center justify-center text-xs group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <i class="fas fa-arrow-up-right-from-square"></i>
+                      </div>
+                    </div>
+
+                    <!-- Contenido Inferior: Título & Botón -->
+                    <div class="absolute bottom-6 left-6 right-6 space-y-3">
+                      <h3 class="text-2xl font-black text-white uppercase tracking-tight leading-tight group-hover:text-indigo-300 transition-colors">
+                        {{ cat.nombre }}
+                      </h3>
+
+                      @if (cat.subcategorias && cat.subcategorias.length > 0) {
+                        <div class="flex flex-wrap gap-1.5 pt-1">
+                          @for (sub of cat.subcategorias.slice(0, 3); track sub.id) {
+                            <span class="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700 text-[10px] font-semibold text-slate-300">
+                              {{ sub.nombre }}
+                            </span>
+                          }
+                          @if (cat.subcategorias.length > 3) {
+                            <span class="px-1.5 py-0.5 rounded-lg bg-slate-800/60 text-[10px] text-slate-400">
+                              +{{ cat.subcategorias.length - 3 }}
+                            </span>
+                          }
+                        </div>
+                      }
+
+                      <div class="pt-2">
+                        <span class="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 group-hover:text-white group-hover:translate-x-1 transition-all">
+                          <span>Ver Productos</span>
+                          <i class="fas fa-arrow-right text-xs"></i>
+                        </span>
+                      </div>
+                    </div>
+
+                  </div>
+                }
+              </div>
             </div>
           } @else {
             <div class="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 text-center text-slate-400 text-sm">
@@ -348,7 +376,6 @@ import { ProductDto, CategoryDto } from '../../api/models';
       <!-- Drawer Lateral de Carrito de Compras -->
       @if (showCartDrawer()) {
         <div class="fixed inset-0 z-50 overflow-hidden animate-fade-in">
-          <!-- Fondo Backdrop -->
           <div
             (click)="toggleCartDrawer()"
             class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
@@ -490,11 +517,22 @@ import { ProductDto, CategoryDto } from '../../api/models';
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    /* Máscara degradada en los extremos del carrusel */
+    .mask-carousel {
+      mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+    }
   `]
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('featuredCarousel') featuredCarousel!: ElementRef<HTMLDivElement>;
   @ViewChild('categoryCarousel') categoryCarousel!: ElementRef<HTMLDivElement>;
+
+  private productService = inject(ProductService);
+  private categoryService = inject(CategoryService);
+  public cartService = inject(CartService);
+  private ngZone = inject(NgZone);
 
   featuredProducts = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
@@ -505,41 +543,83 @@ export class HomeComponent implements OnInit, OnDestroy {
   showCartDrawer = signal<boolean>(false);
   toastMessage = signal<string | null>(null);
 
-  private productService = inject(ProductService);
-  private categoryService = inject(CategoryService);
-  public cartService = inject(CartService);
+  // Estados de pausa interactiva
+  isFeaturedPaused = false;
+  isCategoriesPaused = false;
 
   // Computados de Carrito
   readonly cartItems = this.cartService.items;
   readonly cartItemsCount = this.cartService.totalItems;
   readonly cartSubtotal = this.cartService.subtotal;
 
-  // Categorías Infinitas: Multiplicamos la lista para generar el buffer infinito
-  readonly infiniteCategories = computed(() => {
-    const original = this.categories();
-    if (original.length === 0) return [];
-    // Si hay categorías, repetimos 3 veces la lista para navegación infinita fluida
-    return [...original, ...original, ...original];
+  // Multiplicación de elementos para loop continuo infinito suave
+  readonly infiniteFeatured = computed(() => {
+    const list = this.featuredProducts();
+    if (list.length === 0) return [];
+    // Si hay productos, replicar 4 veces para loop continuo sin cortes
+    return [...list, ...list, ...list, ...list];
   });
 
-  private autoScrollInterval: any = null;
+  readonly infiniteCategories = computed(() => {
+    const list = this.categories();
+    if (list.length === 0) return [];
+    // Replicar 4 veces para loop continuo sin cortes
+    return [...list, ...list, ...list, ...list];
+  });
 
-  constructor() {}
+  private animationFrameId: number | null = null;
+  private readonly scrollSpeed = 0.8; // Velocidad de deslizamiento constante en px por frame
 
   async ngOnInit(): Promise<void> {
     await Promise.all([
       this.loadFeatured(),
       this.loadCategories()
     ]);
+  }
 
-    // Iniciar auto-scroll suave para el carrusel de categorías infinito
-    this.startInfiniteAutoScroll();
+  ngAfterViewInit(): void {
+    // Iniciar loop continuo de movimiento fuera de NgZone para máxima tasa de refresco (60-120fps)
+    this.ngZone.runOutsideAngular(() => {
+      this.startContinuousMotion();
+    });
   }
 
   ngOnDestroy(): void {
-    if (this.autoScrollInterval) {
-      clearInterval(this.autoScrollInterval);
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
     }
+  }
+
+  private startContinuousMotion(): void {
+    const step = () => {
+      // 1. Movimiento continuo de Productos Destacados
+      if (this.featuredCarousel && !this.isFeaturedPaused && !this.showCartDrawer()) {
+        const el = this.featuredCarousel.nativeElement;
+        el.scrollLeft += this.scrollSpeed;
+        
+        // Loop infinito suave: al alcanzar la mitad, regresar un cuarto
+        const loopThreshold = el.scrollWidth / 2;
+        if (el.scrollLeft >= loopThreshold) {
+          el.scrollLeft -= el.scrollWidth / 4;
+        }
+      }
+
+      // 2. Movimiento continuo de Categorías
+      if (this.categoryCarousel && !this.isCategoriesPaused && !this.showCartDrawer()) {
+        const catEl = this.categoryCarousel.nativeElement;
+        catEl.scrollLeft += this.scrollSpeed;
+
+        const loopThreshold = catEl.scrollWidth / 2;
+        if (catEl.scrollLeft >= loopThreshold) {
+          catEl.scrollLeft -= catEl.scrollWidth / 4;
+        }
+      }
+
+      this.animationFrameId = requestAnimationFrame(step);
+    };
+
+    this.animationFrameId = requestAnimationFrame(step);
   }
 
   async loadFeatured(): Promise<void> {
@@ -600,31 +680,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       left: direction === 'next' ? scrollAmount : -scrollAmount,
       behavior: 'smooth'
     });
-  }
-
-  onCategoryScroll(): void {
-    if (!this.categoryCarousel) return;
-    const el = this.categoryCarousel.nativeElement;
-    // Efecto loop infinito: si se acerca al final, reiniciar hacia el tercio medio
-    const oneSetWidth = el.scrollWidth / 3;
-    if (el.scrollLeft >= oneSetWidth * 2) {
-      el.scrollLeft -= oneSetWidth;
-    } else if (el.scrollLeft <= 5) {
-      el.scrollLeft += oneSetWidth;
-    }
-  }
-
-  private startInfiniteAutoScroll(): void {
-    // Desplazamiento lento continuo o automático cada 5 segundos
-    this.autoScrollInterval = setInterval(() => {
-      if (this.categoryCarousel && !this.showCartDrawer()) {
-        const el = this.categoryCarousel.nativeElement;
-        // Solo si el usuario no tiene el cursor encima
-        if (!el.matches(':hover')) {
-          el.scrollBy({ left: 340, behavior: 'smooth' });
-        }
-      }
-    }, 5000);
   }
 
   addToCart(product: ProductDto): void {
