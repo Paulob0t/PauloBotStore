@@ -27,6 +27,8 @@ export type { GetCategories$Params as GetCategories$Params } from './fn/categori
 export { getCategories as getCategories } from './fn/categorias/get-categories';
 export type { CreateCategory$Params as CreateCategory$Params } from './fn/categorias/create-category';
 export { createCategory as createCategory } from './fn/categorias/create-category';
+export type { GetCategoryImage$Params as GetCategoryImage$Params } from './fn/categorias/get-category-image';
+export { getCategoryImage as getCategoryImage } from './fn/categorias/get-category-image';
 export type { GetSubcategories$Params as GetSubcategories$Params } from './fn/categorias/get-subcategories';
 export { getSubcategories as getSubcategories } from './fn/categorias/get-subcategories';
 export type { UpdateCategory$Params as UpdateCategory$Params } from './fn/categorias/update-category';

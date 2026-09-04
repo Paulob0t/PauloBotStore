@@ -56,6 +56,64 @@ class CategoryController
     }
 
     #[OA\Get(
+        path: "/api/v1/categories/{id}/image",
+        operationId: "getCategoryImage",
+        summary: "Obtener imagen optimizada de categoría con caché",
+        description: "Devuelve el binario de la imagen de la categoría con cabecera Cache-Control pública para rendimiento instantáneo.",
+        tags: ["Categorías"],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "ID de la categoría",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: "Imagen de la categoría"),
+            new OA\Response(response: 404, description: "Imagen no encontrada")
+        ]
+    )]
+    public function getImage(int $id): void
+    {
+        $imageData = $this->categoryModel->getCategoryImage($id);
+        Response::applyCorsHeaders();
+
+        if (!empty($imageData)) {
+            if (str_starts_with($imageData, 'data:image/')) {
+                $parts = explode(',', $imageData, 2);
+                $mimePart = $parts[0];
+                $base64Data = $parts[1] ?? '';
+
+                preg_match('/data:(image\/[a-zA-Z0-9\+\-\.]+);base64/', $mimePart, $matches);
+                $mimeType = $matches[1] ?? 'image/jpeg';
+
+                header("Content-Type: $mimeType");
+                header("Cache-Control: public, max-age=86400");
+                echo base64_decode($base64Data);
+                exit;
+            }
+
+            if (filter_var($imageData, FILTER_VALIDATE_URL)) {
+                header("Location: " . $imageData);
+                exit;
+            }
+
+            header("Content-Type: image/jpeg");
+            header("Cache-Control: public, max-age=86400");
+            echo $imageData;
+            exit;
+        }
+
+        // SVG placeholder fallback
+        header("Content-Type: image/svg+xml");
+        header("Cache-Control: public, max-age=86400");
+        echo '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17l9.2-9.2M17 17V7.8H7.8"/></svg>';
+        exit;
+    }
+
+    #[OA\Get(
         path: "/api/v1/subcategories",
         operationId: "getSubcategories",
         summary: "Obtener listado plano de todas las subcategorías",

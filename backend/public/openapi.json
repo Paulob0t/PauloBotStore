@@ -540,6 +540,35 @@
                 }
             }
         },
+        "/api/v1/categories/{id}/image": {
+            "get": {
+                "tags": [
+                    "Categorías"
+                ],
+                "summary": "Obtener imagen optimizada de categoría con caché",
+                "description": "Devuelve el binario de la imagen de la categoría con cabecera Cache-Control pública para rendimiento instantáneo.",
+                "operationId": "getCategoryImage",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la categoría",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Imagen de la categoría"
+                    },
+                    "404": {
+                        "description": "Imagen no encontrada"
+                    }
+                }
+            }
+        },
         "/api/v1/subcategories": {
             "get": {
                 "tags": [
@@ -1813,10 +1842,9 @@
                         "type": "string",
                         "example": "Bebidas"
                     },
-                    "imagen_categoria": {
-                        "type": "string",
-                        "example": "data:image/jpeg;base64,...",
-                        "nullable": true
+                    "tiene_imagen": {
+                        "type": "integer",
+                        "example": 1
                     },
                     "subcategorias": {
                         "type": "array",

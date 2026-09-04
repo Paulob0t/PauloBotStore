@@ -48,6 +48,7 @@ $router->get('/api/v1/dashboard', [DashboardController::class, 'getMetrics']);
 
 // Rutas de Categorías & Subcategorías
 $router->get('/api/v1/categories', [CategoryController::class, 'getCategories']);
+$router->get('/api/v1/categories/{id}/image', [CategoryController::class, 'getImage']);
 $router->get('/api/v1/subcategories', [CategoryController::class, 'getSubcategories']);
 $router->post('/api/v1/categories', [CategoryController::class, 'create']);
 $router->put('/api/v1/categories/{id}', [CategoryController::class, 'update']);

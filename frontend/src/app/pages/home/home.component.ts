@@ -5,10 +5,7 @@ import {
   ViewChild,
   signal,
   computed,
-  OnDestroy,
-  inject,
-  AfterViewInit,
-  NgZone
+  inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -102,19 +99,19 @@ import { ProductDto, CategoryDto } from '../../api/models';
               Tus Snacks & Bebidas favoritas al instante
             </h1>
             <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Explora nuestro catálogo en movimiento constante. Selecciona lo que deseas y recógelo inmediatamente en la máquina expendedora.
+              Explora nuestro catálogo con movimiento constante y fluido a 60 FPS. Selecciona lo que deseas y recógelo inmediatamente en el dispensador automatizado.
             </p>
           </div>
         </section>
 
-        <!-- SECCIÓN 1: Carrusel de Productos Destacados (En Movimiento Continuo) -->
+        <!-- SECCIÓN 1: Carrusel de Productos Destacados (GPU Acelerado) -->
         <section class="space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
                 <i class="fas fa-fire text-amber-400"></i> Selección Especial
                 <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span> En Vivo
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Ultra Fluido
                 </span>
               </div>
               <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -122,42 +119,32 @@ import { ProductDto, CategoryDto } from '../../api/models';
               </h2>
             </div>
 
-            <!-- Controles Manuales del Carrusel -->
+            <!-- Botones de Control Manual -->
             <div class="flex items-center gap-2 self-end sm:self-auto">
               <button
                 type="button"
-                (click)="scrollFeatured('prev')"
-                class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Deslizar izquierda"
+                (click)="toggleFeaturedPause()"
+                class="px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                title="Pausar / Reanudar movimiento"
               >
-                <i class="fas fa-chevron-left text-sm"></i>
-              </button>
-              <button
-                type="button"
-                (click)="scrollFeatured('next')"
-                class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Deslizar derecha"
-              >
-                <i class="fas fa-chevron-right text-sm"></i>
+                <i class="fas" [ngClass]="isFeaturedPaused() ? 'fa-play text-emerald-400' : 'fa-pause text-amber-400'"></i>
+                <span>{{ isFeaturedPaused() ? 'Reanudar' : 'Pausar' }}</span>
               </button>
             </div>
           </div>
 
-          <!-- Pista del Carrusel de Productos Destacados con Movimiento Continuo -->
+          <!-- Pista del Carrusel de Productos con GPU Marquee -->
           @if (isLoadingFeatured()) {
             <div class="py-16 text-center text-slate-500">
               <i class="fas fa-spinner fa-spin text-3xl text-indigo-500 mb-3"></i>
               <p class="text-sm">Cargando productos destacados...</p>
             </div>
           } @else if (infiniteFeatured().length > 0) {
-            <div class="relative overflow-hidden mask-carousel">
+            <div class="relative overflow-hidden mask-carousel py-2">
               <div
-                #featuredCarousel
-                (mouseenter)="isFeaturedPaused = true"
-                (mouseleave)="isFeaturedPaused = false"
-                (touchstart)="isFeaturedPaused = true"
-                (touchend)="isFeaturedPaused = false"
-                class="flex gap-6 overflow-x-auto pb-4 no-scrollbar cursor-grab active:cursor-grabbing select-none"
+                class="marquee-track flex gap-6"
+                [class.is-paused]="isFeaturedPaused()"
+                style="animation-duration: 40s;"
               >
                 @for (product of infiniteFeatured(); track $index) {
                   <div class="w-72 sm:w-80 shrink-0 bg-slate-900/90 border border-slate-800 hover:border-indigo-500/40 rounded-3xl p-5 shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col justify-between group">
@@ -249,14 +236,14 @@ import { ProductDto, CategoryDto } from '../../api/models';
           }
         </section>
 
-        <!-- SECCIÓN 2: Carrusel Infinito de Categorías (En Movimiento Continuo) -->
+        <!-- SECCIÓN 2: Carrusel Infinito de Categorías (GPU Acelerado) -->
         <section class="space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
                 <i class="fas fa-layer-group text-indigo-400"></i> Catálogo Completo
                 <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Carrusel Infinito
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Loop Infinito
                 </span>
               </div>
               <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -264,50 +251,40 @@ import { ProductDto, CategoryDto } from '../../api/models';
               </h2>
             </div>
 
-            <!-- Controles Manuales de Categorías -->
+            <!-- Botones de Control Manual -->
             <div class="flex items-center gap-2 self-end sm:self-auto">
               <button
                 type="button"
-                (click)="scrollCategories('prev')"
-                class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Deslizar izquierda"
+                (click)="toggleCategoriesPause()"
+                class="px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                title="Pausar / Reanudar movimiento"
               >
-                <i class="fas fa-chevron-left text-sm"></i>
-              </button>
-              <button
-                type="button"
-                (click)="scrollCategories('next')"
-                class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Deslizar derecha"
-              >
-                <i class="fas fa-chevron-right text-sm"></i>
+                <i class="fas" [ngClass]="isCategoriesPaused() ? 'fa-play text-emerald-400' : 'fa-pause text-amber-400'"></i>
+                <span>{{ isCategoriesPaused() ? 'Reanudar' : 'Pausar' }}</span>
               </button>
             </div>
           </div>
 
-          <!-- Pista del Carrusel Infinito de Categorías con Movimiento Continuo -->
+          <!-- Pista del Carrusel de Categorías con GPU Marquee -->
           @if (isLoadingCategories()) {
             <div class="py-16 text-center text-slate-500">
               <i class="fas fa-spinner fa-spin text-3xl text-indigo-500 mb-3"></i>
               <p class="text-sm">Cargando categorías...</p>
             </div>
           } @else if (infiniteCategories().length > 0) {
-            <div class="relative overflow-hidden mask-carousel">
+            <div class="relative overflow-hidden mask-carousel py-2">
               <div
-                #categoryCarousel
-                (mouseenter)="isCategoriesPaused = true"
-                (mouseleave)="isCategoriesPaused = false"
-                (touchstart)="isCategoriesPaused = true"
-                (touchend)="isCategoriesPaused = false"
-                class="flex gap-6 overflow-x-auto pb-4 no-scrollbar cursor-grab active:cursor-grabbing select-none"
+                class="marquee-track flex gap-6"
+                [class.is-paused]="isCategoriesPaused()"
+                style="animation-duration: 45s;"
               >
                 @for (cat of infiniteCategories(); track $index) {
                   <div class="w-72 sm:w-80 h-96 shrink-0 relative rounded-3xl overflow-hidden border border-slate-800 hover:border-indigo-500/50 shadow-xl group cursor-pointer transition-all duration-300 hover:-translate-y-1">
                     
-                    <!-- Fondo con Imagen de Categoría o Gradiente Decorativo -->
-                    @if (cat.imagen_categoria) {
+                    <!-- Fondo con Imagen Optimizada de Categoría o Gradiente -->
+                    @if (cat.tiene_imagen === 1) {
                       <img
-                        [src]="cat.imagen_categoria"
+                        [src]="getCategoryImageUrl(cat.id)"
                         [alt]="cat.nombre"
                         class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none"
                         loading="lazy"
@@ -509,30 +486,40 @@ import { ProductDto, CategoryDto } from '../../api/models';
     </div>
   `,
   styles: [`
-    /* Ocultar barra de scroll nativa para vista limpia táctil */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    /* Animación Infinita Acelerada por Hardware (GPU 60-120 FPS sin lag de CPU) */
+    @keyframes marqueeScroll {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        transform: translate3d(-50%, 0, 0);
+      }
     }
 
-    /* Máscara degradada en los extremos del carrusel */
+    .marquee-track {
+      width: max-content;
+      will-change: transform;
+      animation-name: marqueeScroll;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    .marquee-track:hover,
+    .marquee-track.is-paused {
+      animation-play-state: paused !important;
+    }
+
+    /* Máscara suave degradada en extremos */
     .mask-carousel {
-      mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
     }
   `]
 })
-export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('featuredCarousel') featuredCarousel!: ElementRef<HTMLDivElement>;
-  @ViewChild('categoryCarousel') categoryCarousel!: ElementRef<HTMLDivElement>;
-
+export class HomeComponent implements OnInit {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
   public cartService = inject(CartService);
-  private ngZone = inject(NgZone);
 
   featuredProducts = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
@@ -544,82 +531,32 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   toastMessage = signal<string | null>(null);
 
   // Estados de pausa interactiva
-  isFeaturedPaused = false;
-  isCategoriesPaused = false;
+  isFeaturedPaused = signal<boolean>(false);
+  isCategoriesPaused = signal<boolean>(false);
 
   // Computados de Carrito
   readonly cartItems = this.cartService.items;
   readonly cartItemsCount = this.cartService.totalItems;
   readonly cartSubtotal = this.cartService.subtotal;
 
-  // Multiplicación de elementos para loop continuo infinito suave
+  // Exactamente 2 copias para un loop perfecto de 50% en CSS Marquee GPU
   readonly infiniteFeatured = computed(() => {
     const list = this.featuredProducts();
     if (list.length === 0) return [];
-    // Si hay productos, replicar 4 veces para loop continuo sin cortes
-    return [...list, ...list, ...list, ...list];
+    return [...list, ...list];
   });
 
   readonly infiniteCategories = computed(() => {
     const list = this.categories();
     if (list.length === 0) return [];
-    // Replicar 4 veces para loop continuo sin cortes
-    return [...list, ...list, ...list, ...list];
+    return [...list, ...list];
   });
-
-  private animationFrameId: number | null = null;
-  private readonly scrollSpeed = 0.8; // Velocidad de deslizamiento constante en px por frame
 
   async ngOnInit(): Promise<void> {
     await Promise.all([
       this.loadFeatured(),
       this.loadCategories()
     ]);
-  }
-
-  ngAfterViewInit(): void {
-    // Iniciar loop continuo de movimiento fuera de NgZone para máxima tasa de refresco (60-120fps)
-    this.ngZone.runOutsideAngular(() => {
-      this.startContinuousMotion();
-    });
-  }
-
-  ngOnDestroy(): void {
-    if (this.animationFrameId !== null) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-  }
-
-  private startContinuousMotion(): void {
-    const step = () => {
-      // 1. Movimiento continuo de Productos Destacados
-      if (this.featuredCarousel && !this.isFeaturedPaused && !this.showCartDrawer()) {
-        const el = this.featuredCarousel.nativeElement;
-        el.scrollLeft += this.scrollSpeed;
-        
-        // Loop infinito suave: al alcanzar la mitad, regresar un cuarto
-        const loopThreshold = el.scrollWidth / 2;
-        if (el.scrollLeft >= loopThreshold) {
-          el.scrollLeft -= el.scrollWidth / 4;
-        }
-      }
-
-      // 2. Movimiento continuo de Categorías
-      if (this.categoryCarousel && !this.isCategoriesPaused && !this.showCartDrawer()) {
-        const catEl = this.categoryCarousel.nativeElement;
-        catEl.scrollLeft += this.scrollSpeed;
-
-        const loopThreshold = catEl.scrollWidth / 2;
-        if (catEl.scrollLeft >= loopThreshold) {
-          catEl.scrollLeft -= catEl.scrollWidth / 4;
-        }
-      }
-
-      this.animationFrameId = requestAnimationFrame(step);
-    };
-
-    this.animationFrameId = requestAnimationFrame(step);
   }
 
   async loadFeatured(): Promise<void> {
@@ -650,6 +587,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return `http://localhost:8000/api/v1/products/${productId}/image`;
   }
 
+  getCategoryImageUrl(categoryId: number): string {
+    return `http://localhost:8000/api/v1/categories/${categoryId}/image`;
+  }
+
   onImageError(event: any): void {
     event.target.style.display = 'none';
     if (event.target.parentElement) {
@@ -662,24 +603,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  scrollFeatured(direction: 'prev' | 'next'): void {
-    if (!this.featuredCarousel) return;
-    const el = this.featuredCarousel.nativeElement;
-    const scrollAmount = 340;
-    el.scrollBy({
-      left: direction === 'next' ? scrollAmount : -scrollAmount,
-      behavior: 'smooth'
-    });
+  toggleFeaturedPause(): void {
+    this.isFeaturedPaused.update(v => !v);
   }
 
-  scrollCategories(direction: 'prev' | 'next'): void {
-    if (!this.categoryCarousel) return;
-    const el = this.categoryCarousel.nativeElement;
-    const scrollAmount = 340;
-    el.scrollBy({
-      left: direction === 'next' ? scrollAmount : -scrollAmount,
-      behavior: 'smooth'
-    });
+  toggleCategoriesPause(): void {
+    this.isCategoriesPaused.update(v => !v);
   }
 
   addToCart(product: ProductDto): void {

@@ -25,7 +25,9 @@ class Category
             return $categorias;
         }
 
-        $sql = "SELECT c.id_categoria, c.nombre_categoria, c.imagen_categoria, s.id_subcategoria, s.nombre_subcategoria
+        $sql = "SELECT c.id_categoria, c.nombre_categoria, 
+                (CASE WHEN CHAR_LENGTH(c.imagen_categoria) > 10 THEN 1 ELSE 0 END) AS tiene_imagen,
+                s.id_subcategoria, s.nombre_subcategoria
                 FROM categorias c
                 LEFT JOIN subcategorias s ON c.id_categoria = s.id_categoria
                 ORDER BY c.nombre_categoria ASC, s.nombre_subcategoria ASC";
@@ -37,7 +39,7 @@ class Category
                     $categorias[$cat_id] = [
                         'id' => $cat_id,
                         'nombre' => (string)$row['nombre_categoria'],
-                        'imagen_categoria' => $row['imagen_categoria'] ?: null,
+                        'tiene_imagen' => (int)$row['tiene_imagen'],
                         'subcategorias' => []
                     ];
                 }
@@ -51,6 +53,27 @@ class Category
         }
 
         return array_values($categorias);
+    }
+
+    /**
+     * Obtener imagen binaria de una categoría.
+     */
+    public function getCategoryImage(int $id): ?string
+    {
+        if (!$this->db || $this->db->connect_error) {
+            return null;
+        }
+
+        $stmt = $this->db->prepare("SELECT imagen_categoria FROM categorias WHERE id_categoria = ? LIMIT 1");
+        if (!$stmt) return null;
+
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->bind_result($imageData);
+        $result = $stmt->fetch() ? $imageData : null;
+        $stmt->close();
+
+        return $result;
     }
 
     /**
