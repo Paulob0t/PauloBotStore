@@ -6,7 +6,8 @@ import {
   signal,
   computed,
   OnDestroy,
-  inject
+  inject,
+  HostListener
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -23,7 +24,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
     <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       
       <!-- Navbar Superior de la Tienda -->
-      <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/20">
+      <header class="sticky top-0 z-50 bg-slate-900/95 border-b border-slate-800 shadow-md shadow-black/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-20">
             
@@ -47,7 +48,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
             <div class="flex items-center gap-3 sm:gap-4">
               <a
                 routerLink="/"
-                class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 hover:border-slate-600 transition-all"
+                class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all"
               >
                 <i class="fas fa-house text-indigo-400"></i>
                 <span>Inicio</span>
@@ -55,7 +56,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
 
               <a
                 routerLink="/admin"
-                class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 hover:border-slate-600 transition-all"
+                class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all"
               >
                 <i class="fas fa-shield-halved text-indigo-400"></i>
                 <span>Panel Admin</span>
@@ -96,10 +97,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
       <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
         
         <!-- Hero Banner Promocional -->
-        <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-900 border border-indigo-500/20 p-8 sm:p-12 shadow-2xl">
-          <div class="absolute -right-16 -bottom-16 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div class="absolute top-0 right-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
+        <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 border border-indigo-500/20 p-8 sm:p-12 shadow-xl">
           <div class="relative z-10 max-w-2xl space-y-4">
             <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold uppercase tracking-wider">
               <i class="fas fa-bolt text-amber-400"></i> Despacho Inteligente & Inmediato
@@ -113,14 +111,14 @@ import { ProductDto, CategoryDto } from '../../api/models';
           </div>
         </section>
 
-        <!-- SECCIÓN 1: Carrusel de Productos Destacados (Con Desplazamiento Fluido y Easing Natural) -->
+        <!-- SECCIÓN 1: Carrusel de Productos Destacados (GPU-Accelerated 60 FPS) -->
         <section class="space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
                 <i class="fas fa-fire text-amber-400"></i> Selección Especial
                 <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Auto-Slide Activo
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 60 FPS GPU
                 </span>
               </div>
               <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -132,17 +130,17 @@ import { ProductDto, CategoryDto } from '../../api/models';
             <div class="flex items-center gap-2 self-end sm:self-auto">
               <button
                 type="button"
-                (click)="scrollFeatured('prev')"
+                (click)="prevFeatured()"
                 class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Deslizar izquierda"
+                title="Anterior"
               >
                 <i class="fas fa-chevron-left text-sm"></i>
               </button>
               <button
                 type="button"
-                (click)="scrollFeatured('next')"
+                (click)="nextFeatured()"
                 class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Deslizar derecha"
+                title="Siguiente"
               >
                 <i class="fas fa-chevron-right text-sm"></i>
               </button>
@@ -156,40 +154,45 @@ import { ProductDto, CategoryDto } from '../../api/models';
               <p class="text-sm">Cargando productos destacados...</p>
             </div>
           } @else if (featuredProducts().length > 0) {
-            <div class="relative overflow-hidden mask-carousel py-2">
+            <div
+              #featuredWrapper
+              (mouseenter)="pauseFeatured()"
+              (mouseleave)="resumeFeatured()"
+              (touchstart)="pauseFeatured()"
+              (touchend)="resumeFeatured()"
+              class="relative overflow-hidden w-full py-2"
+            >
+              <!-- Track Desplazable con GPU Transform -->
               <div
-                #featuredCarousel
-                (mouseenter)="pauseFeatured()"
-                (mouseleave)="resumeFeatured()"
-                (touchstart)="pauseFeatured()"
-                (touchend)="resumeFeatured()"
-                class="flex gap-6 overflow-x-auto pb-4 scroll-smooth no-scrollbar snap-x snap-mandatory select-none"
+                class="flex gap-6 transition-transform duration-600 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                [style.transform]="'translate3d(' + -featuredOffset() + 'px, 0, 0)'"
               >
                 @for (product of featuredProducts(); track product.id_producto) {
-                  <div class="w-72 sm:w-80 shrink-0 snap-start bg-slate-900/90 border border-slate-800 hover:border-indigo-500/40 rounded-3xl p-5 shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col justify-between group">
+                  <div class="w-72 sm:w-80 shrink-0 bg-slate-900 border border-slate-800 hover:border-indigo-500/40 rounded-3xl p-5 shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col justify-between group">
                     
                     <!-- Contenedor Imagen y Badges -->
                     <div class="space-y-4">
-                      <div class="relative h-48 rounded-2xl bg-slate-950/80 border border-slate-800/80 overflow-hidden flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-300">
+                      <div class="relative h-48 rounded-2xl bg-slate-950 border border-slate-800/80 overflow-hidden flex items-center justify-center">
                         
                         <!-- Badge Destacado / Orden -->
-                        <span class="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 backdrop-blur-md">
+                        <span class="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md">
                           <i class="fas fa-star text-[9px]"></i> Top #{{ product.orden_destacado || 1 }}
                         </span>
 
                         <!-- Badge Descuento si aplica -->
                         @if (product.descuento && product.descuento > 0 && product.descuento < product.precio) {
-                          <span class="absolute top-3 right-3 z-10 px-2 py-1 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[10px] font-black uppercase tracking-wider backdrop-blur-md">
+                          <span class="absolute top-3 right-3 z-10 px-2 py-1 rounded-xl bg-slate-900/90 border border-rose-500/30 text-rose-400 text-[10px] font-black uppercase tracking-wider shadow-md">
                             ¡OFERTA!
                           </span>
                         }
 
-                        <!-- Imagen o Fallback Placeholder -->
+                        <!-- Imagen con Miniatura WebP Optimizada -->
                         @if (product.tiene_imagen === 1) {
                           <img
                             [src]="getProductImageUrl(product.id_producto)"
                             [alt]="product.nombre_producto"
                             class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+                            decoding="async"
                             loading="lazy"
                             (error)="onImageError($event)"
                           />
@@ -218,7 +221,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
                     </div>
 
                     <!-- Precios y Botón Agregar -->
-                    <div class="pt-4 border-t border-slate-800/80 mt-4 flex items-center justify-between gap-3">
+                    <div class="pt-4 border-t border-slate-800 mt-4 flex items-center justify-between gap-3">
                       <div>
                         @if (product.descuento && product.descuento > 0 && product.descuento < product.precio) {
                           <div class="text-xs text-slate-500 line-through font-mono">
@@ -237,7 +240,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
                       <button
                         type="button"
                         (click)="addToCart(product)"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 transition-all cursor-pointer shrink-0"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 transition-all cursor-pointer shrink-0 active:scale-95"
                       >
                         <i class="fas fa-cart-plus"></i>
                         <span>Agregar</span>
@@ -248,21 +251,39 @@ import { ProductDto, CategoryDto } from '../../api/models';
                 }
               </div>
             </div>
+
+            <!-- Dots Indicadores -->
+            @if (featuredDotsCount() > 1) {
+              <div class="flex justify-center items-center gap-2 pt-2">
+                @for (dot of [].constructor(featuredDotsCount()); track $index) {
+                  <button
+                    type="button"
+                    (click)="goToFeaturedSlide($index)"
+                    [class.bg-indigo-500]="$index === featuredSlideIndex()"
+                    [class.w-7]="$index === featuredSlideIndex()"
+                    [class.bg-slate-700]="$index !== featuredSlideIndex()"
+                    [class.w-2.5]="$index !== featuredSlideIndex()"
+                    class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"
+                    [title]="'Ir a grupo ' + ($index + 1)"
+                  ></button>
+                }
+              </div>
+            }
           } @else {
-            <div class="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 text-center text-slate-400 text-sm">
+            <div class="p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center text-slate-400 text-sm">
               No hay productos destacados configurados en este momento.
             </div>
           }
         </section>
 
-        <!-- SECCIÓN 2: Carrusel Infinito de Categorías (Con Deslizamiento Fluido Continuo y Snap) -->
+        <!-- SECCIÓN 2: Carrusel de Categorías (GPU-Accelerated 60 FPS) -->
         <section class="space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
                 <i class="fas fa-layer-group text-indigo-400"></i> Catálogo Completo
                 <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Loop Infinito
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Navegación Fluida
                 </span>
               </div>
               <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -274,72 +295,76 @@ import { ProductDto, CategoryDto } from '../../api/models';
             <div class="flex items-center gap-2 self-end sm:self-auto">
               <button
                 type="button"
-                (click)="scrollCategories('prev')"
+                (click)="prevCategory()"
                 class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Deslizar izquierda"
+                title="Anterior"
               >
                 <i class="fas fa-chevron-left text-sm"></i>
               </button>
               <button
                 type="button"
-                (click)="scrollCategories('next')"
+                (click)="nextCategory()"
                 class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Deslizar derecha"
+                title="Siguiente"
               >
                 <i class="fas fa-chevron-right text-sm"></i>
               </button>
             </div>
           </div>
 
-          <!-- Pista del Carrusel Infinito de Categorías -->
+          <!-- Pista del Carrusel de Categorías -->
           @if (isLoadingCategories()) {
             <div class="py-16 text-center text-slate-500">
               <i class="fas fa-spinner fa-spin text-3xl text-indigo-500 mb-3"></i>
               <p class="text-sm">Cargando categorías...</p>
             </div>
-          } @else if (infiniteCategories().length > 0) {
-            <div class="relative overflow-hidden mask-carousel py-2">
+          } @else if (categories().length > 0) {
+            <div
+              #categoryWrapper
+              (mouseenter)="pauseCategories()"
+              (mouseleave)="resumeCategories()"
+              (touchstart)="pauseCategories()"
+              (touchend)="resumeCategories()"
+              class="relative overflow-hidden w-full py-2"
+            >
+              <!-- Track Desplazable con GPU Transform -->
               <div
-                #categoryCarousel
-                (mouseenter)="pauseCategories()"
-                (mouseleave)="resumeCategories()"
-                (touchstart)="pauseCategories()"
-                (touchend)="resumeCategories()"
-                (scroll)="onCategoryScroll()"
-                class="flex gap-6 overflow-x-auto pb-4 scroll-smooth no-scrollbar snap-x snap-mandatory select-none"
+                class="flex gap-6 transition-transform duration-600 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                [style.transform]="'translate3d(' + -categoryOffset() + 'px, 0, 0)'"
               >
-                @for (cat of infiniteCategories(); track $index) {
-                  <div class="w-72 sm:w-80 h-96 shrink-0 snap-start relative rounded-3xl overflow-hidden border border-slate-800 hover:border-indigo-500/50 shadow-xl group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+                @for (cat of categories(); track cat.id) {
+                  <div class="w-72 sm:w-80 h-96 shrink-0 relative rounded-3xl overflow-hidden border border-slate-800 hover:border-indigo-500/50 shadow-xl group cursor-pointer transition-all duration-300 hover:-translate-y-1 bg-slate-900">
                     
                     <!-- Fondo con Imagen Optimizada de Categoría o Gradiente -->
                     @if (cat.tiene_imagen === 1) {
                       <img
                         [src]="getCategoryImageUrl(cat.id)"
                         [alt]="cat.nombre"
-                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none"
+                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
+                        decoding="async"
                         loading="lazy"
                       />
                     } @else {
-                      <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/60 via-slate-900 to-slate-950 flex items-center justify-center">
-                        <i class="fas fa-tags text-7xl text-indigo-500/20 group-hover:scale-110 group-hover:text-indigo-500/30 transition-all duration-500"></i>
+                      <div class="absolute inset-0 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 flex items-center justify-center">
+                        <i class="fas fa-tags text-7xl text-indigo-500/20 group-hover:scale-105 group-hover:text-indigo-500/30 transition-all duration-500"></i>
                       </div>
                     }
 
                     <!-- Overlay Oscuro Degradado -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent"></div>
 
                     <!-- Contenido Superior: Badge de Subcategorías -->
-                    <div class="absolute top-4 left-4 right-4 flex justify-between items-center">
-                      <span class="px-3 py-1 rounded-xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 text-indigo-300 text-[11px] font-black uppercase tracking-wider">
+                    <div class="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
+                      <span class="px-3 py-1 rounded-xl bg-slate-900/90 border border-slate-700 text-indigo-300 text-[11px] font-black uppercase tracking-wider shadow-md">
                         {{ (cat.subcategorias?.length || 0) }} Subcategorías
                       </span>
-                      <div class="w-8 h-8 rounded-xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 text-slate-300 flex items-center justify-center text-xs group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                      <div class="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-300 flex items-center justify-center text-xs group-hover:bg-indigo-600 group-hover:text-white transition-colors shadow-md">
                         <i class="fas fa-arrow-up-right-from-square"></i>
                       </div>
                     </div>
 
                     <!-- Contenido Inferior: Título & Botón -->
-                    <div class="absolute bottom-6 left-6 right-6 space-y-3">
+                    <div class="absolute bottom-6 left-6 right-6 space-y-3 z-10">
                       <h3 class="text-2xl font-black text-white uppercase tracking-tight leading-tight group-hover:text-indigo-300 transition-colors">
                         {{ cat.nombre }}
                       </h3>
@@ -347,12 +372,12 @@ import { ProductDto, CategoryDto } from '../../api/models';
                       @if (cat.subcategorias && cat.subcategorias.length > 0) {
                         <div class="flex flex-wrap gap-1.5 pt-1">
                           @for (sub of cat.subcategorias.slice(0, 3); track sub.id) {
-                            <span class="px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700 text-[10px] font-semibold text-slate-300">
+                            <span class="px-2 py-0.5 rounded-lg bg-slate-800/90 border border-slate-700 text-[10px] font-semibold text-slate-300">
                               {{ sub.nombre }}
                             </span>
                           }
                           @if (cat.subcategorias.length > 3) {
-                            <span class="px-1.5 py-0.5 rounded-lg bg-slate-800/60 text-[10px] text-slate-400">
+                            <span class="px-1.5 py-0.5 rounded-lg bg-slate-800/90 text-[10px] text-slate-400">
                               +{{ cat.subcategorias.length - 3 }}
                             </span>
                           }
@@ -371,8 +396,26 @@ import { ProductDto, CategoryDto } from '../../api/models';
                 }
               </div>
             </div>
+
+            <!-- Dots Indicadores de Categorías -->
+            @if (categoryDotsCount() > 1) {
+              <div class="flex justify-center items-center gap-2 pt-2">
+                @for (dot of [].constructor(categoryDotsCount()); track $index) {
+                  <button
+                    type="button"
+                    (click)="goToCategorySlide($index)"
+                    [class.bg-indigo-500]="$index === categorySlideIndex()"
+                    [class.w-7]="$index === categorySlideIndex()"
+                    [class.bg-slate-700]="$index !== categorySlideIndex()"
+                    [class.w-2.5]="$index !== categorySlideIndex()"
+                    class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"
+                    [title]="'Ir a grupo ' + ($index + 1)"
+                  ></button>
+                }
+              </div>
+            }
           } @else {
-            <div class="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 text-center text-slate-400 text-sm">
+            <div class="p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center text-slate-400 text-sm">
               No hay categorías disponibles en este momento.
             </div>
           }
@@ -385,7 +428,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
         <div class="fixed inset-0 z-50 overflow-hidden animate-fade-in">
           <div
             (click)="toggleCartDrawer()"
-            class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
+            class="absolute inset-0 bg-slate-950/80 transition-opacity"
           ></div>
 
           <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
@@ -509,32 +552,16 @@ import { ProductDto, CategoryDto } from '../../api/models';
       }
 
       <!-- Footer General de la Tienda -->
-      <footer class="border-t border-slate-800/80 bg-slate-900/60 py-8 text-center text-xs text-slate-500">
+      <footer class="border-t border-slate-800 bg-slate-900 py-8 text-center text-xs text-slate-500">
         <p>PauloBot Store &copy; 2026 — Plataforma Inteligente Vending & Ecommerce Desacoplada</p>
       </footer>
 
     </div>
-  `,
-  styles: [`
-    /* Ocultar barra de scroll nativa para vista limpia táctil */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    /* Máscara suave degradada en extremos */
-    .mask-carousel {
-      mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
-    }
-  `]
+  `
 })
 export class StoreComponent implements OnInit, OnDestroy {
-  @ViewChild('featuredCarousel') featuredCarousel!: ElementRef<HTMLDivElement>;
-  @ViewChild('categoryCarousel') categoryCarousel!: ElementRef<HTMLDivElement>;
+  @ViewChild('featuredWrapper') featuredWrapper!: ElementRef<HTMLDivElement>;
+  @ViewChild('categoryWrapper') categoryWrapper!: ElementRef<HTMLDivElement>;
 
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
@@ -554,20 +581,28 @@ export class StoreComponent implements OnInit, OnDestroy {
   readonly cartItemsCount = this.cartService.totalItems;
   readonly cartSubtotal = this.cartService.subtotal;
 
-  // Categorías Infinitas: Multiplicamos 3 veces para crear un loop continuo sin fin
-  readonly infiniteCategories = computed(() => {
-    const list = this.categories();
-    if (list.length === 0) return [];
-    return [...list, ...list, ...list];
-  });
+  // Índices de posición para GPU Slide
+  featuredSlideIndex = signal<number>(0);
+  categorySlideIndex = signal<number>(0);
 
-  // Temporizadores para auto-desplazamiento suave con pausas naturales
+  // Parámetros de tarjetas y pasos
+  private cardWidth = 320;
+  private cardGap = 24;
+  private visibleCount = 3;
+
   private featuredInterval: any = null;
   private categoriesInterval: any = null;
   private isFeaturedHovered = false;
   private isCategoriesHovered = false;
 
+  @HostListener('window:resize')
+  onResize(): void {
+    this.updateVisibleCount();
+  }
+
   async ngOnInit(): Promise<void> {
+    this.updateVisibleCount();
+
     await Promise.all([
       this.loadFeatured(),
       this.loadCategories()
@@ -580,35 +615,103 @@ export class StoreComponent implements OnInit, OnDestroy {
     this.stopAutoSlides();
   }
 
+  private updateVisibleCount(): void {
+    if (typeof window === 'undefined') return;
+    const w = window.innerWidth;
+    if (w < 640) {
+      this.visibleCount = 1;
+      this.cardWidth = Math.min(w - 48, 300);
+    } else if (w < 1024) {
+      this.visibleCount = 2;
+      this.cardWidth = 300;
+    } else if (w < 1280) {
+      this.visibleCount = 3;
+      this.cardWidth = 320;
+    } else {
+      this.visibleCount = 4;
+      this.cardWidth = 320;
+    }
+  }
+
+  // Cálculos de Desplazamiento en Pixeles (GPU Offset)
+  featuredOffset = computed(() => {
+    const total = this.featuredProducts().length;
+    if (total === 0) return 0;
+    const step = this.cardWidth + this.cardGap;
+    const maxOffset = Math.max(0, (total - this.visibleCount) * step);
+    return Math.min(this.featuredSlideIndex() * step, maxOffset);
+  });
+
+  categoryOffset = computed(() => {
+    const total = this.categories().length;
+    if (total === 0) return 0;
+    const step = this.cardWidth + this.cardGap;
+    const maxOffset = Math.max(0, (total - this.visibleCount) * step);
+    return Math.min(this.categorySlideIndex() * step, maxOffset);
+  });
+
+  // Conteo de Dots
+  featuredDotsCount = computed(() => {
+    const total = this.featuredProducts().length;
+    return Math.max(1, total - this.visibleCount + 1);
+  });
+
+  categoryDotsCount = computed(() => {
+    const total = this.categories().length;
+    return Math.max(1, total - this.visibleCount + 1);
+  });
+
   private startAutoSlides(): void {
-    // 1. Auto-Slide de Productos Destacados (cada 4.2 segundos con avance suave y pausado)
+    // 1. Auto-Slide de Productos Destacados (cada 4.5 segundos)
     this.featuredInterval = setInterval(() => {
-      if (this.featuredCarousel && !this.isFeaturedHovered && !this.showCartDrawer()) {
-        const el = this.featuredCarousel.nativeElement;
-        const maxScroll = el.scrollWidth - el.clientWidth;
-        const step = 340;
-
-        if (el.scrollLeft >= maxScroll - 20) {
-          el.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          el.scrollBy({ left: step, behavior: 'smooth' });
-        }
+      if (!this.isFeaturedHovered && !this.showCartDrawer()) {
+        this.nextFeatured();
       }
-    }, 4200);
+    }, 4500);
 
-    // 2. Auto-Slide de Categorías Infinitas (cada 3.6 segundos con transición natural)
+    // 2. Auto-Slide de Categorías (cada 4 segundos)
     this.categoriesInterval = setInterval(() => {
-      if (this.categoryCarousel && !this.isCategoriesHovered && !this.showCartDrawer()) {
-        const el = this.categoryCarousel.nativeElement;
-        const step = 340;
-        el.scrollBy({ left: step, behavior: 'smooth' });
+      if (!this.isCategoriesHovered && !this.showCartDrawer()) {
+        this.nextCategory();
       }
-    }, 3600);
+    }, 4000);
   }
 
   private stopAutoSlides(): void {
     if (this.featuredInterval) clearInterval(this.featuredInterval);
     if (this.categoriesInterval) clearInterval(this.categoriesInterval);
+  }
+
+  nextFeatured(): void {
+    const max = this.featuredDotsCount() - 1;
+    if (max <= 0) return;
+    this.featuredSlideIndex.update(i => (i >= max ? 0 : i + 1));
+  }
+
+  prevFeatured(): void {
+    const max = this.featuredDotsCount() - 1;
+    if (max <= 0) return;
+    this.featuredSlideIndex.update(i => (i <= 0 ? max : i - 1));
+  }
+
+  goToFeaturedSlide(index: number): void {
+    this.featuredSlideIndex.set(index);
+  }
+
+  nextCategory(): void {
+    const max = this.categoryDotsCount() - 1;
+    if (max <= 0) return;
+    this.categorySlideIndex.update(i => (i >= max ? 0 : i + 1));
+  }
+
+  prevCategory(): void {
+    const max = this.categoryDotsCount() - 1;
+    if (max <= 0) return;
+    this.categorySlideIndex.update(i => (i <= 0 ? max : i - 1));
+  }
+
+  goToCategorySlide(index: number): void {
+    this.categorySlideIndex.set(index);
   }
 
   pauseFeatured(): void {
@@ -625,19 +728,6 @@ export class StoreComponent implements OnInit, OnDestroy {
 
   resumeCategories(): void {
     this.isCategoriesHovered = false;
-  }
-
-  onCategoryScroll(): void {
-    if (!this.categoryCarousel) return;
-    const el = this.categoryCarousel.nativeElement;
-    const oneSetWidth = el.scrollWidth / 3;
-
-    // Loop infinito continuo sin cortes bruscos
-    if (el.scrollLeft >= oneSetWidth * 2) {
-      el.scrollLeft -= oneSetWidth;
-    } else if (el.scrollLeft <= 5) {
-      el.scrollLeft += oneSetWidth;
-    }
   }
 
   async loadFeatured(): Promise<void> {
@@ -682,26 +772,6 @@ export class StoreComponent implements OnInit, OnDestroy {
         </div>
       `;
     }
-  }
-
-  scrollFeatured(direction: 'prev' | 'next'): void {
-    if (!this.featuredCarousel) return;
-    const el = this.featuredCarousel.nativeElement;
-    const scrollAmount = 340;
-    el.scrollBy({
-      left: direction === 'next' ? scrollAmount : -scrollAmount,
-      behavior: 'smooth'
-    });
-  }
-
-  scrollCategories(direction: 'prev' | 'next'): void {
-    if (!this.categoryCarousel) return;
-    const el = this.categoryCarousel.nativeElement;
-    const scrollAmount = 340;
-    el.scrollBy({
-      left: direction === 'next' ? scrollAmount : -scrollAmount,
-      behavior: 'smooth'
-    });
   }
 
   addToCart(product: ProductDto): void {

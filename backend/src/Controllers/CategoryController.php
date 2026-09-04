@@ -81,29 +81,8 @@ class CategoryController
         Response::applyCorsHeaders();
 
         if (!empty($imageData)) {
-            if (str_starts_with($imageData, 'data:image/')) {
-                $parts = explode(',', $imageData, 2);
-                $mimePart = $parts[0];
-                $base64Data = $parts[1] ?? '';
-
-                preg_match('/data:(image\/[a-zA-Z0-9\+\-\.]+);base64/', $mimePart, $matches);
-                $mimeType = $matches[1] ?? 'image/jpeg';
-
-                header("Content-Type: $mimeType");
-                header("Cache-Control: public, max-age=86400");
-                echo base64_decode($base64Data);
-                exit;
-            }
-
-            if (filter_var($imageData, FILTER_VALIDATE_URL)) {
-                header("Location: " . $imageData);
-                exit;
-            }
-
-            header("Content-Type: image/jpeg");
-            header("Cache-Control: public, max-age=86400");
-            echo $imageData;
-            exit;
+            \App\Services\ImageOptimizer::serveOptimized($imageData, 420);
+            return;
         }
 
         // SVG placeholder fallback
