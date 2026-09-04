@@ -214,7 +214,7 @@ import { AuthService } from '../../core/services/auth.service';
             </a>
 
             <a
-              routerLink="/"
+              routerLink="/store"
               class="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all"
             >
               <i class="fas fa-store text-xs"></i>

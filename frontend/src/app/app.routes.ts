@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
+import { StoreComponent } from './pages/store/store.component';
 import { LoginComponent } from './pages/login/login.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
@@ -19,6 +20,11 @@ export const routes: Routes = [
     path: '',
     component: HomeComponent,
     title: 'PauloBot Store | Plataforma Inteligente Vending & Ecommerce'
+  },
+  {
+    path: 'store',
+    component: StoreComponent,
+    title: 'Tienda Vending & Catálogo | PauloBot Store'
   },
   {
     path: 'login',

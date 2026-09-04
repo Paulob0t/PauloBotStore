@@ -69,12 +69,14 @@ graph TD
 
 ## 🚀 Módulos Migrados
 
-### 🏪 1. Storefront / Tienda Pública (`frontend/src/app/pages/home/`)
-- **Página Principal de la Tienda:** [`HomeComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/home/home.component.ts)
-  - **Header Comercial:** Logo estilizado, contador reactivo de carrito y acceso al panel administrativo.
-  - **Hero Banner:** Bienvenida con distintivo de autoservicio 24/7.
-  - **Carrusel de Productos Destacados:** Carga dinámica ordenada por prioridad (`orden_destacado ASC`), cálculo de promociones y descuentos en vivo, badges de stock y botón de compra inmediata.
-  - **Carrusel Infinito de Categorías:** Buffer circular infinito continuo con soporte táctil, auto-scroll inteligente y badges de subcategorías.
+### 🏪 1. Storefront / Tienda Pública (`frontend/src/app/pages/store/`) y Portal de Inicio (`/`)
+- **Portal de Bienvenida:** [`HomeComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/home/home.component.ts) en `/`
+  - Tarjetas interactivas de bienvenida y selección de acceso directo a **Tienda / Clientes** (`/store`) y **Panel Administrador** (`/login`).
+- **Tienda Pública & Máquina Vending:** [`StoreComponent`](file:///home/paulobot/PauloBotStore/frontend/src/app/pages/store/store.component.ts) en `/store`
+  - **Header Comercial:** Logo estilizado, buscador rápido, contador reactivo de carrito y acceso al portal / admin.
+  - **Hero Banner:** Bienvenida interactiva con distintivo de autoservicio 24/7.
+  - **Carrusel de Productos Destacados:** Auto-slide fluido y natural con cadencia periódica, pausa inteligente en hover/touch, badges de descuento y stock.
+  - **Carrusel Infinito de Categorías:** Desplazamiento circular suave e infinito con carga ligera de imágenes cacheadas en HTTP.
   - **Drawer Lateral de Carrito:** Control interactivo de cantidades, subtotal en tiempo real y persistencia local (`CartService`).
 
 ### 🔙 2. Backend REST API (`backend/`)
@@ -103,7 +105,8 @@ cd PauloBotStore
 cd PauloBotStore/frontend
 npm start
 ```
-- 🏪 **Tienda Principal (Storefront):** [`http://localhost:4200/`](http://localhost:4200/)
+- 🌐 **Portal de Inicio:** [`http://localhost:4200/`](http://localhost:4200/)
+- 🏪 **Tienda & Vending Storefront:** [`http://localhost:4200/store`](http://localhost:4200/store)
 - 📊 **Dashboard Admin:** [`http://localhost:4200/admin`](http://localhost:4200/admin)
 - 👥 **Gestión de Usuarios:** [`http://localhost:4200/admin/usuarios`](http://localhost:4200/admin/usuarios)
 - ⚙️ **Configuración Empresa:** [`http://localhost:4200/admin/configuracion`](http://localhost:4200/admin/configuracion)
