@@ -37,6 +37,7 @@ class Category
                     $categorias[$cat_id] = [
                         'id' => $cat_id,
                         'nombre' => (string)$row['nombre_categoria'],
+                        'imagen_categoria' => $row['imagen_categoria'] ?: null,
                         'subcategorias' => []
                     ];
                 }

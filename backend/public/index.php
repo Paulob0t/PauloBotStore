@@ -58,6 +58,7 @@ $router->delete('/api/v1/subcategories/{id}', [CategoryController::class, 'delet
 
 // Rutas de Productos
 $router->get('/api/v1/products', [ProductController::class, 'getAll']);
+$router->get('/api/v1/products/featured', [ProductController::class, 'getFeatured']);
 $router->post('/api/v1/products', [ProductController::class, 'create']);
 $router->get('/api/v1/products/featured-order/{order}', [ProductController::class, 'checkFeaturedOrder']);
 $router->get('/api/v1/products/{id}/image', [ProductController::class, 'getImage']);

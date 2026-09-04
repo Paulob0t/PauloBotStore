@@ -301,4 +301,52 @@ class Product
 
         return false;
     }
+
+    /**
+     * Obtener productos destacados ordenados por su orden de destacado.
+     */
+    public function getFeaturedProducts(): array
+    {
+        $productos = [];
+        if (!$this->db || $this->db->connect_error) {
+            return $productos;
+        }
+
+        $sql = "SELECT DISTINCT p.id_producto, p.id_categoria, p.id_subcategoria, 
+                p.nombre_producto, p.descripcion, p.precio, p.descuento, p.stock, 
+                p.sku, p.ubicacion, p.destacado, p.orden_destacado, p.activo,
+                (CASE WHEN CHAR_LENGTH(p.imagen_principal) > 10 THEN 1 ELSE 0 END) AS tiene_imagen,
+                c.nombre_categoria, s.nombre_subcategoria 
+                FROM productos p
+                LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+                LEFT JOIN subcategorias s ON p.id_subcategoria = s.id_subcategoria
+                WHERE p.activo = 1 AND p.destacado = 1
+                ORDER BY COALESCE(p.orden_destacado, 999) ASC, p.id_producto DESC";
+
+        if ($result = $this->db->query($sql)) {
+            while ($row = $result->fetch_assoc()) {
+                $productos[] = [
+                    'id_producto' => (int)$row['id_producto'],
+                    'id_categoria' => $row['id_categoria'] ? (int)$row['id_categoria'] : null,
+                    'id_subcategoria' => $row['id_subcategoria'] ? (int)$row['id_subcategoria'] : null,
+                    'nombre_categoria' => $row['nombre_categoria'] ? (string)$row['nombre_categoria'] : null,
+                    'nombre_subcategoria' => $row['nombre_subcategoria'] ? (string)$row['nombre_subcategoria'] : null,
+                    'nombre_producto' => (string)$row['nombre_producto'],
+                    'descripcion' => $row['descripcion'] ? (string)$row['descripcion'] : null,
+                    'precio' => (float)$row['precio'],
+                    'descuento' => $row['descuento'] !== null ? (float)$row['descuento'] : null,
+                    'stock' => (int)$row['stock'],
+                    'sku' => $row['sku'] ? (string)$row['sku'] : null,
+                    'ubicacion' => (string)$row['ubicacion'],
+                    'destacado' => (int)$row['destacado'],
+                    'orden_destacado' => $row['orden_destacado'] !== null ? (int)$row['orden_destacado'] : null,
+                    'activo' => (int)$row['activo'],
+                    'tiene_imagen' => (int)$row['tiene_imagen']
+                ];
+            }
+            $result->free();
+        }
+
+        return $productos;
+    }
 }

@@ -57,6 +57,8 @@ export type { GetProducts$Params as GetProducts$Params } from './fn/productos/ge
 export { getProducts as getProducts } from './fn/productos/get-products';
 export type { CreateProduct$Params as CreateProduct$Params } from './fn/productos/create-product';
 export { createProduct as createProduct } from './fn/productos/create-product';
+export type { GetFeaturedProducts$Params as GetFeaturedProducts$Params } from './fn/productos/get-featured-products';
+export { getFeaturedProducts as getFeaturedProducts } from './fn/productos/get-featured-products';
 export type { GetProductById$Params as GetProductById$Params } from './fn/productos/get-product-by-id';
 export { getProductById as getProductById } from './fn/productos/get-product-by-id';
 export type { DeleteProduct$Params as DeleteProduct$Params } from './fn/productos/delete-product';

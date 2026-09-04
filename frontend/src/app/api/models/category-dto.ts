@@ -4,6 +4,7 @@
 import { SubcategoryDto } from '../models/subcategory-dto';
 export interface CategoryDto {
   id: number;
+  imagen_categoria?: string | null;
   nombre: string;
   subcategorias: Array<SubcategoryDto>;
 }

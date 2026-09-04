@@ -55,6 +55,38 @@ class ProductController
     }
 
     #[OA\Get(
+        path: "/api/v1/products/featured",
+        operationId: "getFeaturedProducts",
+        summary: "Listar productos destacados para la tienda",
+        description: "Retorna los productos marcados como destacados ordenados por su orden de prioridad para carruseles de la tienda.",
+        tags: ["Productos"],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Lista de productos destacados",
+                content: new OA\JsonContent(
+                    type: "array",
+                    items: new OA\Items(ref: "#/components/schemas/ProductDto")
+                )
+            ),
+            new OA\Response(
+                response: 500,
+                description: "Error al consultar productos destacados",
+                content: new OA\JsonContent(ref: "#/components/schemas/ApiResponse")
+            )
+        ]
+    )]
+    public function getFeatured(): void
+    {
+        try {
+            $products = $this->productModel->getFeaturedProducts();
+            Response::json($products, 200);
+        } catch (\Throwable $e) {
+            Response::error('Error al consultar productos destacados: ' . $e->getMessage(), null, 500);
+        }
+    }
+
+    #[OA\Get(
         path: "/api/v1/products/{id}",
         operationId: "getProductById",
         summary: "Obtener detalle de un producto",

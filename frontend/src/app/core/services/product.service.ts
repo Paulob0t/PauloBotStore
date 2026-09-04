@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Api } from '../../api/api';
-import { createProduct, getProducts, getProductById, checkFeaturedOrder, deleteProduct } from '../../api/functions';
+import { createProduct, getProducts, getFeaturedProducts, getProductById, checkFeaturedOrder, deleteProduct } from '../../api/functions';
 import { CreateProductRequest, ProductDto, ProductResponse } from '../../api/models';
 
 @Injectable({
@@ -45,6 +45,16 @@ export class ProductService {
   readonly totalStockCount = computed(() => this.productsSignal().reduce((acc, p) => acc + (p.stock || 0), 0));
 
   constructor(private api: Api) {}
+
+  async loadFeaturedProducts(): Promise<ProductDto[]> {
+    try {
+      const data = await this.api.invoke(getFeaturedProducts, {});
+      return data || [];
+    } catch (error) {
+      console.error('Error cargando productos destacados:', error);
+      return [];
+    }
+  }
 
   async loadProducts(): Promise<ProductDto[]> {
     this.loadingSignal.set(true);

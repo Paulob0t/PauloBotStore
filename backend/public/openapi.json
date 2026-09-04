@@ -1099,6 +1099,41 @@
                 }
             }
         },
+        "/api/v1/products/featured": {
+            "get": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Listar productos destacados para la tienda",
+                "description": "Retorna los productos marcados como destacados ordenados por su orden de prioridad para carruseles de la tienda.",
+                "operationId": "getFeaturedProducts",
+                "responses": {
+                    "200": {
+                        "description": "Lista de productos destacados",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProductDto"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al consultar productos destacados",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/products/{id}": {
             "get": {
                 "tags": [
@@ -1777,6 +1812,11 @@
                     "nombre": {
                         "type": "string",
                         "example": "Bebidas"
+                    },
+                    "imagen_categoria": {
+                        "type": "string",
+                        "example": "data:image/jpeg;base64,...",
+                        "nullable": true
                     },
                     "subcategorias": {
                         "type": "array",
