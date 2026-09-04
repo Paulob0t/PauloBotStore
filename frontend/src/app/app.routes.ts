@@ -10,6 +10,7 @@ import { SubcategoryListComponent } from './pages/categories/subcategory-list/su
 import { MovementListComponent } from './pages/movements/movement-list/movement-list.component';
 import { CashRegisterComponent } from './pages/cash-register/cash-register.component';
 import { CompanyConfigComponent } from './pages/config/company-config/company-config.component';
+import { UserListComponent } from './pages/users/user-list/user-list.component';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 
@@ -69,6 +70,11 @@ export const routes: Routes = [
         path: 'configuracion',
         component: CompanyConfigComponent,
         title: 'Configuración de Empresa | PauloBot Store'
+      },
+      {
+        path: 'usuarios',
+        component: UserListComponent,
+        title: 'Gestión de Usuarios | PauloBot Store'
       }
     ]
   },

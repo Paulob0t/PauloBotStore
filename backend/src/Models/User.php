@@ -15,6 +15,45 @@ class User
     }
 
     /**
+     * Obtener todos los usuarios registrados en el sistema.
+     */
+    public function getAll(): array
+    {
+        $users = [];
+        if (!$this->db || $this->db->connect_error) {
+            return $users;
+        }
+
+        $sql = "SELECT id, nombre, correo, tipo_usuario, activo, fecha_creacion 
+                FROM usuarios 
+                ORDER BY id DESC";
+
+        if ($res = $this->db->query($sql)) {
+            while ($row = $res->fetch_assoc()) {
+                $tipo = (int)$row['tipo_usuario'];
+                $tipoLabel = match ($tipo) {
+                    0 => 'Super Administrador',
+                    1 => 'Administrador',
+                    default => 'Operador'
+                };
+
+                $users[] = [
+                    'id' => (int)$row['id'],
+                    'nombre' => (string)$row['nombre'],
+                    'correo' => (string)$row['correo'],
+                    'tipo_usuario' => $tipo,
+                    'tipo_usuario_label' => $tipoLabel,
+                    'activo' => (int)($row['activo'] ?? 1),
+                    'fecha_creacion' => $row['fecha_creacion'] ?: null
+                ];
+            }
+            $res->free();
+        }
+
+        return $users;
+    }
+
+    /**
      * Buscar un usuario por su correo electrónico.
      */
     public function findByEmail(string $email): ?array
@@ -23,16 +62,7 @@ class User
             return null;
         }
 
-        $hasActivo = false;
-        $colCheck = $this->db->query("SHOW COLUMNS FROM usuarios LIKE 'activo'");
-        if ($colCheck && $colCheck->num_rows > 0) {
-            $hasActivo = true;
-        }
-
-        $sql = $hasActivo
-            ? 'SELECT id, contrasena, tipo_usuario, nombre, activo, correo FROM usuarios WHERE correo = ? LIMIT 1'
-            : 'SELECT id, contrasena, tipo_usuario, nombre, correo FROM usuarios WHERE correo = ? LIMIT 1';
-
+        $sql = "SELECT id, contrasena, tipo_usuario, nombre, activo, correo FROM usuarios WHERE correo = ? LIMIT 1";
         $stmt = $this->db->prepare($sql);
         if (!$stmt) {
             return null;
@@ -40,28 +70,11 @@ class User
 
         $stmt->bind_param('s', $email);
         $stmt->execute();
-
-        if ($hasActivo) {
-            $stmt->bind_result($id, $hash, $tipo_usuario, $nombre, $activo, $correo);
-        } else {
-            $stmt->bind_result($id, $hash, $tipo_usuario, $nombre, $correo);
-            $activo = 1;
-        }
-
-        $user = null;
-        if ($stmt->fetch()) {
-            $user = [
-                'id' => (int) $id,
-                'contrasena' => (string) $hash,
-                'tipo_usuario' => (string) $tipo_usuario,
-                'nombre' => (string) $nombre,
-                'correo' => (string) $correo,
-                'activo' => (int) $activo
-            ];
-        }
-
+        $res = $stmt->get_result();
+        $user = $res->fetch_assoc();
         $stmt->close();
-        return $user;
+
+        return $user ?: null;
     }
 
     /**
@@ -73,16 +86,7 @@ class User
             return null;
         }
 
-        $hasActivo = false;
-        $colCheck = $this->db->query("SHOW COLUMNS FROM usuarios LIKE 'activo'");
-        if ($colCheck && $colCheck->num_rows > 0) {
-            $hasActivo = true;
-        }
-
-        $sql = $hasActivo
-            ? 'SELECT id, tipo_usuario, nombre, correo, activo FROM usuarios WHERE id = ? LIMIT 1'
-            : 'SELECT id, tipo_usuario, nombre, correo FROM usuarios WHERE id = ? LIMIT 1';
-
+        $sql = "SELECT id, tipo_usuario, nombre, correo, activo FROM usuarios WHERE id = ? LIMIT 1";
         $stmt = $this->db->prepare($sql);
         if (!$stmt) {
             return null;
@@ -90,51 +94,59 @@ class User
 
         $stmt->bind_param('i', $id);
         $stmt->execute();
-
-        if ($hasActivo) {
-            $stmt->bind_result($userId, $tipo_usuario, $nombre, $correo, $activo);
-        } else {
-            $stmt->bind_result($userId, $tipo_usuario, $nombre, $correo);
-            $activo = 1;
-        }
-
-        $user = null;
-        if ($stmt->fetch()) {
-            $user = [
-                'id' => (int) $userId,
-                'tipo_usuario' => (string) $tipo_usuario,
-                'nombre' => (string) $nombre,
-                'correo' => (string) $correo,
-                'activo' => (int) $activo
-            ];
-        }
-
+        $res = $stmt->get_result();
+        $user = $res->fetch_assoc();
         $stmt->close();
-        return $user;
+
+        return $user ?: null;
     }
 
     /**
      * Crear un nuevo usuario en el sistema.
      */
-    public function create(string $name, string $email, string $plainPassword, int $tipoUsuario = 1): bool
+    public function create(string $name, string $email, string $plainPassword, int $tipoUsuario = 1, int $activo = 1): int
+    {
+        if (!$this->db || $this->db->connect_error) {
+            return 0;
+        }
+
+        $hash = password_hash($plainPassword, PASSWORD_DEFAULT);
+        $sql = 'INSERT INTO usuarios (nombre, correo, contrasena, tipo_usuario, activo) VALUES (?, ?, ?, ?, ?)';
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            return 0;
+        }
+
+        $stmt->bind_param('sssii', $name, $email, $hash, $tipoUsuario, $activo);
+        if ($stmt->execute()) {
+            $id = (int)$stmt->insert_id;
+            $stmt->close();
+            return $id;
+        }
+
+        $stmt->close();
+        return 0;
+    }
+
+    /**
+     * Actualizar estado activo/inactivo de un usuario.
+     */
+    public function updateStatus(int $userId, int $active): bool
     {
         if (!$this->db || $this->db->connect_error) {
             return false;
         }
 
-        $hash = password_hash($plainPassword, PASSWORD_DEFAULT);
-        $sql = 'INSERT INTO usuarios (nombre, correo, contrasena, tipo_usuario) VALUES (?, ?, ?, ?)';
-
-        $stmt = $this->db->prepare($sql);
-        if (!$stmt) {
-            return false;
+        $stmt = $this->db->prepare("UPDATE usuarios SET activo = ? WHERE id = ?");
+        if ($stmt) {
+            $stmt->bind_param('ii', $active, $userId);
+            $success = $stmt->execute();
+            $stmt->close();
+            return $success;
         }
 
-        $stmt->bind_param('sssi', $name, $email, $hash, $tipoUsuario);
-        $success = $stmt->execute();
-        $stmt->close();
-
-        return $success;
+        return false;
     }
 
     /**
@@ -160,7 +172,6 @@ class User
 
     /**
      * Verifica la contraseña probando BCrypt, Texto Plano y MD5 Legacy.
-     * Si coincide con MD5 o texto plano, actualiza automáticamente la contraseña a BCrypt.
      */
     public function verifyAndUpgradePassword(int $userId, string $plainPassword, string $storedHash): bool
     {
@@ -169,7 +180,7 @@ class User
             return false;
         }
 
-        // 1. Algoritmo estándar BCrypt (Password Hash oficial PHP)
+        // 1. Algoritmo estándar BCrypt
         if (password_get_info($storedHash)['algo'] !== 0) {
             if (password_verify($plainPassword, $storedHash)) {
                 return true;
@@ -182,7 +193,7 @@ class User
             return true;
         }
 
-        // 3. MD5 (Legacy fallback usuarios antiguos 32 caracteres hex)
+        // 3. MD5 (Legacy fallback usuarios antiguos)
         if (strlen($storedHash) === 32 && ctype_xdigit($storedHash) && hash_equals($storedHash, md5($plainPassword))) {
             $this->updatePassword($userId, $plainPassword);
             return true;

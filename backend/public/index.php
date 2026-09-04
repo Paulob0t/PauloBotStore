@@ -23,6 +23,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\DocsController;
 use App\Controllers\MovementController;
 use App\Controllers\ProductController;
+use App\Controllers\UserController;
 use App\Core\Response;
 use App\Core\Router;
 
@@ -80,6 +81,11 @@ $router->put('/api/v1/cash-register/config', [CashRegisterController::class, 'up
 // Rutas de Configuración
 $router->get('/api/v1/config/company', [ConfigController::class, 'getCompany']);
 $router->put('/api/v1/config/company', [ConfigController::class, 'updateCompany']);
+
+// Rutas de Usuarios
+$router->get('/api/v1/users', [UserController::class, 'getAll']);
+$router->post('/api/v1/users', [UserController::class, 'create']);
+$router->put('/api/v1/users/{id}/status', [UserController::class, 'updateStatus']);
 
 // Dispatch de la solicitud
 $router->dispatch();

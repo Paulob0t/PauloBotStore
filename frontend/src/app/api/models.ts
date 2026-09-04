@@ -17,6 +17,7 @@ export type { CreateCashMovementRequest } from './models/create-cash-movement-re
 export type { CreateCategoryRequest } from './models/create-category-request';
 export type { CreateProductRequest } from './models/create-product-request';
 export type { CreateSubcategoryRequest } from './models/create-subcategory-request';
+export type { CreateUserRequest } from './models/create-user-request';
 export type { DashboardMetricsDto } from './models/dashboard-metrics-dto';
 export type { InventoryMetricsDto } from './models/inventory-metrics-dto';
 export type { LoginRequest } from './models/login-request';
@@ -38,4 +39,6 @@ export type { UpdateCashConfigRequest } from './models/update-cash-config-reques
 export type { UpdateCategoryRequest } from './models/update-category-request';
 export type { UpdateCompanyConfigRequest } from './models/update-company-config-request';
 export type { UpdateSubcategoryRequest } from './models/update-subcategory-request';
+export type { UpdateUserStatusRequest } from './models/update-user-status-request';
 export type { UserDto } from './models/user-dto';
+export type { UserItemDto } from './models/user-item-dto';

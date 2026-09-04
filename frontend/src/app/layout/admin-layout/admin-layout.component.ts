@@ -126,8 +126,34 @@ import { AuthService } from '../../core/services/auth.service';
             </a>
 
             <div class="pt-4 pb-2 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              Hardware & Configuración
+              Configuración & Sistema
             </div>
+
+            <!-- Usuarios (Nuevo Módulo Migrado) -->
+            <a
+              routerLink="/admin/usuarios"
+              routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
+              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-300 hover:bg-slate-800 hover:text-white transition-all group"
+            >
+              <div class="flex items-center gap-3">
+                <i class="fas fa-users-gear text-slate-400 group-hover:text-indigo-400 w-5"></i>
+                <span>Usuarios</span>
+              </div>
+              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
+            </a>
+
+            <!-- Configuración Empresa -->
+            <a
+              routerLink="/admin/configuracion"
+              routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
+              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-300 hover:bg-slate-800 hover:text-white transition-all group"
+            >
+              <div class="flex items-center gap-3">
+                <i class="fas fa-sliders text-slate-400 group-hover:text-indigo-400 w-5"></i>
+                <span>Empresa</span>
+              </div>
+              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
+            </a>
 
             <a
               href="javascript:void(0)"
@@ -139,19 +165,6 @@ import { AuthService } from '../../core/services/auth.service';
                 <span>Monedero MDB</span>
               </div>
               <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Próx.</span>
-            </a>
-
-            <!-- Configuración Empresa (Nuevo Módulo Migrado) -->
-            <a
-              routerLink="/admin/configuracion"
-              routerLinkActive="bg-indigo-600/15 text-indigo-400 border border-indigo-500/30"
-              class="flex items-center justify-between px-4 py-3 rounded-2xl text-slate-300 hover:bg-slate-800 hover:text-white transition-all group"
-            >
-              <div class="flex items-center gap-3">
-                <i class="fas fa-sliders text-slate-400 group-hover:text-indigo-400 w-5"></i>
-                <span>Configuración</span>
-              </div>
-              <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Nuevo</span>
             </a>
           </nav>
         </div>

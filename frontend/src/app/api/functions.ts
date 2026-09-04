@@ -67,3 +67,9 @@ export type { CheckFeaturedOrder$Params as CheckFeaturedOrder$Params } from './f
 export { checkFeaturedOrder as checkFeaturedOrder } from './fn/productos/check-featured-order';
 export type { ToggleProductStatus$Params as ToggleProductStatus$Params } from './fn/productos/toggle-product-status';
 export { toggleProductStatus as toggleProductStatus } from './fn/productos/toggle-product-status';
+export type { GetUsers$Params as GetUsers$Params } from './fn/usuarios/get-users';
+export { getUsers as getUsers } from './fn/usuarios/get-users';
+export type { CreateUser$Params as CreateUser$Params } from './fn/usuarios/create-user';
+export { createUser as createUser } from './fn/usuarios/create-user';
+export type { UpdateUserStatus$Params as UpdateUserStatus$Params } from './fn/usuarios/update-user-status';
+export { updateUserStatus as updateUserStatus } from './fn/usuarios/update-user-status';

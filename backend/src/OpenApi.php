@@ -43,6 +43,10 @@ use OpenApi\Attributes as OA;
     description: "Endpoints de configuración general de la empresa, datos fiscales y formato de tickets"
 )]
 #[OA\Tag(
+    name: "Usuarios",
+    description: "Endpoints de consulta, creación y gestión de usuarios del sistema"
+)]
+#[OA\Tag(
     name: "Documentación",
     description: "Endpoints de especificación Swagger y OpenAPI"
 )]

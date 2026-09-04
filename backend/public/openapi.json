@@ -1307,6 +1307,133 @@
                     }
                 }
             }
+        },
+        "/api/v1/users": {
+            "get": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Listar todos los usuarios del sistema",
+                "description": "Retorna el catálogo completo de usuarios registrados con sus roles y estados.",
+                "operationId": "getUsers",
+                "responses": {
+                    "200": {
+                        "description": "Listado de usuarios",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserItemDto"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al consultar usuarios",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Crear / Registrar un nuevo usuario",
+                "description": "Crea una nueva cuenta de usuario con rol y contraseña cifrada con BCrypt.",
+                "operationId": "createUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUserRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario creado exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Datos inválidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "El correo ya está registrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{id}/status": {
+            "put": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Cambiar estado de un usuario (Activar / Suspender)",
+                "operationId": "updateUserStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del usuario",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserStatusRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Estado actualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1983,6 +2110,41 @@
                     },
                     "imagen_subcategoria": {
                         "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CreateUserRequest": {
+                "title": "Solicitud para Crear Usuario",
+                "required": [
+                    "nombre",
+                    "correo",
+                    "contrasena"
+                ],
+                "properties": {
+                    "nombre": {
+                        "type": "string",
+                        "example": "Juan Pérez"
+                    },
+                    "correo": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "juan@paulobot.com"
+                    },
+                    "contrasena": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "SuperSecret123!"
+                    },
+                    "tipo_usuario": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "activo": {
+                        "type": "integer",
+                        "example": 1,
                         "nullable": true
                     }
                 },
@@ -2738,6 +2900,23 @@
                 },
                 "type": "object"
             },
+            "UpdateUserStatusRequest": {
+                "title": "Actualizar Estado de Usuario",
+                "required": [
+                    "activo"
+                ],
+                "properties": {
+                    "activo": {
+                        "type": "integer",
+                        "enum": [
+                            0,
+                            1
+                        ],
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
             "UserDto": {
                 "title": "Información de Usuario",
                 "description": "Datos del usuario autenticado",
@@ -2763,6 +2942,49 @@
                     "activo": {
                         "type": "integer",
                         "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "UserItemDto": {
+                "title": "Usuario del Sistema",
+                "required": [
+                    "id",
+                    "nombre",
+                    "correo",
+                    "tipo_usuario",
+                    "activo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Juan Pérez"
+                    },
+                    "correo": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "juan@paulobot.com"
+                    },
+                    "tipo_usuario": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "tipo_usuario_label": {
+                        "type": "string",
+                        "example": "Administrador"
+                    },
+                    "activo": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "fecha_creacion": {
+                        "type": "string",
+                        "example": "2026-09-01 12:00:00",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -2805,6 +3027,10 @@
         {
             "name": "Configuración",
             "description": "Endpoints de configuración general de la empresa, datos fiscales y formato de tickets"
+        },
+        {
+            "name": "Usuarios",
+            "description": "Endpoints de consulta, creación y gestión de usuarios del sistema"
         },
         {
             "name": "Documentación",
