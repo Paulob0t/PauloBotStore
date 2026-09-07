@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Output, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DigitalServicesService, CfeCheckResult, CfePayResult } from '../../core/services/digital-services.service';
@@ -83,7 +83,7 @@ import { DigitalServicesService, CfeCheckResult, CfePayResult } from '../../core
                 </div>
                 <p class="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1.5">
                   <i class="fas fa-circle-info text-emerald-400"></i>
-                  Encuentra este número en la parte superior o código de barras de tu recibo.
+                  Encuentra este número en la parte superior o sobre el código de barras de tu recibo.
                 </p>
               </div>
 
@@ -141,18 +141,56 @@ import { DigitalServicesService, CfeCheckResult, CfePayResult } from '../../core
                   </div>
                 </div>
 
-                <div class="space-y-2 text-xs">
+                <!-- Campo Editable de Monto a Pagar -->
+                <div class="space-y-2 pt-1">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                      Monto de tu Recibo CFE ($)
+                    </label>
+                    <span class="text-[10px] text-emerald-400 font-semibold">
+                      <i class="fas fa-pen text-[9px] mr-1"></i>Puedes ajustarlo según tu recibo
+                    </span>
+                  </div>
+
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-xl font-black text-slate-500">$</span>
+                    <input
+                      type="number"
+                      step="0.50"
+                      min="1"
+                      [(ngModel)]="customAmount"
+                      class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-2xl pl-9 pr-4 py-3 text-white font-mono text-xl font-black outline-none transition-all shadow-inner"
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  <!-- Botones de Acceso Rápido de Monto -->
+                  <div class="flex gap-1.5 pt-1">
+                    @for (preset of [100, 200, 350, 500, 800]; track preset) {
+                      <button
+                        type="button"
+                        (click)="setPresetAmount(preset)"
+                        class="flex-1 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-[11px] font-mono font-bold text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer"
+                      >
+                        \${{ preset }}
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Desglose de Totales -->
+                <div class="space-y-2 text-xs pt-3 border-t border-slate-800/80">
                   <div class="flex justify-between text-slate-400">
-                    <span>Consumo de Electricidad</span>
-                    <span class="font-mono text-white font-bold">{{ checkResult()?.amount | currency:'MXN':'symbol':'1.2-2' }}</span>
+                    <span>Importe del Recibo</span>
+                    <span class="font-mono text-white font-bold">{{ customAmount() | currency:'MXN':'symbol':'1.2-2' }}</span>
                   </div>
                   <div class="flex justify-between text-slate-400">
                     <span>Comisión de Servicio Kiosco</span>
-                    <span class="font-mono text-amber-400 font-bold">+{{ checkResult()?.commission | currency:'MXN':'symbol':'1.2-2' }}</span>
+                    <span class="font-mono text-amber-400 font-bold">+{{ commission | currency:'MXN':'symbol':'1.2-2' }}</span>
                   </div>
                   <div class="flex justify-between text-sm font-bold text-white pt-2 border-t border-slate-800">
                     <span class="text-emerald-400">Total a Pagar</span>
-                    <span class="font-mono text-emerald-400 text-base">{{ checkResult()?.total | currency:'MXN':'symbol':'1.2-2' }}</span>
+                    <span class="font-mono text-emerald-400 text-lg">{{ computedTotal() | currency:'MXN':'symbol':'1.2-2' }}</span>
                   </div>
                 </div>
               </div>
@@ -209,7 +247,7 @@ import { DigitalServicesService, CfeCheckResult, CfePayResult } from '../../core
                 <button
                   type="button"
                   (click)="pagarRecibo()"
-                  [disabled]="isPaying()"
+                  [disabled]="isPaying() || customAmount() <= 0"
                   class="flex-[2] py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
                   @if (isPaying()) {
@@ -217,7 +255,7 @@ import { DigitalServicesService, CfeCheckResult, CfePayResult } from '../../core
                     <span>Procesando Pago...</span>
                   } @else {
                     <i class="fas fa-bolt text-amber-400"></i>
-                    <span>Pagar {{ checkResult()?.total | currency:'MXN':'symbol':'1.2-2' }}</span>
+                    <span>Pagar {{ computedTotal() | currency:'MXN':'symbol':'1.2-2' }}</span>
                   }
                 </button>
               </div>
@@ -307,6 +345,9 @@ export class CfeModalComponent {
 
   currentStep = signal<'input' | 'confirm' | 'success'>('input');
   serviceNumber = signal<string>('');
+  customAmount = signal<number>(185);
+  readonly commission = 12.00;
+
   selectedMethod = signal<'cash' | 'card'>('cash');
 
   isConsulting = signal<boolean>(false);
@@ -317,6 +358,11 @@ export class CfeModalComponent {
   payResult = signal<CfePayResult | null>(null);
 
   readonly keypadKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'del'];
+
+  computedTotal = computed(() => {
+    const amt = Number(this.customAmount()) || 0;
+    return amt > 0 ? amt + this.commission : 0;
+  });
 
   onNumberInput(): void {
     const clean = this.serviceNumber().replace(/\D/g, '');
@@ -340,6 +386,10 @@ export class CfeModalComponent {
     this.serviceNumber.set('');
   }
 
+  setPresetAmount(amount: number): void {
+    this.customAmount.set(amount);
+  }
+
   async consultarRecibo(): Promise<void> {
     this.errorMessage.set(null);
     this.isConsulting.set(true);
@@ -348,6 +398,7 @@ export class CfeModalComponent {
       const res = await this.digitalServices.checkCfeBalance(this.serviceNumber());
       if (res && res.success) {
         this.checkResult.set(res);
+        this.customAmount.set(res.amount > 0 ? res.amount : 185);
         this.currentStep.set('confirm');
       } else {
         this.errorMessage.set('No se pudo encontrar adeudo para este número de servicio.');
@@ -361,7 +412,8 @@ export class CfeModalComponent {
 
   async pagarRecibo(): Promise<void> {
     const check = this.checkResult();
-    if (!check) return;
+    const amountToPay = Number(this.customAmount());
+    if (!check || amountToPay <= 0) return;
 
     this.errorMessage.set(null);
     this.isPaying.set(true);
@@ -369,7 +421,7 @@ export class CfeModalComponent {
     try {
       const res = await this.digitalServices.payCfe(
         check.service_number,
-        check.amount,
+        amountToPay,
         this.selectedMethod()
       );
 
