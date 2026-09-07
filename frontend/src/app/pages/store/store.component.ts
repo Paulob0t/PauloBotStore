@@ -164,7 +164,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
             >
               <!-- Track Desplazable con GPU Transform -->
               <div
-                class="flex gap-6 transition-transform duration-600 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                class="flex gap-6 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
                 [style.transform]="'translate3d(' + -featuredOffset() + 'px, 0, 0)'"
               >
                 @for (product of featuredProducts(); track product.id_producto) {
@@ -329,7 +329,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
             >
               <!-- Track Desplazable con GPU Transform -->
               <div
-                class="flex gap-6 transition-transform duration-600 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                class="flex gap-6 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
                 [style.transform]="'translate3d(' + -categoryOffset() + 'px, 0, 0)'"
               >
                 @for (cat of categories(); track cat.id) {
@@ -662,19 +662,19 @@ export class StoreComponent implements OnInit, OnDestroy {
   });
 
   private startAutoSlides(): void {
-    // 1. Auto-Slide de Productos Destacados (cada 4.5 segundos)
+    // 1. Auto-Slide de Productos Destacados (cada 2.5 segundos)
     this.featuredInterval = setInterval(() => {
       if (!this.isFeaturedHovered && !this.showCartDrawer()) {
         this.nextFeatured();
       }
-    }, 4500);
+    }, 2500);
 
-    // 2. Auto-Slide de Categorías (cada 4 segundos)
+    // 2. Auto-Slide de Categorías (cada 2.0 segundos)
     this.categoriesInterval = setInterval(() => {
       if (!this.isCategoriesHovered && !this.showCartDrawer()) {
         this.nextCategory();
       }
-    }, 4000);
+    }, 2000);
   }
 
   private stopAutoSlides(): void {
