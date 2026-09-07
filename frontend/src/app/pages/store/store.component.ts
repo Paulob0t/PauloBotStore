@@ -135,7 +135,10 @@ import { ProductDto, CategoryDto } from '../../api/models';
 
       <!-- Modal de Checkout & Pago Kiosco -->
       @if (showCheckoutModal()) {
-        <app-checkout-modal (close)="showCheckoutModal.set(false)" />
+        <app-checkout-modal
+          [initialStep]="checkoutInitialStep()"
+          (close)="showCheckoutModal.set(false)"
+        />
       }
 
       <!-- Contenido Principal -->
@@ -442,7 +445,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
                             {{ product.precio | currency:'MXN':'symbol':'1.2-2' }}
                           </div>
                           <div class="text-xl font-black text-emerald-400 font-mono">
-                            {{ product.descuento | currency:'MXN':'symbol':'1.2-2' }}
+                            {{ (product.precio - product.descuento) | currency:'MXN':'symbol':'1.2-2' }}
                           </div>
                         } @else {
                           <div class="text-xl font-black text-white font-mono">
@@ -1039,17 +1042,26 @@ import { ProductDto, CategoryDto } from '../../api/models';
                   <div class="space-y-2">
                     <button
                       type="button"
-                      (click)="openCheckout()"
-                      class="w-full py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-0.5 transition-all cursor-pointer flex items-center justify-center gap-2"
+                      (click)="openCheckout('payment_card')"
+                      class="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-0.5 transition-all cursor-pointer flex items-center justify-center gap-2"
                     >
                       <i class="fas fa-credit-card"></i>
-                      <span>Pagar en Máquina / Despachar</span>
+                      <span>Pagar con Tarjeta</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="openCheckout('payment_cash')"
+                      class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/50 hover:-translate-y-0.5 transition-all cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <i class="fas fa-coins"></i>
+                      <span>Pagar con Efectivo</span>
                     </button>
                     
                     <button
                       type="button"
                       (click)="cartService.clear()"
-                      class="w-full py-2.5 text-xs font-semibold text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+                      class="w-full py-2 text-xs font-semibold text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
                     >
                       Vaciar Carrito
                     </button>
@@ -1113,6 +1125,7 @@ export class StoreComponent implements OnInit, OnDestroy {
   showMovistarModal = signal<boolean>(false);
   showAllCategoriesModal = signal<boolean>(false);
   showCheckoutModal = signal<boolean>(false);
+  checkoutInitialStep = signal<'review' | 'payment_card' | 'payment_cash'>('payment_card');
   toastMessage = signal<string | null>(null);
 
   // Computados de Carrito
@@ -1448,7 +1461,8 @@ export class StoreComponent implements OnInit, OnDestroy {
     }
   }
 
-  openCheckout(): void {
+  openCheckout(step: 'review' | 'payment_card' | 'payment_cash' = 'payment_card'): void {
+    this.checkoutInitialStep.set(step);
     this.showCartDrawer.set(false);
     this.showCheckoutModal.set(true);
   }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, signal, computed } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CartService, CheckoutResult } from '../../core/services/cart.service';
@@ -624,13 +624,20 @@ type CheckoutStep = 'review' | 'payment_card' | 'payment_cash' | 'processing' | 
     }
   `]
 })
-export class CheckoutModalComponent {
+export class CheckoutModalComponent implements OnInit {
+  @Input() initialStep: CheckoutStep = 'review';
   @Output() close = new EventEmitter<void>();
 
   public cartService = inject(CartService);
 
   step = signal<CheckoutStep>('review');
   readonly cartItems = this.cartService.items;
+
+  ngOnInit(): void {
+    if (this.initialStep) {
+      this.step.set(this.initialStep);
+    }
+  }
 
   // Manejo de Efectivo
   cashReceived = signal<number>(0);
