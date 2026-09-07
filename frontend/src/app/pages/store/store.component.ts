@@ -14,17 +14,19 @@ import { RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
 import { CartService } from '../../core/services/cart.service';
+import { DigitalServicesService, ServiceProvider } from '../../core/services/digital-services.service';
+import { CfeModalComponent } from '../../components/cfe-modal/cfe-modal.component';
 import { ProductDto, CategoryDto } from '../../api/models';
 
 @Component({
   selector: 'app-store',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CfeModalComponent],
   template: `
     <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       
       <!-- Navbar Superior de la Tienda -->
-      <header class="sticky top-0 z-50 bg-slate-900/95 border-b border-slate-800 shadow-md shadow-black/30">
+      <header class="sticky top-0 z-40 bg-slate-900/95 border-b border-slate-800 shadow-md shadow-black/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-20">
             
@@ -85,12 +87,17 @@ import { ProductDto, CategoryDto } from '../../api/models';
         </div>
       </header>
 
-      <!-- Toast Flotante de Producto Agregado -->
+      <!-- Toast Flotante de Notificaciones -->
       @if (toastMessage()) {
-        <div class="fixed bottom-6 right-6 z-50 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-fade-in font-medium text-sm">
-          <i class="fas fa-check-circle text-lg"></i>
+        <div class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-slate-700 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 animate-fade-in font-medium text-sm">
+          <i class="fas fa-info-circle text-indigo-400 text-lg"></i>
           <span>{{ toastMessage() }}</span>
         </div>
+      }
+
+      <!-- Modal de CFE (Pago de Luz) -->
+      @if (showCfeModal()) {
+        <app-cfe-modal (close)="showCfeModal.set(false)" />
       }
 
       <!-- Contenido Principal -->
@@ -100,18 +107,177 @@ import { ProductDto, CategoryDto } from '../../api/models';
         <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 border border-indigo-500/20 p-8 sm:p-12 shadow-xl">
           <div class="relative z-10 max-w-2xl space-y-4">
             <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold uppercase tracking-wider">
-              <i class="fas fa-bolt text-amber-400"></i> Despacho Inteligente & Inmediato
+              <i class="fas fa-bolt text-amber-400"></i> Despacho Inteligente & Servicios 24/7
             </div>
             <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-              Tus Snacks & Bebidas favoritas al instante
+              Snacks, Bebidas & Pago de Servicios
             </h1>
             <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Explora nuestro catálogo interactivo. Selecciona lo que deseas y recógelo inmediatamente en el dispensador automatizado.
+              Disfruta de tus productos favoritos y paga recibos como CFE o recargas telefónicas de manera rápida, segura y automatizada.
             </p>
           </div>
         </section>
 
-        <!-- SECCIÓN 1: Carrusel de Productos Destacados (GPU-Accelerated 60 FPS) -->
+        <!-- SECCIÓN 1: Carrusel de Servicios Digitales & Recargas (¡NUEVO MÓDULO!) -->
+        <section class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">
+                <i class="fas fa-receipt text-emerald-400"></i> Pagos & Tiempo Aire
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Kiosco Digital
+                </span>
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                Servicios Digitales
+              </h2>
+            </div>
+
+            <!-- Botones de Control Manual -->
+            <div class="flex items-center gap-2 self-end sm:self-auto">
+              <button
+                type="button"
+                (click)="prevService()"
+                class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
+                title="Anterior"
+              >
+                <i class="fas fa-chevron-left text-sm"></i>
+              </button>
+              <button
+                type="button"
+                (click)="nextService()"
+                class="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
+                title="Siguiente"
+              >
+                <i class="fas fa-chevron-right text-sm"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Pista del Carrusel de Servicios -->
+          @if (isLoadingServices()) {
+            <div class="py-16 text-center text-slate-500">
+              <i class="fas fa-spinner fa-spin text-3xl text-emerald-500 mb-3"></i>
+              <p class="text-sm">Cargando servicios disponibles...</p>
+            </div>
+          } @else if (services().length > 0) {
+            <div
+              (mouseenter)="pauseServices()"
+              (mouseleave)="resumeServices()"
+              (touchstart)="pauseServices()"
+              (touchend)="resumeServices()"
+              class="relative overflow-hidden w-full py-2"
+            >
+              <!-- Track Desplazable con GPU Transform -->
+              <div
+                class="flex gap-6 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
+                [style.transform]="'translate3d(' + -servicesOffset() + 'px, 0, 0)'"
+              >
+                @for (service of services(); track service.id) {
+                  <div
+                    (click)="onServiceClick(service)"
+                    [class.border-emerald-500-60]="service.disponible"
+                    [class.hover:border-emerald-400]="service.disponible"
+                    [class.hover:shadow-emerald-500-10]="service.disponible"
+                    class="w-72 sm:w-80 shrink-0 bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-lg transition-all duration-300 flex flex-col justify-between group cursor-pointer hover:-translate-y-1 select-none"
+                  >
+                    
+                    <div class="space-y-4">
+                      <!-- Header de la Tarjeta con Logo y Badge -->
+                      <div class="flex items-center justify-between">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center p-3 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                          <img
+                            [src]="service.imagen"
+                            [alt]="service.nombre"
+                            class="w-full h-full object-contain pointer-events-none"
+                            decoding="async"
+                          />
+                        </div>
+
+                        <span
+                          [class.bg-emerald-500-20]="service.disponible"
+                          [class.border-emerald-500-30]="service.disponible"
+                          [class.text-emerald-400]="service.disponible"
+                          [class.bg-slate-800]="!service.disponible"
+                          [class.border-slate-700]="!service.disponible"
+                          [class.text-slate-400]="!service.disponible"
+                          class="px-2.5 py-1 rounded-xl border text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
+                        >
+                          @if (service.disponible) {
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                          }
+                          {{ service.badge }}
+                        </span>
+                      </div>
+
+                      <!-- Información del Servicio -->
+                      <div>
+                        <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider mb-1">
+                          {{ service.subtitulo }}
+                        </div>
+                        <h3 class="text-xl font-black text-white group-hover:text-emerald-300 transition-colors">
+                          {{ service.nombre }}
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-1 line-clamp-2 min-h-[2rem]">
+                          {{ service.descripcion }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Footer de la Tarjeta: Botón de Acción -->
+                    <div class="pt-5 border-t border-slate-800 mt-4 flex items-center justify-between">
+                      <div class="text-xs text-slate-400">
+                        @if (service.comision > 0) {
+                          <span>Comisión: <strong class="text-amber-400 font-mono">+{{ service.comision | currency:'MXN':'symbol':'1.2-2' }}</strong></span>
+                        } @else {
+                          <span class="text-emerald-400 font-bold">Sin Comisión</span>
+                        }
+                      </div>
+
+                      <button
+                        type="button"
+                        [class.bg-emerald-600]="service.disponible"
+                        [class.hover:bg-emerald-500]="service.disponible"
+                        [class.text-white]="service.disponible"
+                        [class.bg-slate-800]="!service.disponible"
+                        [class.text-slate-500]="!service.disponible"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer group-hover:scale-105"
+                      >
+                        @if (service.disponible) {
+                          <i class="fas fa-bolt"></i>
+                          <span>Pagar Recibo</span>
+                        } @else {
+                          <span>Pronto</span>
+                        }
+                      </button>
+                    </div>
+
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Dots Indicadores de Servicios -->
+            @if (servicesDotsCount() > 1) {
+              <div class="flex justify-center items-center gap-2 pt-2">
+                @for (dot of [].constructor(servicesDotsCount()); track $index) {
+                  <button
+                    type="button"
+                    (click)="goToServiceSlide($index)"
+                    [class.bg-emerald-500]="$index === servicesSlideIndex()"
+                    [class.w-7]="$index === servicesSlideIndex()"
+                    [class.bg-slate-700]="$index !== servicesSlideIndex()"
+                    [class.w-2.5]="$index !== servicesSlideIndex()"
+                    class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"
+                    [title]="'Ir a grupo ' + ($index + 1)"
+                  ></button>
+                }
+              </div>
+            }
+          }
+        </section>
+
+        <!-- SECCIÓN 2: Carrusel de Productos Destacados (GPU-Accelerated 60 FPS) -->
         <section class="space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
@@ -276,7 +442,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
           }
         </section>
 
-        <!-- SECCIÓN 2: Carrusel de Categorías (GPU-Accelerated 60 FPS) -->
+        <!-- SECCIÓN 3: Carrusel de Categorías (GPU-Accelerated 60 FPS) -->
         <section class="space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
@@ -557,7 +723,21 @@ import { ProductDto, CategoryDto } from '../../api/models';
       </footer>
 
     </div>
-  `
+  `,
+  styles: [`
+    .border-emerald-500-60 {
+      border-color: rgba(16, 185, 129, 0.6);
+    }
+    .hover\\:shadow-emerald-500-10:hover {
+      box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1);
+    }
+    .bg-emerald-500-20 {
+      background-color: rgba(16, 185, 129, 0.2);
+    }
+    .border-emerald-500-30 {
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+  `]
 })
 export class StoreComponent implements OnInit, OnDestroy {
   @ViewChild('featuredWrapper') featuredWrapper!: ElementRef<HTMLDivElement>;
@@ -566,14 +746,18 @@ export class StoreComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
   public cartService = inject(CartService);
+  private digitalServicesService = inject(DigitalServicesService);
 
   featuredProducts = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
+  services = signal<ServiceProvider[]>([]);
   
   isLoadingFeatured = signal<boolean>(true);
   isLoadingCategories = signal<boolean>(true);
+  isLoadingServices = signal<boolean>(true);
   
   showCartDrawer = signal<boolean>(false);
+  showCfeModal = signal<boolean>(false);
   toastMessage = signal<string | null>(null);
 
   // Computados de Carrito
@@ -582,6 +766,7 @@ export class StoreComponent implements OnInit, OnDestroy {
   readonly cartSubtotal = this.cartService.subtotal;
 
   // Índices de posición para GPU Slide
+  servicesSlideIndex = signal<number>(0);
   featuredSlideIndex = signal<number>(0);
   categorySlideIndex = signal<number>(0);
 
@@ -590,8 +775,11 @@ export class StoreComponent implements OnInit, OnDestroy {
   private cardGap = 24;
   private visibleCount = 3;
 
+  private servicesInterval: any = null;
   private featuredInterval: any = null;
   private categoriesInterval: any = null;
+  
+  private isServicesHovered = false;
   private isFeaturedHovered = false;
   private isCategoriesHovered = false;
 
@@ -604,6 +792,7 @@ export class StoreComponent implements OnInit, OnDestroy {
     this.updateVisibleCount();
 
     await Promise.all([
+      this.loadServices(),
       this.loadFeatured(),
       this.loadCategories()
     ]);
@@ -634,6 +823,14 @@ export class StoreComponent implements OnInit, OnDestroy {
   }
 
   // Cálculos de Desplazamiento en Pixeles (GPU Offset)
+  servicesOffset = computed(() => {
+    const total = this.services().length;
+    if (total === 0) return 0;
+    const step = this.cardWidth + this.cardGap;
+    const maxOffset = Math.max(0, (total - this.visibleCount) * step);
+    return Math.min(this.servicesSlideIndex() * step, maxOffset);
+  });
+
   featuredOffset = computed(() => {
     const total = this.featuredProducts().length;
     if (total === 0) return 0;
@@ -651,6 +848,11 @@ export class StoreComponent implements OnInit, OnDestroy {
   });
 
   // Conteo de Dots
+  servicesDotsCount = computed(() => {
+    const total = this.services().length;
+    return Math.max(1, total - this.visibleCount + 1);
+  });
+
   featuredDotsCount = computed(() => {
     const total = this.featuredProducts().length;
     return Math.max(1, total - this.visibleCount + 1);
@@ -662,26 +864,60 @@ export class StoreComponent implements OnInit, OnDestroy {
   });
 
   private startAutoSlides(): void {
-    // 1. Auto-Slide de Productos Destacados (cada 2.5 segundos)
+    // 1. Auto-Slide de Servicios Digitales (cada 3.5 segundos)
+    this.servicesInterval = setInterval(() => {
+      if (!this.isServicesHovered && !this.showCartDrawer() && !this.showCfeModal()) {
+        this.nextService();
+      }
+    }, 3500);
+
+    // 2. Auto-Slide de Productos Destacados (cada 2.5 segundos)
     this.featuredInterval = setInterval(() => {
-      if (!this.isFeaturedHovered && !this.showCartDrawer()) {
+      if (!this.isFeaturedHovered && !this.showCartDrawer() && !this.showCfeModal()) {
         this.nextFeatured();
       }
     }, 2500);
 
-    // 2. Auto-Slide de Categorías (cada 2.0 segundos)
+    // 3. Auto-Slide de Categorías (cada 2.0 segundos)
     this.categoriesInterval = setInterval(() => {
-      if (!this.isCategoriesHovered && !this.showCartDrawer()) {
+      if (!this.isCategoriesHovered && !this.showCartDrawer() && !this.showCfeModal()) {
         this.nextCategory();
       }
     }, 2000);
   }
 
   private stopAutoSlides(): void {
+    if (this.servicesInterval) clearInterval(this.servicesInterval);
     if (this.featuredInterval) clearInterval(this.featuredInterval);
     if (this.categoriesInterval) clearInterval(this.categoriesInterval);
   }
 
+  // Métodos de Navegación Servicios
+  nextService(): void {
+    const max = this.servicesDotsCount() - 1;
+    if (max <= 0) return;
+    this.servicesSlideIndex.update(i => (i >= max ? 0 : i + 1));
+  }
+
+  prevService(): void {
+    const max = this.servicesDotsCount() - 1;
+    if (max <= 0) return;
+    this.servicesSlideIndex.update(i => (i <= 0 ? max : i - 1));
+  }
+
+  goToServiceSlide(index: number): void {
+    this.servicesSlideIndex.set(index);
+  }
+
+  pauseServices(): void {
+    this.isServicesHovered = true;
+  }
+
+  resumeServices(): void {
+    this.isServicesHovered = false;
+  }
+
+  // Métodos de Navegación Destacados
   nextFeatured(): void {
     const max = this.featuredDotsCount() - 1;
     if (max <= 0) return;
@@ -698,6 +934,15 @@ export class StoreComponent implements OnInit, OnDestroy {
     this.featuredSlideIndex.set(index);
   }
 
+  pauseFeatured(): void {
+    this.isFeaturedHovered = true;
+  }
+
+  resumeFeatured(): void {
+    this.isFeaturedHovered = false;
+  }
+
+  // Métodos de Navegación Categorías
   nextCategory(): void {
     const max = this.categoryDotsCount() - 1;
     if (max <= 0) return;
@@ -714,20 +959,24 @@ export class StoreComponent implements OnInit, OnDestroy {
     this.categorySlideIndex.set(index);
   }
 
-  pauseFeatured(): void {
-    this.isFeaturedHovered = true;
-  }
-
-  resumeFeatured(): void {
-    this.isFeaturedHovered = false;
-  }
-
   pauseCategories(): void {
     this.isCategoriesHovered = true;
   }
 
   resumeCategories(): void {
     this.isCategoriesHovered = false;
+  }
+
+  async loadServices(): Promise<void> {
+    this.isLoadingServices.set(true);
+    try {
+      const data = await this.digitalServicesService.loadProviders();
+      this.services.set(data || []);
+    } catch (e) {
+      console.error('Error cargando servicios:', e);
+    } finally {
+      this.isLoadingServices.set(false);
+    }
   }
 
   async loadFeatured(): Promise<void> {
@@ -751,6 +1000,17 @@ export class StoreComponent implements OnInit, OnDestroy {
       console.error('Error cargando categorías:', e);
     } finally {
       this.isLoadingCategories.set(false);
+    }
+  }
+
+  onServiceClick(service: ServiceProvider): void {
+    if (service.id === 'cfe') {
+      this.showCfeModal.set(true);
+    } else {
+      this.toastMessage.set(`El servicio de ${service.nombre} estará habilitado próximamente.`);
+      setTimeout(() => {
+        this.toastMessage.set(null);
+      }, 3000);
     }
   }
 

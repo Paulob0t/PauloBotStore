@@ -23,6 +23,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\DocsController;
 use App\Controllers\MovementController;
 use App\Controllers\ProductController;
+use App\Controllers\ServiceController;
 use App\Controllers\UserController;
 use App\Core\Response;
 use App\Core\Router;
@@ -88,6 +89,11 @@ $router->put('/api/v1/config/company', [ConfigController::class, 'updateCompany'
 $router->get('/api/v1/users', [UserController::class, 'getAll']);
 $router->post('/api/v1/users', [UserController::class, 'create']);
 $router->put('/api/v1/users/{id}/status', [UserController::class, 'updateStatus']);
+
+// Rutas de Servicios Digitales (CFE, Recargas, Pines)
+$router->get('/api/v1/services', [ServiceController::class, 'getProviders']);
+$router->post('/api/v1/services/cfe/check-balance', [ServiceController::class, 'checkCfe']);
+$router->post('/api/v1/services/cfe/pay', [ServiceController::class, 'payCfe']);
 
 // Dispatch de la solicitud
 $router->dispatch();
