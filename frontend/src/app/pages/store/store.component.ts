@@ -18,6 +18,7 @@ import { DigitalServicesService, ServiceProvider } from '../../core/services/dig
 import { CfeModalComponent } from '../../components/cfe-modal/cfe-modal.component';
 import { MovistarModalComponent } from '../../components/movistar-modal/movistar-modal.component';
 import { AllCategoriesModalComponent } from '../../components/all-categories-modal/all-categories-modal.component';
+import { CheckoutModalComponent } from '../../components/checkout-modal/checkout-modal.component';
 import { ProductDto, CategoryDto } from '../../api/models';
 
 @Component({
@@ -28,7 +29,8 @@ import { ProductDto, CategoryDto } from '../../api/models';
     RouterLink,
     CfeModalComponent,
     MovistarModalComponent,
-    AllCategoriesModalComponent
+    AllCategoriesModalComponent,
+    CheckoutModalComponent
   ],
   template: `
     <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
@@ -62,6 +64,15 @@ import { ProductDto, CategoryDto } from '../../api/models';
               >
                 <i class="fas fa-house text-indigo-400"></i>
                 <span>Inicio</span>
+              </a>
+
+              <a
+                href="#catalogo"
+                (click)="scrollToCatalog($event)"
+                class="hidden md:inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-indigo-300 hover:text-white bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-500/30 transition-all cursor-pointer"
+              >
+                <i class="fas fa-boxes-stacked text-indigo-400"></i>
+                <span>Catálogo</span>
               </a>
 
               <a
@@ -122,6 +133,11 @@ import { ProductDto, CategoryDto } from '../../api/models';
         />
       }
 
+      <!-- Modal de Checkout & Pago Kiosco -->
+      @if (showCheckoutModal()) {
+        <app-checkout-modal (close)="showCheckoutModal.set(false)" />
+      }
+
       <!-- Contenido Principal -->
       <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
         
@@ -137,6 +153,16 @@ import { ProductDto, CategoryDto } from '../../api/models';
             <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
               Disfruta de tus productos favoritos y paga recibos como CFE o recargas telefónicas de manera rápida, segura y automatizada.
             </p>
+            <div class="pt-2 flex flex-wrap gap-3">
+              <a
+                href="#catalogo"
+                (click)="scrollToCatalog($event)"
+                class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-0.5 transition-all cursor-pointer"
+              >
+                <i class="fas fa-boxes-stacked"></i>
+                <span>Explorar Catálogo Completo ({{ allProducts().length }} productos)</span>
+              </a>
+            </div>
           </div>
         </section>
 
@@ -665,6 +691,240 @@ import { ProductDto, CategoryDto } from '../../api/models';
           }
         </section>
 
+        <!-- SECCIÓN 4: Catálogo Completo de Productos -->
+        <section id="catalogo" class="space-y-8 scroll-mt-24">
+          
+          <!-- Encabezado de Sección y Controles -->
+          <div class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
+                  <i class="fas fa-boxes-stacked text-indigo-400"></i> Todos los Productos
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    {{ filteredCatalogProducts().length }} disponibles
+                  </span>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  Catálogo Completo
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                  Explora y agrega directamente a tu carrito cualquier producto de la máquina expendedora.
+                </p>
+              </div>
+
+              <!-- Filtros de Ordenamiento -->
+              <div class="flex items-center gap-2 self-start sm:self-auto">
+                <span class="text-xs text-slate-400 hidden sm:inline">Ordenar por:</span>
+                <select
+                  [value]="catalogSortBy()"
+                  (change)="setCatalogSort($any($event.target).value)"
+                  class="bg-slate-900 border border-slate-800 focus:border-indigo-500 text-xs text-slate-200 font-bold rounded-2xl px-3.5 py-2.5 outline-none transition-all cursor-pointer"
+                >
+                  <option value="default">Recomendados</option>
+                  <option value="price-asc">Menor Precio</option>
+                  <option value="price-desc">Mayor Precio</option>
+                  <option value="discount">Mejores Descuentos</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Barra de Búsqueda Rápida y Filtros -->
+            <div class="flex flex-col md:flex-row gap-4">
+              <!-- Input de Búsqueda -->
+              <div class="relative flex-1">
+                <i class="fas fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                <input
+                  type="text"
+                  [value]="searchProductQuery()"
+                  (input)="onSearchProductInput($any($event.target).value)"
+                  placeholder="Buscar snacks, bebidas, sopas, marcas o código de bandeja..."
+                  class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-2xl pl-11 pr-10 py-3.5 text-white text-sm outline-none transition-all placeholder:text-slate-600 shadow-inner"
+                />
+                @if (searchProductQuery()) {
+                  <button
+                    type="button"
+                    (click)="searchProductQuery.set('')"
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <i class="fas fa-xmark text-sm"></i>
+                  </button>
+                }
+              </div>
+
+              <!-- Botón rápido ver categorías -->
+              <button
+                type="button"
+                (click)="showAllCategoriesModal.set(true)"
+                class="inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white transition-all cursor-pointer shrink-0"
+              >
+                <i class="fas fa-layer-group text-indigo-400"></i>
+                <span>Ver Departamentos</span>
+              </button>
+            </div>
+
+            <!-- Chips / Píldoras de Categorías para Filtrado Rápido -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+              <button
+                type="button"
+                (click)="selectCatalogCategory(null)"
+                [class.bg-indigo-600]="selectedCatalogCategoryId() === null"
+                [class.text-white]="selectedCatalogCategoryId() === null"
+                [class.bg-slate-900]="selectedCatalogCategoryId() !== null"
+                [class.text-slate-400]="selectedCatalogCategoryId() !== null"
+                [class.hover:bg-slate-800]="selectedCatalogCategoryId() !== null"
+                class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border border-slate-800 cursor-pointer shadow-sm"
+              >
+                Todos ({{ allProducts().length }})
+              </button>
+
+              @for (cat of categories(); track cat.id) {
+                <button
+                  type="button"
+                  (click)="selectCatalogCategory(cat.id)"
+                  [class.bg-indigo-600]="selectedCatalogCategoryId() === cat.id"
+                  [class.text-white]="selectedCatalogCategoryId() === cat.id"
+                  [class.bg-slate-900]="selectedCatalogCategoryId() !== cat.id"
+                  [class.text-slate-400]="selectedCatalogCategoryId() !== cat.id"
+                  [class.hover:bg-slate-800]="selectedCatalogCategoryId() !== cat.id"
+                  class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border border-slate-800 cursor-pointer shadow-sm flex items-center gap-1.5"
+                >
+                  <span>{{ cat.nombre }}</span>
+                  <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800/80 text-slate-300">
+                    {{ getCategoryProductCount(cat.id) }}
+                  </span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Grid de Productos del Catálogo -->
+          @if (isLoadingAllProducts()) {
+            <div class="py-20 text-center text-slate-500">
+              <i class="fas fa-spinner fa-spin text-3xl text-indigo-500 mb-3"></i>
+              <p class="text-sm">Cargando catálogo de productos...</p>
+            </div>
+          } @else if (filteredCatalogProducts().length === 0) {
+            <div class="p-12 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3">
+              <i class="fas fa-search text-4xl text-slate-600 block"></i>
+              <h3 class="text-lg font-bold text-white">No se encontraron productos</h3>
+              <p class="text-xs text-slate-400 max-w-sm mx-auto">
+                No hay artículos que coincidan con "{{ searchProductQuery() }}". Intenta con otro término o limpia los filtros.
+              </p>
+              <button
+                type="button"
+                (click)="clearCatalogFilters()"
+                class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all cursor-pointer shadow-md inline-flex items-center gap-2"
+              >
+                <i class="fas fa-rotate-left"></i> Restablecer Filtros
+              </button>
+            </div>
+          } @else {
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              @for (product of filteredCatalogProducts(); track product.id_producto) {
+                <div class="bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-3xl p-5 shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1">
+                  
+                  <div class="space-y-4">
+                    <!-- Contenedor Imagen y Badges -->
+                    <div class="relative h-44 rounded-2xl bg-slate-950 border border-slate-800/80 overflow-hidden flex items-center justify-center">
+                      
+                      <!-- Badge Ubicación Bandeja / Slot -->
+                      <span class="absolute top-2.5 left-2.5 z-10 px-2 py-0.5 rounded-lg bg-slate-900/95 border border-slate-700 text-indigo-300 text-[10px] font-mono font-bold shadow-md flex items-center gap-1">
+                        <i class="fas fa-cube text-[9px] text-indigo-400"></i> {{ product.ubicacion || 'A001' }}
+                      </span>
+
+                      <!-- Badge Descuento si aplica -->
+                      @if (product.descuento && product.descuento > 0 && product.descuento < product.precio) {
+                        <span class="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 rounded-lg bg-rose-500/90 text-white text-[10px] font-black uppercase tracking-wider shadow-md">
+                          -{{ product.descuento | currency:'MXN':'symbol':'1.0-0' }} OFF
+                        </span>
+                      }
+
+                      <!-- Imagen -->
+                      @if (product.tiene_imagen === 1) {
+                        <img
+                          [src]="getProductImageUrl(product.id_producto)"
+                          [alt]="product.nombre_producto"
+                          class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+                          decoding="async"
+                          loading="lazy"
+                          (error)="onImageError($event)"
+                        />
+                      } @else {
+                        <div class="text-center p-6 text-slate-600">
+                          <i class="fas fa-box-open text-4xl mb-2 block text-slate-700"></i>
+                          <span class="text-[11px] font-medium text-slate-500">Sin Fotografía</span>
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Datos del Producto -->
+                    <div>
+                      <div class="flex items-center justify-between text-[11px] font-bold text-indigo-400 uppercase tracking-wider mb-1">
+                        <span class="truncate">{{ product.nombre_categoria || 'General' }}</span>
+                        @if (product.stock !== undefined) {
+                          <span
+                            [class.text-emerald-400]="product.stock > 0"
+                            [class.text-rose-400]="product.stock <= 0"
+                            class="text-[10px] font-mono normal-case shrink-0"
+                          >
+                            {{ product.stock > 0 ? product.stock + ' pzs' : 'Agotado' }}
+                          </span>
+                        }
+                      </div>
+
+                      <h3 class="text-base font-bold text-white group-hover:text-indigo-300 transition-colors line-clamp-1" [title]="product.nombre_producto">
+                        {{ product.nombre_producto }}
+                      </h3>
+
+                      @if (product.descripcion) {
+                        <p class="text-xs text-slate-400 line-clamp-2 mt-1 min-h-[2rem]">
+                          {{ product.descripcion }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Precios y Botón de Agregar -->
+                  <div class="pt-4 border-t border-slate-800 mt-4 flex items-center justify-between gap-2">
+                    <div>
+                      @if (product.descuento && product.descuento > 0 && product.descuento < product.precio) {
+                        <div class="text-[11px] text-slate-500 line-through font-mono">
+                          {{ product.precio | currency:'MXN':'symbol':'1.2-2' }}
+                        </div>
+                        <div class="text-lg font-black font-mono text-emerald-400">
+                          {{ (product.precio - product.descuento) | currency:'MXN':'symbol':'1.2-2' }}
+                        </div>
+                      } @else {
+                        <div class="text-lg font-black font-mono text-white">
+                          {{ product.precio | currency:'MXN':'symbol':'1.2-2' }}
+                        </div>
+                      }
+                    </div>
+
+                    <button
+                      type="button"
+                      (click)="addToCart(product)"
+                      [disabled]="product.stock !== undefined && product.stock <= 0"
+                      [class.opacity-50]="product.stock !== undefined && product.stock <= 0"
+                      [class.cursor-not-allowed]="product.stock !== undefined && product.stock <= 0"
+                      class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                    >
+                      <i class="fas fa-plus text-xs"></i>
+                      <span>Agregar</span>
+                      @if (cartService.getItemQuantity(product.id_producto) > 0) {
+                        <span class="w-4 h-4 rounded-full bg-white text-indigo-700 text-[10px] font-black flex items-center justify-center ml-0.5 shadow-sm">
+                          {{ cartService.getItemQuantity(product.id_producto) }}
+                        </span>
+                      }
+                    </button>
+                  </div>
+
+                </div>
+              }
+            </div>
+          }
+        </section>
+
       </main>
 
       <!-- Drawer Lateral de Carrito de Compras -->
@@ -764,6 +1024,12 @@ import { ProductDto, CategoryDto } from '../../api/models';
                       <span>Subtotal</span>
                       <span class="font-mono">{{ cartSubtotal() | currency:'MXN':'symbol':'1.2-2' }}</span>
                     </div>
+                    @if (cartService.totalSavings() > 0) {
+                      <div class="flex justify-between text-emerald-400 text-xs font-bold">
+                        <span>Ahorro en Descuentos</span>
+                        <span class="font-mono">-{{ cartService.totalSavings() | currency:'MXN':'symbol':'1.2-2' }}</span>
+                      </div>
+                    }
                     <div class="flex justify-between text-white font-black text-lg pt-1">
                       <span>Total</span>
                       <span class="font-mono text-emerald-400">{{ cartSubtotal() | currency:'MXN':'symbol':'1.2-2' }}</span>
@@ -773,6 +1039,7 @@ import { ProductDto, CategoryDto } from '../../api/models';
                   <div class="space-y-2">
                     <button
                       type="button"
+                      (click)="openCheckout()"
                       class="w-full py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-0.5 transition-all cursor-pointer flex items-center justify-center gap-2"
                     >
                       <i class="fas fa-credit-card"></i>
@@ -829,21 +1096,70 @@ export class StoreComponent implements OnInit, OnDestroy {
   featuredProducts = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
   services = signal<ServiceProvider[]>([]);
+  allProducts = signal<ProductDto[]>([]);
   
   isLoadingFeatured = signal<boolean>(true);
   isLoadingCategories = signal<boolean>(true);
   isLoadingServices = signal<boolean>(true);
+  isLoadingAllProducts = signal<boolean>(true);
+
+  // Filtros y Búsqueda del Catálogo Completo
+  searchProductQuery = signal<string>('');
+  selectedCatalogCategoryId = signal<number | null>(null);
+  catalogSortBy = signal<'default' | 'price-asc' | 'price-desc' | 'discount'>('default');
   
   showCartDrawer = signal<boolean>(false);
   showCfeModal = signal<boolean>(false);
   showMovistarModal = signal<boolean>(false);
   showAllCategoriesModal = signal<boolean>(false);
+  showCheckoutModal = signal<boolean>(false);
   toastMessage = signal<string | null>(null);
 
   // Computados de Carrito
   readonly cartItems = this.cartService.items;
   readonly cartItemsCount = this.cartService.totalItems;
   readonly cartSubtotal = this.cartService.subtotal;
+
+  // Catálogo Completo Filtrado Dinámicamente
+  filteredCatalogProducts = computed(() => {
+    let list = this.allProducts();
+    const catId = this.selectedCatalogCategoryId();
+    const q = this.searchProductQuery().toLowerCase().trim();
+    const sort = this.catalogSortBy();
+
+    if (catId !== null) {
+      list = list.filter(p => p.id_categoria === catId);
+    }
+
+    if (q) {
+      list = list.filter(p =>
+        p.nombre_producto?.toLowerCase().includes(q) ||
+        p.descripcion?.toLowerCase().includes(q) ||
+        p.nombre_categoria?.toLowerCase().includes(q) ||
+        p.nombre_subcategoria?.toLowerCase().includes(q) ||
+        p.ubicacion?.toLowerCase().includes(q) ||
+        p.sku?.toLowerCase().includes(q)
+      );
+    }
+
+    if (sort === 'price-asc') {
+      list = [...list].sort((a, b) => {
+        const pA = (a.descuento && a.descuento > 0 && a.descuento < a.precio) ? (a.precio - a.descuento) : a.precio;
+        const pB = (b.descuento && b.descuento > 0 && b.descuento < b.precio) ? (b.precio - b.descuento) : b.precio;
+        return pA - pB;
+      });
+    } else if (sort === 'price-desc') {
+      list = [...list].sort((a, b) => {
+        const pA = (a.descuento && a.descuento > 0 && a.descuento < a.precio) ? (a.precio - a.descuento) : a.precio;
+        const pB = (b.descuento && b.descuento > 0 && b.descuento < b.precio) ? (b.precio - b.descuento) : b.precio;
+        return pB - pA;
+      });
+    } else if (sort === 'discount') {
+      list = [...list].sort((a, b) => (b.descuento || 0) - (a.descuento || 0));
+    }
+
+    return list;
+  });
 
   // Índices de posición para GPU Slide
   servicesSlideIndex = signal<number>(0);
@@ -874,7 +1190,8 @@ export class StoreComponent implements OnInit, OnDestroy {
     await Promise.all([
       this.loadServices(),
       this.loadFeatured(),
-      this.loadCategories()
+      this.loadCategories(),
+      this.loadAllProducts()
     ]);
 
     this.startAutoSlides();
@@ -944,7 +1261,7 @@ export class StoreComponent implements OnInit, OnDestroy {
   });
 
   private isAnyModalOpen(): boolean {
-    return this.showCartDrawer() || this.showCfeModal() || this.showMovistarModal() || this.showAllCategoriesModal();
+    return this.showCartDrawer() || this.showCfeModal() || this.showMovistarModal() || this.showAllCategoriesModal() || this.showCheckoutModal();
   }
 
   private startAutoSlides(): void {
@@ -1087,6 +1404,55 @@ export class StoreComponent implements OnInit, OnDestroy {
     }
   }
 
+  async loadAllProducts(): Promise<void> {
+    this.isLoadingAllProducts.set(true);
+    try {
+      const data = await this.productService.loadProducts();
+      this.allProducts.set(data || []);
+    } catch (e) {
+      console.error('Error cargando catálogo completo:', e);
+    } finally {
+      this.isLoadingAllProducts.set(false);
+    }
+  }
+
+  getCategoryProductCount(catId: number): number {
+    return this.allProducts().filter(p => p.id_categoria === catId).length;
+  }
+
+  selectCatalogCategory(catId: number | null): void {
+    this.selectedCatalogCategoryId.set(catId);
+  }
+
+  onSearchProductInput(val: string): void {
+    this.searchProductQuery.set(val);
+  }
+
+  setCatalogSort(val: any): void {
+    this.catalogSortBy.set(val);
+  }
+
+  clearCatalogFilters(): void {
+    this.searchProductQuery.set('');
+    this.selectedCatalogCategoryId.set(null);
+    this.catalogSortBy.set('default');
+  }
+
+  scrollToCatalog(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
+    const el = document.getElementById('catalogo');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  openCheckout(): void {
+    this.showCartDrawer.set(false);
+    this.showCheckoutModal.set(true);
+  }
+
   onServiceClick(service: ServiceProvider): void {
     if (service.id === 'cfe') {
       this.showCfeModal.set(true);
@@ -1101,14 +1467,19 @@ export class StoreComponent implements OnInit, OnDestroy {
   }
 
   onSelectCategoryFromModal(cat: CategoryDto): void {
-    this.toastMessage.set(`Categoría: ${cat.nombre} (${cat.subcategorias?.length || 0} subcategorías)`);
+    this.showAllCategoriesModal.set(false);
+    this.selectCatalogCategory(cat.id);
+    this.scrollToCatalog();
+    this.toastMessage.set(`Filtrando catálogo por: ${cat.nombre}`);
     setTimeout(() => {
       this.toastMessage.set(null);
     }, 2500);
   }
 
   onCategoryClick(cat: CategoryDto): void {
-    this.toastMessage.set(`Categoría: ${cat.nombre} (${cat.subcategorias?.length || 0} subcategorías)`);
+    this.selectCatalogCategory(cat.id);
+    this.scrollToCatalog();
+    this.toastMessage.set(`Filtrando catálogo por: ${cat.nombre}`);
     setTimeout(() => {
       this.toastMessage.set(null);
     }, 2500);
@@ -1140,7 +1511,9 @@ export class StoreComponent implements OnInit, OnDestroy {
       nombre_producto: product.nombre_producto,
       precio: product.precio,
       descuento: product.descuento,
-      tiene_imagen: product.tiene_imagen
+      tiene_imagen: product.tiene_imagen,
+      sku: product.sku,
+      ubicacion: product.ubicacion
     });
 
     this.toastMessage.set(`¡${product.nombre_producto} agregado al carrito!`);

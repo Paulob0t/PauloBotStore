@@ -23,6 +23,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\DocsController;
 use App\Controllers\MovementController;
 use App\Controllers\ProductController;
+use App\Controllers\SaleController;
 use App\Controllers\ServiceController;
 use App\Controllers\UserController;
 use App\Core\Response;
@@ -96,6 +97,10 @@ $router->post('/api/v1/services/cfe/check-balance', [ServiceController::class, '
 $router->post('/api/v1/services/cfe/pay', [ServiceController::class, 'payCfe']);
 $router->get('/api/v1/services/movistar/packages', [ServiceController::class, 'getMovistarPackages']);
 $router->post('/api/v1/services/movistar/recharge', [ServiceController::class, 'rechargeMovistar']);
+
+// Rutas de Ventas & Checkout (Carrito Kiosco)
+$router->post('/api/v1/sales/checkout', [SaleController::class, 'checkout']);
+$router->get('/api/v1/sales/{folio}/ticket', [SaleController::class, 'getTicket']);
 
 // Dispatch de la solicitud
 $router->dispatch();
