@@ -133,15 +133,15 @@ class ProntiPagosService
             [
                 'id' => 'movistar',
                 'nombre' => 'Movistar',
-                'subtitulo' => 'Recargas & Planes Ilimitados',
+                'subtitulo' => 'Recargas & Paquetes Internet',
                 'categoria' => 'recargas',
                 'color' => '#019DF4',
                 'bg_gradient' => 'from-sky-900/60 to-sky-950',
                 'imagen' => '/assets/images/services/movistar.png',
-                'disponible' => false,
-                'badge' => 'Próximamente',
+                'disponible' => true,
+                'badge' => 'Activo Ahora',
                 'comision' => 0.00,
-                'descripcion' => 'Recargas telefónicas prepago para todas las líneas Movistar.'
+                'descripcion' => 'Recargas de tiempo aire y paquetes de internet prepago sin comisión.'
             ],
             [
                 'id' => 'megacable',
@@ -332,6 +332,107 @@ class ProntiPagosService
             'amount' => round($amount, 2),
             'commission' => round($commission, 2),
             'total' => round($total, 2),
+            'folio' => $folio,
+            'payment_method' => $paymentMethod === 'card' ? 'Tarjeta (Point)' : 'Efectivo',
+            'status' => $statusDesc,
+            'date' => date('Y-m-d H:i:s')
+        ];
+    }
+
+    /**
+     * Obtener paquetes disponibles de Movistar
+     */
+    public static function getMovistarPackages(): array
+    {
+        return [
+            'tiempo_aire' => [
+                ['sku' => 'S3TAE10MOVIMXN', 'amount' => 10.0, 'name' => 'Recarga $10', 'vigencia' => '1 día'],
+                ['sku' => 'S3TAE20MOVIMXN', 'amount' => 20.0, 'name' => 'Recarga $20', 'vigencia' => '2 días'],
+                ['sku' => 'S3TAE30MOVIMXN', 'amount' => 30.0, 'name' => 'Recarga $30', 'vigencia' => '3 días'],
+                ['sku' => 'S3TAE50MOVIMXN', 'amount' => 50.0, 'name' => 'Recarga $50', 'vigencia' => '7 días'],
+                ['sku' => 'S3TAE100MOVIMXN', 'amount' => 100.0, 'name' => 'Recarga $100', 'vigencia' => '15 días'],
+                ['sku' => 'S3TAE150MOVIMXN', 'amount' => 150.0, 'name' => 'Recarga $150', 'vigencia' => '28 días'],
+                ['sku' => 'S3TAE200MOVIMXN', 'amount' => 200.0, 'name' => 'Recarga $200', 'vigencia' => '30 días'],
+                ['sku' => 'S3TAE300MOVIMXN', 'amount' => 300.0, 'name' => 'Recarga $300', 'vigencia' => '30 días'],
+                ['sku' => 'S3TAE500MOVIMXN', 'amount' => 500.0, 'name' => 'Recarga $500', 'vigencia' => '30 días'],
+            ],
+            'datos' => [
+                ['sku' => 'S3DATOSMOV10MNX', 'amount' => 10.0, 'name' => 'Internet 1 Día', 'vigencia' => '1 día', 'beneficio' => '35 MB + 1GB WhatsApp/FB/TW'],
+                ['sku' => 'S3DATOSMOV30MNX', 'amount' => 30.0, 'name' => 'Internet 3 Días', 'vigencia' => '3 días', 'beneficio' => '300 MB + 500MB Apps'],
+                ['sku' => 'S3DATOSMOV200MNX', 'amount' => 200.0, 'name' => 'Internet 30 Días', 'vigencia' => '30 días', 'beneficio' => '3.6 GB + 25GB Apps'],
+            ]
+        ];
+    }
+
+    /**
+     * Procesar recarga telefónica Movistar
+     */
+    public static function payMovistar(string $phoneNumber, string $sku, float $amount, string $paymentMethod = 'cash'): array
+    {
+        $phoneNumber = preg_replace('/\D/', '', $phoneNumber);
+        if (strlen($phoneNumber) !== 10) {
+            throw new Exception("El número celular Movistar debe tener exactamente 10 dígitos.");
+        }
+        if ($amount <= 0) {
+            throw new Exception("El monto de la recarga debe ser mayor a $0.00.");
+        }
+
+        $token = self::getToken();
+        $apiUrl = self::getApiUrl();
+        $clientTxId = time() . rand(1000, 9999);
+
+        $paymentPayload = [
+            'amount' => (float)$amount,
+            'reference' => $phoneNumber,
+            'sku' => $sku,
+            'transacctionId' => $clientTxId
+        ];
+
+        $ch = curl_init($apiUrl . '/protected/v1/sell/product');
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($paymentPayload),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                "Authorization: Bearer $token",
+                "Content-Type: application/json",
+                "Accept: */*",
+                "User-Agent: PostmanRuntime/7.36.1"
+            ],
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => false
+        ]);
+
+        $res = curl_exec($ch);
+        $initial = json_decode($res, true);
+        $apiTxId = $initial['payload']['transactionId'] ?? null;
+
+        $folio = 'MOV-' . strtoupper(dechex(time())) . '-' . rand(100, 999);
+        $statusDesc = 'Recarga aplicada exitosamente';
+
+        if ($apiTxId) {
+            $statusCheck = self::checkTransactionStatus($token, (string)$apiTxId);
+            $payload = $statusCheck['payload'] ?? [];
+            if (!empty($payload['folioTransaction'])) {
+                $folio = $payload['folioTransaction'];
+            }
+            if (!empty($payload['codeDescription'])) {
+                $statusDesc = $payload['codeDescription'];
+            }
+        }
+
+        self::recordMovement("Recarga Telefónica Movistar", $amount, $folio, $paymentMethod, $phoneNumber);
+
+        return [
+            'success' => true,
+            'message' => '¡Recarga Movistar procesada exitosamente!',
+            'service' => 'Recarga Movistar',
+            'provider' => 'Movistar',
+            'phone_number' => $phoneNumber,
+            'sku' => $sku,
+            'amount' => round($amount, 2),
+            'commission' => 0.00,
+            'total' => round($amount, 2),
             'folio' => $folio,
             'payment_method' => $paymentMethod === 'card' ? 'Tarjeta (Point)' : 'Efectivo',
             'status' => $statusDesc,

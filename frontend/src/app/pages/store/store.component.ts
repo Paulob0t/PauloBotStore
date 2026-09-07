@@ -16,12 +16,20 @@ import { CategoryService } from '../../core/services/category.service';
 import { CartService } from '../../core/services/cart.service';
 import { DigitalServicesService, ServiceProvider } from '../../core/services/digital-services.service';
 import { CfeModalComponent } from '../../components/cfe-modal/cfe-modal.component';
+import { MovistarModalComponent } from '../../components/movistar-modal/movistar-modal.component';
+import { AllCategoriesModalComponent } from '../../components/all-categories-modal/all-categories-modal.component';
 import { ProductDto, CategoryDto } from '../../api/models';
 
 @Component({
   selector: 'app-store',
   standalone: true,
-  imports: [CommonModule, RouterLink, CfeModalComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    CfeModalComponent,
+    MovistarModalComponent,
+    AllCategoriesModalComponent
+  ],
   template: `
     <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       
@@ -98,6 +106,20 @@ import { ProductDto, CategoryDto } from '../../api/models';
       <!-- Modal de CFE (Pago de Luz) -->
       @if (showCfeModal()) {
         <app-cfe-modal (close)="showCfeModal.set(false)" />
+      }
+
+      <!-- Modal de Movistar (Recargas Telefónicas y Datos) -->
+      @if (showMovistarModal()) {
+        <app-movistar-modal (close)="showMovistarModal.set(false)" />
+      }
+
+      <!-- Modal de Todas las Categorías -->
+      @if (showAllCategoriesModal()) {
+        <app-all-categories-modal
+          [categories]="categories()"
+          (close)="showAllCategoriesModal.set(false)"
+          (selectCategory)="onSelectCategoryFromModal($event)"
+        />
       }
 
       <!-- Contenido Principal -->
@@ -244,8 +266,8 @@ import { ProductDto, CategoryDto } from '../../api/models';
                         class="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer group-hover:scale-105"
                       >
                         @if (service.disponible) {
-                          <i class="fas fa-bolt"></i>
-                          <span>Pagar Recibo</span>
+                          <i class="fas" [class.fa-bolt]="service.id === 'cfe'" [class.fa-mobile-screen-button]="service.id === 'movistar'"></i>
+                          <span>{{ service.id === 'movistar' ? 'Recargar' : 'Pagar Recibo' }}</span>
                         } @else {
                           <span>Pronto</span>
                         }
@@ -457,8 +479,16 @@ import { ProductDto, CategoryDto } from '../../api/models';
               </h2>
             </div>
 
-            <!-- Botones de Control Manual -->
-            <div class="flex items-center gap-2 self-end sm:self-auto">
+            <!-- Botones de Control Manual & Ver Todas -->
+            <div class="flex items-center gap-2.5 self-end sm:self-auto">
+              <button
+                type="button"
+                (click)="showAllCategoriesModal.set(true)"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
+              >
+                <i class="fas fa-table-cells-large text-xs text-indigo-400"></i>
+                <span>Ver Todas ({{ categories().length }})</span>
+              </button>
               <button
                 type="button"
                 (click)="prevCategory()"
@@ -498,8 +528,56 @@ import { ProductDto, CategoryDto } from '../../api/models';
                 class="flex gap-6 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
                 [style.transform]="'translate3d(' + -categoryOffset() + 'px, 0, 0)'"
               >
+                <!-- TARJETA ESPECIAL: TODAS LAS CATEGORÍAS -->
+                <div
+                  (click)="showAllCategoriesModal.set(true)"
+                  class="w-72 sm:w-80 h-96 shrink-0 relative rounded-3xl overflow-hidden border border-indigo-500/40 hover:border-indigo-400 shadow-xl shadow-indigo-950/30 group cursor-pointer transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 flex flex-col justify-between p-6 select-none"
+                >
+                  <!-- Decoración de fondo -->
+                  <div class="absolute -right-6 -top-6 w-36 h-36 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
+                  <div class="absolute -left-6 -bottom-6 w-36 h-36 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all"></div>
+
+                  <!-- Header tarjeta -->
+                  <div class="relative z-10 flex justify-between items-center">
+                    <span class="px-3 py-1 rounded-xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-[11px] font-black uppercase tracking-wider shadow-md flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+                      Catálogo Completo
+                    </span>
+                    <div class="w-9 h-9 rounded-xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 flex items-center justify-center text-xs group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-md group-hover:scale-110">
+                      <i class="fas fa-arrow-up-right-from-square"></i>
+                    </div>
+                  </div>
+
+                  <!-- Centro: Icono llamativo -->
+                  <div class="relative z-10 my-auto text-center py-4">
+                    <div class="w-20 h-20 mx-auto rounded-3xl bg-indigo-500/15 border border-indigo-400/30 flex items-center justify-center text-indigo-400 text-3xl shadow-inner group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-300">
+                      <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="text-2xl font-black text-white mt-4 tracking-tight">
+                      Todas las Categorías
+                    </div>
+                    <p class="text-xs text-indigo-200/80 mt-1 line-clamp-2">
+                      Explora los {{ categories().length }} departamentos con todas sus subcategorías
+                    </p>
+                  </div>
+
+                  <!-- Footer tarjeta -->
+                  <div class="relative z-10 pt-3 border-t border-indigo-500/20 flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-400">
+                      {{ categories().length }} categorías
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-black text-indigo-300 group-hover:text-white group-hover:translate-x-1 transition-all">
+                      <span>Explorar</span>
+                      <i class="fas fa-arrow-right text-xs"></i>
+                    </span>
+                  </div>
+                </div>
+
                 @for (cat of categories(); track cat.id) {
-                  <div class="w-72 sm:w-80 h-96 shrink-0 relative rounded-3xl overflow-hidden border border-slate-800 hover:border-indigo-500/50 shadow-xl group cursor-pointer transition-all duration-300 hover:-translate-y-1 bg-slate-900">
+                  <div
+                    (click)="onCategoryClick(cat)"
+                    class="w-72 sm:w-80 h-96 shrink-0 relative rounded-3xl overflow-hidden border border-slate-800 hover:border-indigo-500/50 shadow-xl group cursor-pointer transition-all duration-300 hover:-translate-y-1 bg-slate-900"
+                  >
                     
                     <!-- Fondo con Imagen Optimizada de Categoría o Gradiente -->
                     @if (cat.tiene_imagen === 1) {
@@ -758,6 +836,8 @@ export class StoreComponent implements OnInit, OnDestroy {
   
   showCartDrawer = signal<boolean>(false);
   showCfeModal = signal<boolean>(false);
+  showMovistarModal = signal<boolean>(false);
+  showAllCategoriesModal = signal<boolean>(false);
   toastMessage = signal<string | null>(null);
 
   // Computados de Carrito
@@ -840,7 +920,7 @@ export class StoreComponent implements OnInit, OnDestroy {
   });
 
   categoryOffset = computed(() => {
-    const total = this.categories().length;
+    const total = this.categories().length + 1; // +1 por tarjeta especial "Todas las Categorías"
     if (total === 0) return 0;
     const step = this.cardWidth + this.cardGap;
     const maxOffset = Math.max(0, (total - this.visibleCount) * step);
@@ -859,28 +939,32 @@ export class StoreComponent implements OnInit, OnDestroy {
   });
 
   categoryDotsCount = computed(() => {
-    const total = this.categories().length;
+    const total = this.categories().length + 1; // +1 por tarjeta especial "Todas las Categorías"
     return Math.max(1, total - this.visibleCount + 1);
   });
+
+  private isAnyModalOpen(): boolean {
+    return this.showCartDrawer() || this.showCfeModal() || this.showMovistarModal() || this.showAllCategoriesModal();
+  }
 
   private startAutoSlides(): void {
     // 1. Auto-Slide de Servicios Digitales (cada 3.5 segundos)
     this.servicesInterval = setInterval(() => {
-      if (!this.isServicesHovered && !this.showCartDrawer() && !this.showCfeModal()) {
+      if (!this.isServicesHovered && !this.isAnyModalOpen()) {
         this.nextService();
       }
     }, 3500);
 
     // 2. Auto-Slide de Productos Destacados (cada 2.5 segundos)
     this.featuredInterval = setInterval(() => {
-      if (!this.isFeaturedHovered && !this.showCartDrawer() && !this.showCfeModal()) {
+      if (!this.isFeaturedHovered && !this.isAnyModalOpen()) {
         this.nextFeatured();
       }
     }, 2500);
 
     // 3. Auto-Slide de Categorías (cada 2.0 segundos)
     this.categoriesInterval = setInterval(() => {
-      if (!this.isCategoriesHovered && !this.showCartDrawer() && !this.showCfeModal()) {
+      if (!this.isCategoriesHovered && !this.isAnyModalOpen()) {
         this.nextCategory();
       }
     }, 2000);
@@ -1006,12 +1090,28 @@ export class StoreComponent implements OnInit, OnDestroy {
   onServiceClick(service: ServiceProvider): void {
     if (service.id === 'cfe') {
       this.showCfeModal.set(true);
+    } else if (service.id === 'movistar') {
+      this.showMovistarModal.set(true);
     } else {
       this.toastMessage.set(`El servicio de ${service.nombre} estará habilitado próximamente.`);
       setTimeout(() => {
         this.toastMessage.set(null);
       }, 3000);
     }
+  }
+
+  onSelectCategoryFromModal(cat: CategoryDto): void {
+    this.toastMessage.set(`Categoría: ${cat.nombre} (${cat.subcategorias?.length || 0} subcategorías)`);
+    setTimeout(() => {
+      this.toastMessage.set(null);
+    }, 2500);
+  }
+
+  onCategoryClick(cat: CategoryDto): void {
+    this.toastMessage.set(`Categoría: ${cat.nombre} (${cat.subcategorias?.length || 0} subcategorías)`);
+    setTimeout(() => {
+      this.toastMessage.set(null);
+    }, 2500);
   }
 
   getProductImageUrl(productId: number): string {

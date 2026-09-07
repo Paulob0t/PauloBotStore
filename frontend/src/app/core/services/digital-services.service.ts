@@ -42,6 +42,35 @@ export interface CfePayResult {
   date: string;
 }
 
+export interface MovistarPackage {
+  sku: string;
+  amount: number;
+  name: string;
+  vigencia?: string;
+  beneficio?: string;
+}
+
+export interface MovistarPackagesResponse {
+  tiempo_aire: MovistarPackage[];
+  datos: MovistarPackage[];
+}
+
+export interface MovistarRechargeResult {
+  success: boolean;
+  message: string;
+  service: string;
+  provider: string;
+  phone_number: string;
+  sku: string;
+  amount: number;
+  commission: number;
+  total: number;
+  folio: string;
+  payment_method: string;
+  status: string;
+  date: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -78,6 +107,23 @@ export class DigitalServicesService {
     return firstValueFrom(
       this.http.post<CfePayResult>(`${this.baseUrl}/cfe/pay`, {
         service_number: serviceNumber,
+        amount,
+        payment_method: paymentMethod
+      })
+    );
+  }
+
+  async getMovistarPackages(): Promise<MovistarPackagesResponse> {
+    return firstValueFrom(
+      this.http.get<MovistarPackagesResponse>(`${this.baseUrl}/movistar/packages`)
+    );
+  }
+
+  async rechargeMovistar(phoneNumber: string, sku: string, amount: number, paymentMethod: string = 'cash'): Promise<MovistarRechargeResult> {
+    return firstValueFrom(
+      this.http.post<MovistarRechargeResult>(`${this.baseUrl}/movistar/recharge`, {
+        phone_number: phoneNumber,
+        sku,
         amount,
         payment_method: paymentMethod
       })

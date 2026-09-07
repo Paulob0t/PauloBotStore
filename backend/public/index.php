@@ -90,10 +90,12 @@ $router->get('/api/v1/users', [UserController::class, 'getAll']);
 $router->post('/api/v1/users', [UserController::class, 'create']);
 $router->put('/api/v1/users/{id}/status', [UserController::class, 'updateStatus']);
 
-// Rutas de Servicios Digitales (CFE, Recargas, Pines)
+// Rutas de Servicios Digitales (CFE, Movistar, Recargas, Pines)
 $router->get('/api/v1/services', [ServiceController::class, 'getProviders']);
 $router->post('/api/v1/services/cfe/check-balance', [ServiceController::class, 'checkCfe']);
 $router->post('/api/v1/services/cfe/pay', [ServiceController::class, 'payCfe']);
+$router->get('/api/v1/services/movistar/packages', [ServiceController::class, 'getMovistarPackages']);
+$router->post('/api/v1/services/movistar/recharge', [ServiceController::class, 'rechargeMovistar']);
 
 // Dispatch de la solicitud
 $router->dispatch();

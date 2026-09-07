@@ -128,6 +128,77 @@ class ServiceController
         }
     }
 
+    #[OA\Get(
+        path: "/api/v1/services/movistar/packages",
+        operationId: "getMovistarPackages",
+        summary: "Obtener paquetes de recarga Movistar",
+        tags: ["Servicios Digitales"],
+        responses: [
+            new OA\Response(response: 200, description: "Listado de paquetes Movistar")
+        ]
+    )]
+    public function getMovistarPackages(): void
+    {
+        try {
+            $packages = ProntiPagosService::getMovistarPackages();
+            Response::json($packages, 200);
+        } catch (Throwable $e) {
+            Response::error('Error al obtener paquetes Movistar: ' . $e->getMessage(), null, 500);
+        }
+    }
+
+    #[OA\Post(
+        path: "/api/v1/services/movistar/recharge",
+        operationId: "rechargeMovistar",
+        summary: "Procesar recarga telefónica Movistar",
+        tags: ["Servicios Digitales"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: "phone_number", type: "string", example: "5512345678"),
+                    new OA\Property(property: "sku", type: "string", example: "S3TAE50MOVIMXN"),
+                    new OA\Property(property: "amount", type: "number", format: "float", example: 50.00),
+                    new OA\Property(property: "payment_method", type: "string", example: "cash")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: "Recarga procesada exitosamente"),
+            new OA\Response(response: 400, description: "Error en datos de recarga")
+        ]
+    )]
+    public function rechargeMovistar(): void
+    {
+        $input = $this->getJsonInput();
+        $phone = trim($input['phone_number'] ?? '');
+        $sku = trim($input['sku'] ?? '');
+        $amount = (float)($input['amount'] ?? 0);
+        $method = trim($input['payment_method'] ?? 'cash');
+
+        if (empty($phone) || strlen($phone) !== 10) {
+            Response::error('El número celular debe contener 10 dígitos.', null, 400);
+            return;
+        }
+
+        if (empty($sku)) {
+            Response::error('El paquete o SKU es obligatorio.', null, 400);
+            return;
+        }
+
+        if ($amount <= 0) {
+            Response::error('El monto debe ser superior a $0.00.', null, 400);
+            return;
+        }
+
+        try {
+            $result = ProntiPagosService::payMovistar($phone, $sku, $amount, $method);
+            Response::json($result, 200);
+        } catch (Throwable $e) {
+            Response::error($e->getMessage(), null, 500);
+        }
+    }
+
     private function getJsonInput(): array
     {
         $raw = file_get_contents('php://input');
